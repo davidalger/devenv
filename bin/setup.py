@@ -1,8 +1,11 @@
 #! /usr/bin/env python
 
 import os
+import platform
 import re
 import subprocess as sp
+import json
+import tempfile
 
 def main():
 	print str().ljust(75, '#')
@@ -10,8 +13,7 @@ def main():
 	print str().ljust(75, '#') + '\n'
 	
 	# check in on the version of OS X we are running under
-	output = Shell().call_out('/usr/bin/sw_vers -productVersion')['output'][0]
-	osx_ver = float(re.match('(10\.\d+)\.\d+', output).groups()[0])
+	osx_ver = float(re.match('(10\.\d+)\.\d+', platform.mac_ver()[0]).groups()[0])
 	
 	if osx_ver < 10.8:
 		Shell().ohai('This script requires Mac OS X 10.8 or newer\n')
@@ -131,7 +133,7 @@ class PackageInstaller():
 				self.shell.ohai(line)
 				exit(1)
 		return True
-	
+		
 if __name__ == '__main__':
 	main()
 
