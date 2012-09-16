@@ -76,6 +76,9 @@ class PackageInstaller():
 	packages = [
 		Package('brew'),
 		Package('subversion', 'brew'),
+		Package('watch',      'brew'),
+		Package('wget',       'brew'),
+		Package('ack',        'brew'),
 	]
 	
 	def run(self):
