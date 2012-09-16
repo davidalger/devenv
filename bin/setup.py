@@ -61,27 +61,52 @@ class Shell():
 	def ohay(self, msg):
 		print '\x1B[1;32m==> \x1B[0;30m%s\x1B[0;0m' % msg
 
+class Package():
+	name = str
+	type = str
+	
+	def __init__(self, name, type=None):
+		self.name = name
+		self.type = type
+
+	def get_desc(self):
+		if self.type is not None:
+			return self.type + ':' + self.name
+		return self.name
+
 class PackageInstaller():
 
 	shell = Shell()
-	packages = ['brew', 'subversion']
+	packages = [
+		Package('brew'),
+		Package('subversion', 'brew'),
+	]
 	
 	def run(self):
 		for pkg in self.packages:
-			self.shell.ohai('Checking for %s package...' % pkg)
+			self.shell.ohai('Checking for %s package...' % pkg.get_desc())
 			if self.installed(pkg) == False:
-				self.shell.ohay('Installing package %s...' % pkg)
-				getattr(self, 'pkg_ins_' + pkg)()
+				self.shell.ohay('Installing package %s...' % pkg.get_desc())
+				self.pkg_get_method('ins', pkg)(pkg)
 			else:
-				self.shell.ohay('Package %s is installed.' % pkg)
+				self.shell.ohay('Package %s is installed.' % pkg.get_desc())
 	
 	def installed(self, pkg):
-		return getattr(self, 'pkg_check_' + pkg, self.pkg_check)(pkg)
+		return self.pkg_get_method('check', pkg)(pkg)
 	
+	def pkg_get_method(self, op_type, pkg):
+		if pkg.type is not None:
+			op_type = '%s_%s' % (pkg.type, op_type)
+		return getattr(self, 'pkg_%s_%s' % (op_type, pkg.name), getattr(self, 'pkg_%s' % op_type))
+	
+	def pkg_ins(self, pkg):
+		self.shell.ohai('Error: Missing pkg_ins method for %s package.' % pkg.get_desc())
+		exit(1)
+		
 	def pkg_check(self, pkg):
-		return self.shell.call(['/usr/bin/which', '-s', pkg])['result'] == 0
+		return self.shell.call(['/usr/bin/which', '-s', pkg.name])['result'] == 0
 	
-	def pkg_ins_brew(self):
+	def pkg_ins_brew(self, pkg):
 		self.shell.call(['/bin/sh', '-c', 'curl -fsSkL raw.github.com/mxcl/homebrew/go | ruby'])
 		self.shell.ohai('Running brew doctor')
 		
@@ -95,14 +120,17 @@ class PackageInstaller():
 		else:
 			print 'Your system is raring to brew.'
 		
-	def pkg_ins_subversion(self):
-		self.shell.call('brew install subversion')
+	def pkg_brew_ins(self, pkg):
+		self.shell.call('brew install %s' % pkg.name)
 	
-	def pkg_check_subversion(self, pkg):
-		output = self.shell.call_out('brew info %s' % pkg)['output'][0].split('\n')
+	def pkg_brew_check(self, pkg):
+		output = self.shell.call_out('brew info %s' % pkg.name)['output'][0].split('\n')
 		for line in output:
 			if line == 'Not installed':
 				return False
+			elif line.find('Error:') != -1:
+				self.shell.ohai(line)
+				exit(1)
 		return True
 	
 if __name__ == '__main__':
