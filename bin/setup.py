@@ -3,10 +3,6 @@
 import os
 import re
 import subprocess as sp
-import logging
-
-logging.basicConfig(level=logging.DEBUG,
-					format='%(asctime)s %(levelname)s %(message)s')
 
 def main():
 	print str().ljust(75, '#')
