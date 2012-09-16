@@ -5,7 +5,7 @@ import platform
 import re
 import subprocess as sp
 import json
-import tempfile
+import tempfile as tf
 
 def main():
 	print str().ljust(75, '#')
@@ -81,6 +81,7 @@ class PackageInstaller():
 		Package('watch',      'brew'),
 		Package('wget',       'brew'),
 		Package('ack',        'brew'),
+		Package('textmate'),
 	]
 	
 	def run(self):
@@ -133,6 +134,31 @@ class PackageInstaller():
 				self.shell.ohai(line)
 				exit(1)
 		return True
+		
+	def pkg_ins_textmate(self, pkg):
+		print 'Finding the latest version'
+		output = self.shell.call_out('curl -fsSkL https://api.github.com/repos/textmate/textmate/downloads')['output'][0]
+		latest = json.loads(output)[0]			# this assumes that the latest version is the most recent download
+		
+		print 'Downloading ' + latest['name']
+		tmpDir = tf.mkdtemp()
+		tmpFile = tmpDir + '/' + latest['name']
+		self.shell.call(['/bin/sh', '-c', 'curl -fkL# %s > %s' % (latest['html_url'], tmpFile)])
+		self.shell.call(['/usr/bin/tar', '-xjf', tmpFile, '-C', '/Applications/'])
+		os.unlink(tmpFile)
+		
+		print 'Installing command line tool'
+		self.shell.call(['/bin/cp', '/Applications/TextMate.app/Contents/Resources/mate', '/usr/local/bin/mate'])
+		mate_ver = self.shell.call_out('/usr/local/bin/mate --version')['output'][0].split(' ')[1]
+		self.shell.call('/usr/bin/defaults write com.macromates.TextMate.preview mateInstallPath /usr/local/bin/mate')
+		self.shell.call('/usr/bin/defaults write com.macromates.TextMate mateInstallPath /usr/local/bin/mate')
+		self.shell.call('/usr/bin/defaults write com.macromates.TextMate.preview mateInstallVersion ' + mate_ver)
+		self.shell.call('/usr/bin/defaults write com.macromates.TextMate mateInstallVersion ' + mate_ver)
+		
+	def pkg_check_textmate(self, pkg):
+		if os.path.exists('/Applications/TextMate.app'):
+			return True
+		return False
 		
 if __name__ == '__main__':
 	main()
