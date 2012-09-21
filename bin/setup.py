@@ -6,12 +6,18 @@ import re
 import subprocess as sp
 import json
 import tempfile as tf
+import shutil
+
+sc_name = 'setup-py'
+tmpdir = tf.mkdtemp('-' + sc_name)
 
 def main():
     print str().ljust(75, '#')
     print '## Developer Environment Setup for Mac OS X'.ljust(72) + ' ##'
     print str().ljust(75, '#') + '\n'
     
+    print 'tmpdir: ' + tmpdir
+
     # check in on the version of OS X we are running under
     osx_ver = float(re.match('(10\.\d+)\.\d+', platform.mac_ver()[0]).groups()[0])
     
@@ -40,7 +46,7 @@ class Shell():
     def call(self, command, returnOutput=False):
         if type(command) == str:
             command = command.split(' ')
-    
+        
         if returnOutput == True:
             process = sp.Popen(command, stdout=sp.PIPE)
         else:
@@ -51,6 +57,11 @@ class Shell():
 
     def call_out(self, command):
         return self.call(command, True)
+    
+    def curl_download(self, url, name):
+        tmpFile = tmpdir + '/' + name
+        self.call(['/bin/sh', '-c', 'curl -fkL# %s > %s' % (url, tmpFile)])
+        return tmpFile
     
     # For escape codes: http://linuxgazette.net/issue65/padala.html
     def ohai(self, msg):
@@ -82,10 +93,12 @@ class PackageInstaller():
         Package('wget',       'brew'),
         Package('ack',        'brew'),
         Package('textmate'),
+        Package('dropbox'),
     ]
     
     def run(self):
         for pkg in self.packages:
+            print
             self.shell.ohai('Checking for %s package...' % pkg.get_desc())
             if self.installed(pkg) == False:
                 self.shell.ohay('Installing package %s...' % pkg.get_desc())
@@ -147,14 +160,12 @@ class PackageInstaller():
         latest = json.loads(output)[0]          # this assumes that the latest version is the most recent download
         
         print 'Downloading ' + latest['name']
-        tmpDir = tf.mkdtemp()
-        tmpFile = tmpDir + '/' + latest['name']
-        self.shell.call(['/bin/sh', '-c', 'curl -fkL# %s > %s' % (latest['html_url'], tmpFile)])
+        tmpFile = self.shell.curl_download(latest['html_url'], latest['name'])
         self.shell.call(['/usr/bin/tar', '-xjf', tmpFile, '-C', '/Applications/'])
         os.unlink(tmpFile)
         
         print 'Installing command line tool'
-        self.shell.call(['/bin/cp', '/Applications/TextMate.app/Contents/Resources/mate', '/usr/local/bin/mate'])
+        shutil.copy('/Applications/TextMate.app/Contents/Resources/mate', '/usr/local/bin/mate')
         mate_ver = self.shell.call_out('/usr/local/bin/mate --version')['output'][0].split(' ')[1]
         self.shell.call('/usr/bin/defaults write com.macromates.TextMate.preview mateInstallPath /usr/local/bin/mate')
         self.shell.call('/usr/bin/defaults write com.macromates.TextMate.preview mateInstallVersion ' + mate_ver)
@@ -167,10 +178,25 @@ class PackageInstaller():
         return False
     
     def pkg_ins_dropbox(self, pkg):
-        pass
+        print 'Downloading Dropbox for Mac'
+        tmpFile = self.shell.curl_download('https://www.dropbox.com/download?plat=mac', 'dropbox.dmg')
+        
+        print 'Mouting disk image'
+        mountPoint = self.shell.call_out('/usr/bin/hdiutil mount ' + tmpFile)['output'][0].strip().split('\n').pop().strip().split('\t').pop()
+
+        print 'Copying application'
+        self.shell.call(['/bin/cp', '-a', mountPoint + '/Dropbox.app', '/Applications/Dropbox.app'])
+        self.shell.call(['/usr/bin/hdiutil', 'unmount', mountPoint])
+        
+        print 'Launching application'
+        self.shell.call(['/usr/bin/open', '/Applications/Dropbox.app'])
+        
+        os.unlink(tmpFile)
         
     def pkg_check_dropbox(self, pkg):
-        pass
+        if os.path.exists('/Applications/DropBox.app'):
+            return True
+        return False
     
 if __name__ == '__main__':
     main()
