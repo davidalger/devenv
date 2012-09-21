@@ -221,8 +221,7 @@ class PackageInstaller():
         cookie = self.shell.call_out(['/bin/sh', '-c', 'curl -sfI \'https://www.zend.com/download/' + downloadNumber + '?start=true\' | grep Set-Cookie'])['output'][0].split(': ')[1]
         
         print 'Downloading Zend Server CE PHP 5.3'
-        # tmpFile = self.shell.curl_download('https://www.zend.com/download/' + downloadNumber + '?start=true', 'zend-server-php-5-3.dmg', '-H "Cookie: ' + cookie + '"')
-        tmpFile = self.shell.curl_download('file:///Users/dalger/setup/zend-server-php-5-3.dmg', 'zend-server-php-5-3.dmg', '-H "Cookie: ' + cookie + '"')
+        tmpFile = self.shell.curl_download('https://www.zend.com/download/' + downloadNumber + '?start=true', 'zend-server-php-5-3.dmg', '-H "Cookie: ' + cookie + '"')
         
         print 'Mouting disk image'
         mountPoint = self.shell.call_out('/usr/bin/hdiutil mount ' + tmpFile)['output'][0].strip().split('\n').pop().strip().split('\t').pop()
