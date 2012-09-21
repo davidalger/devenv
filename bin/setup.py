@@ -193,6 +193,8 @@ class PackageInstaller():
         
         os.unlink(tmpFile)
         
+        print 'Installation complete!'
+        
     def pkg_check_dropbox(self, pkg):
         if os.path.exists('/Applications/DropBox.app'):
             return True
