@@ -12,9 +12,9 @@ sc_name = 'setup-py'
 tmpdir = tf.mkdtemp('-' + sc_name)
 
 def main():
-    print str().ljust(75, '#')
-    print '## Developer Environment Setup for Mac OS X'.ljust(72) + ' ##'
-    print str().ljust(75, '#') + '\n'
+    print str().ljust(80, '#')
+    print '## Developer Environment Setup for Mac OS X'.ljust(77) + ' ##'
+    print str().ljust(80, '#') + '\n'
     
     print 'tmpdir: ' + tmpdir
 
