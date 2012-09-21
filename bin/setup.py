@@ -106,7 +106,8 @@ class PackageInstaller():
         exit(1)
         
     def pkg_check(self, pkg):
-        return self.shell.call(['/usr/bin/which', '-s', pkg.name])['result'] == 0
+        self.shell.ohai('Error: Missing pkg_check method for %s package.' % pkg.get_desc())
+        exit(1)
     
     def pkg_ins_brew(self, pkg):
         self.shell.call(['/bin/sh', '-c', 'curl -fsSkL raw.github.com/mxcl/homebrew/go | ruby'])
@@ -122,11 +123,16 @@ class PackageInstaller():
         else:
             print 'Your system is raring to brew.'
         
+    def pkg_check_brew(self, pkg):
+        if os.path.exists('/usr/local/bin/brew'):
+            return True
+        return False
+        
     def pkg_brew_ins(self, pkg):
-        self.shell.call('brew install %s' % pkg.name)
+        self.shell.call('/usr/local/bin/brew install %s' % pkg.name)
     
     def pkg_brew_check(self, pkg):
-        output = self.shell.call_out('brew info %s' % pkg.name)['output'][0].split('\n')
+        output = self.shell.call_out('/usr/local/bin/brew info %s' % pkg.name)['output'][0].split('\n')
         for line in output:
             if line == 'Not installed':
                 return False
@@ -151,15 +157,21 @@ class PackageInstaller():
         self.shell.call(['/bin/cp', '/Applications/TextMate.app/Contents/Resources/mate', '/usr/local/bin/mate'])
         mate_ver = self.shell.call_out('/usr/local/bin/mate --version')['output'][0].split(' ')[1]
         self.shell.call('/usr/bin/defaults write com.macromates.TextMate.preview mateInstallPath /usr/local/bin/mate')
-        self.shell.call('/usr/bin/defaults write com.macromates.TextMate mateInstallPath /usr/local/bin/mate')
         self.shell.call('/usr/bin/defaults write com.macromates.TextMate.preview mateInstallVersion ' + mate_ver)
+        self.shell.call('/usr/bin/defaults write com.macromates.TextMate mateInstallPath /usr/local/bin/mate')
         self.shell.call('/usr/bin/defaults write com.macromates.TextMate mateInstallVersion ' + mate_ver)
         
     def pkg_check_textmate(self, pkg):
         if os.path.exists('/Applications/TextMate.app'):
             return True
         return False
+    
+    def pkg_ins_dropbox(self, pkg):
+        pass
         
+    def pkg_check_dropbox(self, pkg):
+        pass
+    
 if __name__ == '__main__':
     main()
 
