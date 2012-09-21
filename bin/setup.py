@@ -1,6 +1,7 @@
 #! /usr/bin/env python
 
 import os
+import argparse as ap
 import platform
 import re
 import subprocess as sp
@@ -9,13 +10,24 @@ import tempfile as tf
 import shutil
 
 sc_name = 'setup-py'
-tmpdir = tf.mkdtemp('-' + sc_name)
+tmpdir = None
 
 def main():
+    global tmpdir
+    
+    parser = ap.ArgumentParser('Sets up an OS X development environment.')
+    parser.add_argument('--tmpdir', help='typically used to specify the tmp directory to use for picking up where a failure occured')
+    args = parser.parse_args()
+    
     print str().ljust(80, '#')
     print '## Developer Environment Setup for Mac OS X'.ljust(77) + ' ##'
     print str().ljust(80, '#') + '\n'
     
+    if args.tmpdir is not None and os.path.isdir(args.tmpdir) == True:
+        tmpdir = args.tmpdir
+    
+    if tmpdir is None:
+        tmpdir = tf.mkdtemp('-' + sc_name)
     print 'tmpdir: ' + tmpdir
 
     # check in on the version of OS X we are running under
@@ -58,9 +70,9 @@ class Shell():
     def call_out(self, command):
         return self.call(command, True)
     
-    def curl_download(self, url, name):
+    def curl_download(self, url, name, params=''):
         tmpFile = tmpdir + '/' + name
-        self.call(['/bin/sh', '-c', 'curl -fkL# %s > %s' % (url, tmpFile)])
+        self.call(['/bin/sh', '-c', 'curl %s -fkL# %s > %s' % (params, url, tmpFile)])
         return tmpFile
     
     # For escape codes: http://linuxgazette.net/issue65/padala.html
@@ -94,6 +106,7 @@ class PackageInstaller():
         Package('ack',        'brew'),
         Package('textmate'),
         Package('dropbox'),
+        Package('zsce'),
     ]
     
     def run(self):
@@ -197,6 +210,36 @@ class PackageInstaller():
         
     def pkg_check_dropbox(self, pkg):
         if os.path.exists('/Applications/DropBox.app'):
+            return True
+        return False
+        
+    def pkg_ins_zsce(self, pkg):
+        downloadNumber = '517'
+        print 'Note: Assuming the download number for this stays at ' + downloadNumber
+        
+        print 'Grabbing Zend Cookie'
+        cookie = self.shell.call_out(['/bin/sh', '-c', 'curl -sfI \'https://www.zend.com/download/' + downloadNumber + '?start=true\' | grep Set-Cookie'])['output'][0].split(': ')[1]
+        
+        print 'Downloading Zend Server CE PHP 5.3'
+        # tmpFile = self.shell.curl_download('https://www.zend.com/download/' + downloadNumber + '?start=true', 'zend-server-php-5-3.dmg', '-H "Cookie: ' + cookie + '"')
+        tmpFile = self.shell.curl_download('file:///Users/dalger/setup/zend-server-php-5-3.dmg', 'zend-server-php-5-3.dmg', '-H "Cookie: ' + cookie + '"')
+        
+        print 'Mouting disk image'
+        mountPoint = self.shell.call_out('/usr/bin/hdiutil mount ' + tmpFile)['output'][0].strip().split('\n').pop().strip().split('\t').pop()
+        
+        print 'Running installer'
+        self.shell.call(['sudo', '/usr/sbin/installer', '-pkg', mountPoint + '/Zend Server.pkg', '-target', '/'])
+        
+        print 'Moving the Zend Controller into place'
+        self.shell.call(['/bin/cp', '-a', mountPoint + '/Zend Controller.app', '/Applications/Zend Controller.app'])
+
+        print 'Cleaning up'
+        self.shell.call(['/usr/bin/hdiutil', 'unmount', '-quiet', mountPoint])
+        self.shell.ohai('Alert: Please install the Java SE 6 runtime when prompted.')
+        os.unlink(tmpFile)
+        
+    def pkg_check_zsce(self, pkg):
+        if os.path.exists('/usr/local/zend/bin/zendctl.sh'):
             return True
         return False
     
