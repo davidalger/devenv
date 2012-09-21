@@ -186,7 +186,7 @@ class PackageInstaller():
 
         print 'Copying application'
         self.shell.call(['/bin/cp', '-a', mountPoint + '/Dropbox.app', '/Applications/Dropbox.app'])
-        self.shell.call(['/usr/bin/hdiutil', 'unmount', mountPoint])
+        self.shell.call(['/usr/bin/hdiutil', 'unmount', '-quiet', mountPoint])
         
         print 'Launching application'
         self.shell.call(['/usr/bin/open', '/Applications/Dropbox.app'])
