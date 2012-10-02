@@ -107,6 +107,7 @@ class PackageInstaller():
         Package('textmate'),
         Package('dropbox'),
         Package('zsce'),
+        Package('smc'),
     ]
     
     def run(self):
@@ -115,7 +116,10 @@ class PackageInstaller():
             self.shell.ohai('Checking for %s package...' % pkg.get_desc())
             if self.installed(pkg) == False:
                 self.shell.ohay('Installing package %s...' % pkg.get_desc())
-                self.pkg_get_method('ins', pkg)(pkg)
+                result = self.pkg_get_method('ins', pkg)(pkg)
+                if result == False:
+                    self.shell.ohay('ERROR: Installation of package %s failed.' % pkg.get_desc())
+                    exit(1)
             else:
                 self.shell.ohay('Package %s is installed.' % pkg.get_desc())
     
@@ -244,6 +248,28 @@ class PackageInstaller():
             return True
         return False
     
+    def pkg_ins_smc(self, pkg):
+        ## TODO: This will need updating when the SMC installation method changes.
+        print 'Exporting binary...\n' \
+            '  Note: You will need your subversion credentials for this.\n' \
+            '  ** Please accept the SSL certificate permenantly when prompted.\n'
+        result = self.shell.call(['/usr/bin/svn', 'export',
+                'https://svn.classyllama.net/svn/internal/tools/sm/trunk/smc',
+                '/usr/local/bin/smc']
+            )['result']
+        if result != 0:
+            return False
+        
+        print 'Verifying permissions'
+        result = self.shell.call('/bin/chmod 755 /usr/local/bin/smc')['result']
+        if result != 0:
+            return False
+    
+    def pkg_check_smc(self, pkg):
+        if os.path.exists('/usr/local/bin/smc'):
+            return True
+        return False
+        
 if __name__ == '__main__':
     main()
 
