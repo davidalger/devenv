@@ -214,6 +214,8 @@ class PackageInstaller():
         return False
         
     def pkg_ins_zsce(self, pkg):
+        ## TODO: Setup seperate ins method for custom configuration changes, also need to know what changes. my.cnf for ind file/table at least
+        
         downloadNumber = '517'
         print 'Note: Assuming the download number for this stays at ' + downloadNumber
         
