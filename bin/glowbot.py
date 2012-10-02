@@ -107,6 +107,7 @@ class PackageInstaller():
         Package('textmate'),
         Package('dropbox'),
         Package('zsce'),
+        Package('www'),
         Package('smc'),
     ]
     
@@ -269,7 +270,19 @@ class PackageInstaller():
         if os.path.exists('/usr/local/bin/smc'):
             return True
         return False
+    
+    def pkg_ins_www(self, pkg):
+        print 'Softlinking /www to /Volumes/Server'
+        result = self.shell.call('sudo /bin/ln -s /Volumes/Server /www')['result']
+        if result != 0:
+            print 'Warning: Installation of %s failed with error code: %d' % (pkg.get_desc(), result)
         
+    def pkg_check_www(self, pkg):
+        if os.path.exists('/www'):
+            return True
+        return False
+    
+
 if __name__ == '__main__':
     main()
 
