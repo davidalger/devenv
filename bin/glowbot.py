@@ -52,9 +52,6 @@ def main():
         
     # initiate package installation
     PackageInstaller().run()
-    
-    # message about shell environment
-    print '\nNotice: Please run `source ~/.bash_profile` to pull in any shell configuration changes.\n'
 
 class Shell():
 
