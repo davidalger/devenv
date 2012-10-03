@@ -77,10 +77,10 @@ class Shell():
     
     # For escape codes: http://linuxgazette.net/issue65/padala.html
     def ohai(self, msg):
-        print '\x1B[1;34m==> \x1B[1;30m%s\x1B[0;0m' % msg
+        print '\x1B[1;34m==> \x1B[1;39m%s\x1B[0;0m' % msg
     
     def ohay(self, msg):
-        print '\x1B[1;32m==> \x1B[0;30m%s\x1B[0;0m' % msg
+        print '\x1B[1;32m==> \x1B[0;39m%s\x1B[0;0m' % msg
 
 class Package():
     name = str
