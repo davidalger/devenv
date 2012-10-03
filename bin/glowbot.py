@@ -81,6 +81,12 @@ class Shell():
     
     def ohay(self, msg):
         print '\x1B[1;32m==> \x1B[0;39m%s\x1B[0;0m' % msg
+        
+    def warn(self, msg):
+        print '\x1B[4;31mWarning\x1B[0;31m:\x1B[0;39m %s\x1B[0;0m' % msg
+
+    def error(self, msg):
+        print '\x1B[4;31mError\x1B[0;31m:\x1B[0;39m %s\x1B[0;0m' % msg
 
 class Package():
     name = str
@@ -120,7 +126,7 @@ class PackageInstaller():
                 self.shell.ohay('Installing package %s...' % pkg.get_desc())
                 result = self.pkg_get_method('ins', pkg)(pkg)
                 if result == False:
-                    self.shell.ohay('ERROR: Installation of package %s failed.' % pkg.get_desc())
+                    self.shell.error('Installation of package %s failed.' % pkg.get_desc())
                     exit(1)
             else:
                 self.shell.ohay('Package %s is installed.' % pkg.get_desc())
@@ -134,11 +140,11 @@ class PackageInstaller():
         return getattr(self, 'pkg_%s_%s' % (op_type, pkg.name), getattr(self, 'pkg_%s' % op_type))
     
     def pkg_ins(self, pkg):
-        self.shell.ohai('Error: Missing pkg_ins method for %s package.' % pkg.get_desc())
+        self.shell.error('Missing pkg_ins method for %s package.' % pkg.get_desc())
         exit(1)
         
     def pkg_check(self, pkg):
-        self.shell.ohai('Error: Missing pkg_check method for %s package.' % pkg.get_desc())
+        self.shell.error('Missing pkg_check method for %s package.' % pkg.get_desc())
         exit(1)
     
     def pkg_ins_brew(self, pkg):
@@ -276,7 +282,7 @@ class PackageInstaller():
         print 'Softlinking /www to /Volumes/Server'
         result = self.shell.call('sudo /bin/ln -s /Volumes/Server /www')['result']
         if result != 0:
-            print 'Warning: Installation of %s failed with error code: %d' % (pkg.get_desc(), result)
+            self.shell.warn('Installation of %s failed with error code: %d' % (pkg.get_desc(), result))
         
     def pkg_check_www(self, pkg):
         if os.path.exists('/www'):
