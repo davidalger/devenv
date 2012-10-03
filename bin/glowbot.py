@@ -115,6 +115,7 @@ class PackageInstaller():
         Package('dropbox'),
         Package('zsce'),
         Package('www'),
+        Package('server'),
         Package('smc'),
     ]
     
@@ -294,6 +295,23 @@ class PackageInstaller():
         
     def pkg_check_www(self, pkg):
         if os.path.exists('/www'):
+            return True
+        return False
+    
+    
+    def pkg_ins_server(self, pkg):
+        print 'Softlinking /server to /Volumes/Server'
+        if os.path.exists('/Volumes/Server') == False:
+            self.shell.warn('Can not find /Volumes/Server')
+            return False
+
+        result = self.shell.call('sudo /bin/ln -s /Volumes/Server /server')['result']
+        if result != 0:
+            self.shell.warn('Installation of %s failed with error code: %d' % (pkg.get_desc(), result))
+            return False
+        
+    def pkg_check_server(self, pkg):
+        if os.path.exists('/server'):
             return True
         return False
     
