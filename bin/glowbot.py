@@ -280,9 +280,17 @@ class PackageInstaller():
     
     def pkg_ins_www(self, pkg):
         print 'Softlinking /www to /Volumes/Server'
-        result = self.shell.call('sudo /bin/ln -s /Volumes/Server /www')['result']
+        if os.path.exists('/Volumes/Server/www') == False:
+            if os.path.exists('/Volumes/Server'):
+                self.shell.call('mkdir /Volumes/Server/www')
+            else:
+                self.shell.warn('Can not find /Volumes/Server')
+                return False
+                
+        result = self.shell.call('sudo /bin/ln -s /Volumes/Server/www /www')['result']
         if result != 0:
             self.shell.warn('Installation of %s failed with error code: %d' % (pkg.get_desc(), result))
+            return False
         
     def pkg_check_www(self, pkg):
         if os.path.exists('/www'):
