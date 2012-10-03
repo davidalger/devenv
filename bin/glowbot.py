@@ -111,6 +111,7 @@ class PackageInstaller():
         Package('watch',      'brew'),
         Package('wget',       'brew'),
         Package('ack',        'brew'),
+        Package('sloccount',  'brew'),
         Package('textmate'),
         Package('dropbox'),
         Package('zsce'),
