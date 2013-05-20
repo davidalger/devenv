@@ -112,6 +112,8 @@ class PackageInstaller():
         Package('wget',       'brew'),
         Package('ack',        'brew'),
         Package('sloccount',  'brew'),
+        Package('figlet',     'brew'),
+        Package('tree',       'brew'),
         Package('textmate'),
         Package('dropbox'),
         Package('zsce'),
