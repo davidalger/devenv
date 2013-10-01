@@ -264,7 +264,7 @@ class PackageInstaller():
         ## TODO: This will need updating when the SMC installation method changes.
         print 'Exporting binary...\n' \
             '  Note: You will need your subversion credentials for this.\n' \
-            '  ** Please accept the SSL certificate permenantly when prompted.\n'
+            '  ** Please accept the SSL certificate permanently when prompted.\n'
         result = self.shell.call(['/usr/bin/svn', 'export',
                 'https://svn.classyllama.net/svn/internal/tools/sm/trunk/smc',
                 '/usr/local/bin/smc']
