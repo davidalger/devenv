@@ -193,11 +193,10 @@ class PackageInstaller():
         
     def pkg_ins_textmate(self, pkg):
         print 'Finding the latest version'
-        output = self.shell.call_out('curl -fsSkL https://api.github.com/repos/textmate/textmate/downloads')['output'][0]
-        latest = json.loads(output)[0]          # this assumes that the latest version is the most recent download
+        release = 'https://api.textmate.org/downloads/release'
         
-        print 'Downloading ' + latest['name']
-        tmpFile = self.shell.curl_download(latest['html_url'], latest['name'])
+        print 'Downloading ' + release
+        tmpFile = self.shell.curl_download(release, 'TextMate2-Release.tbz')
         self.shell.call(['/usr/bin/tar', '-xjf', tmpFile, '-C', '/Applications/'])
         os.unlink(tmpFile)
         
