@@ -39,7 +39,7 @@ def main():
     
     # check for 421 or newer of Xcode CLI tools
     output = Shell().call_out(['/bin/sh', '-c', '/usr/bin/cc --version 2> /dev/null'])['output'][0]
-    output = re.search('tags/Apple/clang-(\d+)', output)
+    output = re.search('clang-(\d+)\.', output)
     
     if output is None:
         tools_ver = 0
