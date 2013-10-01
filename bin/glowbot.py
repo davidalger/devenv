@@ -116,10 +116,10 @@ class PackageInstaller():
         Package('tree',       'brew'),
         Package('textmate'),
         Package('dropbox'),
-        Package('zsce'),
+        # Package('zsce'),
         Package('www'),
         Package('server'),
-        Package('smc'),
+        # Package('smc'),
     ]
     
     def run(self):
@@ -232,6 +232,7 @@ class PackageInstaller():
     def pkg_ins_zsce(self, pkg):
         ## TODO: Setup seperate ins method for custom configuration changes, also need to know what changes. my.cnf for ind file/table at least
         
+        ## TODO: Verified that this download number changes… which means we have to be dynamic here if we do this. :P
         downloadNumber = '517'
         print 'Note: Assuming the download number for this stays at ' + downloadNumber
         
@@ -241,7 +242,7 @@ class PackageInstaller():
         print 'Downloading Zend Server CE PHP 5.3'
         tmpFile = self.shell.curl_download('https://www.zend.com/download/' + downloadNumber + '?start=true', 'zend-server-php-5-3.dmg', '-H "Cookie: ' + cookie + '"')
         
-        print 'Mouting disk image'
+        print 'Mounting disk image'
         mountPoint = self.shell.call_out('/usr/bin/hdiutil mount ' + tmpFile)['output'][0].strip().split('\n').pop().strip().split('\t').pop()
         
         print 'Running installer'
