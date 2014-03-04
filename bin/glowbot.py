@@ -160,7 +160,7 @@ class PackageInstaller():
         exit(1)
     
     def pkg_ins_brew(self, pkg):
-        self.shell.call(['/bin/sh', '-c', 'curl -fsSkL raw.github.com/mxcl/homebrew/go | ruby'])
+        self.shell.call(['/bin/sh', '-c', 'curl -fsSkL raw.github.com/Homebrew/homebrew/go/install | ruby'])
         self.shell.ohai('Running brew doctor')
         
         output = self.shell.call_out('brew doctor')['output']
