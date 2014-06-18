@@ -176,14 +176,14 @@ class PackageInstaller():
         self.shell.ohai('Running brew doctor')
         
         output = self.shell.call_out('brew doctor')['output']
-        if output[0] != 'Your system is raring to brew.\n':
+        if output[0] != 'Your system is ready to brew.\n':
             for line in output:
                 if line is not None:
                     print line
             self.shell.ohai('Please resolve the issues brew doctor reported and try again.')
             exit(1)
         else:
-            print 'Your system is raring to brew.'
+            print 'Your system is ready to brew.'
         
     def pkg_check_brew(self, pkg):
         if os.path.exists('/usr/local/bin/brew'):
