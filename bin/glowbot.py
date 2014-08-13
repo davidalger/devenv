@@ -31,7 +31,7 @@ def main():
     print 'tmpdir: ' + tmpdir
 
     # check in on the version of OS X we are running under
-    osx_ver = float(re.match('(10\.\d+)\.\d+', platform.mac_ver()[0]).groups()[0])
+    osx_ver = float(re.match('^(10\.\d+)(\.\d+){0,1}$', platform.mac_ver()[0]).groups()[0])
     
     if osx_ver < 10.8:
         Shell().ohai('This script requires Mac OS X 10.8 or newer\n')
