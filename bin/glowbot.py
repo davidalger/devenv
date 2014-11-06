@@ -31,10 +31,10 @@ def main():
     print 'tmpdir: ' + tmpdir
 
     # check in on the version of OS X we are running under
-    osx_ver = float(re.match('^(10\.\d+)(\.\d+){0,1}$', platform.mac_ver()[0]).groups()[0])
+    osx_ver = re.match('^(10\.\d+)(\.\d+){0,1}$', platform.mac_ver()[0]).groups()[0]
     
-    if osx_ver < 10.8:
-        Shell().ohai('This script requires Mac OS X 10.8 or newer\n')
+    if osx_ver != '10.8' and osx_ver != '10.9' and osx_ver != '10.10':
+        Shell().ohai('This script requires Mac OS X 10.8 or newer (currently on version ' + osx_ver + ')\n')
         exit(1)
     
     # check for 421 or newer of Xcode CLI tools
@@ -172,7 +172,7 @@ class PackageInstaller():
         exit(1)
     
     def pkg_ins_brew(self, pkg):
-        self.shell.call(['/bin/sh', '-c', 'curl -fsSkL raw.github.com/Homebrew/homebrew/go/install | ruby'])
+        self.shell.call(['/bin/sh', '-c', 'curl -fsSkL https://raw.githubusercontent.com/Homebrew/install/master/install | ruby'])
         self.shell.ohai('Running brew doctor')
         
         output = self.shell.call_out('brew doctor')['output']
