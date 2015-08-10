@@ -167,6 +167,7 @@ class PackageInstaller:
                     self.shell.error('Installation of package %s failed.' % pkg.get_desc())
                     exit(1)
             else:
+                # TODO true reply from .installed sometimes means "Error: No available formula for ..."
                 self.shell.ohay('Package %s is installed.' % pkg.get_desc())
 
     def installed(self, pkg):
@@ -268,7 +269,7 @@ class PackageInstaller:
 
     def pkg_ins_zsce(self, pkg):
         # TODO: Seperate ins method for custom conf changes such as those to my.cnf file
-        
+
         # TODO: Verified that this download number changes... which means we have to be dynamic here if we do this. :P
         downloadNumber = '517'
         print 'Note: Assuming the download number for this stays at ' + downloadNumber
