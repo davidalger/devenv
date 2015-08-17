@@ -10,7 +10,11 @@ Vagrant.configure(2) do |config|
   config.vm.synced_folder base_dir, '/vagrant'
   
   config.vm.provision :file, source: "~/.gitignore", destination: ".gitignore"
-  config.vm.provision :file, source: base_dir + '/etc/profile.sh', destination: ".bash_profile"
+
+  config.vm.provision :shell do |sh|
+    sh.name = 'copy configuration'
+    sh.inline = 'cp -R /vagrant/etc/*/ /etc/'     # will not copy files directly contained by etc/
+  end
   
   config.vm.define :web, primary: true do |node|
     node.vm.hostname = 'dev-web'
@@ -21,7 +25,7 @@ Vagrant.configure(2) do |config|
     node.vm.provision :shell do |sh|
       sh.name = 'bootstrap.sh'
       sh.inline = '/vagrant/scripts/bootstrap.sh "$@"'
-      sh.args = ['web', 'sites']
+      sh.args = ['node', 'web', 'sites']
     end
   end
   
@@ -33,7 +37,7 @@ Vagrant.configure(2) do |config|
     node.vm.provision :shell do |sh|
       sh.name = 'bootstrap.sh'
       sh.inline = '/vagrant/scripts/bootstrap.sh "$@"'
-      sh.args = ['db']
+      sh.args = ['node', 'db']
     end
   end
 
