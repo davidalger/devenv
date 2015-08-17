@@ -1,3 +1,5 @@
+# install and configure httpd service
+
 yum install -y -q httpd
 
 if [[ -d ./etc/httpd/conf.d/ ]]; then

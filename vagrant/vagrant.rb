@@ -1,10 +1,17 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
+# directory mounted at /vagrant in our machine and basis for all vagrant ops
 base_dir = File.dirname(__FILE__)
+
+# virtual machine defaults
 vm_mem = 2048
 vm_cpu = 2
 
+# Configures a node to use our role-based provisioner
+# Params:
+# +conf+:: vagrant provisioning conf object
+# +roles+:: +Array+ containing a list of roles to apply to the node in sequence
 def bootstrap_sh (conf, roles)
   allowable_roles = %-#{ENV['VAGRANT_ALLOWABLE_ROLES']}-
   
@@ -13,12 +20,18 @@ def bootstrap_sh (conf, roles)
   conf.args = roles
 end
 
+# begin the configuration sequence
 Vagrant.require_version '>= 1.3.5'
 Vagrant.configure(2) do |config|
   
   config.vm.box = 'chef/centos-6.5'
   config.vm.synced_folder base_dir, '/vagrant'
   
+  # configure RAM and CPUs allocated to virtual machines
+  config.vm.provider('virtualbox') { |vm| vm.memory = vm_mem; vm.cpus = vm_cpu; }
+  config.vm.provider('vmware_fusion') { |vm| vm.vmx['memsize'] = vm_mem; vm.vmx['numvcpus'] = vm_cpu; }
+
+  # declare application node
   config.vm.define :web, primary: true do |node|
     node.vm.hostname = 'dev-web'
     node.vm.network :private_network, ip: '10.19.89.10'
@@ -27,6 +40,7 @@ Vagrant.configure(2) do |config|
     node.vm.provision('shell') { |conf| bootstrap_sh(conf, ['node', 'web', 'sites']) }
   end
   
+  # declare database node
   config.vm.define :db do |node|
     node.vm.hostname = 'dev-db'
     node.vm.network :private_network, ip: '10.19.89.20'
@@ -34,19 +48,10 @@ Vagrant.configure(2) do |config|
     node.vm.provision('shell') { |conf| bootstrap_sh(conf, ['node', 'db']) }
   end
   
+  # declare solr node (optional)
   config.vm.define :solr, autostart: false do |node|
     node.vm.hostname = 'dev-solr'
     node.vm.network :private_network, ip: '10.19.89.30'
     node.vm.provision('shell') { |conf| bootstrap_sh(conf, ['node', 'solr']) }
-  end
-  
-  config.vm.provider :virtualbox do |vm|
-    vm.memory = vm_mem
-    vm.cpus = vm_cpu
-  end
-  
-  config.vm.provider :vmware_fusion do |vm|
-    vm.vmx['memsize'] = vm_mem
-    vm.vmx['numvcpus'] = vm_cpu
   end
 end

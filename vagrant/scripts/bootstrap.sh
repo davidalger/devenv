@@ -1,4 +1,12 @@
 #!/usr/bin/env bash
+# 
+# Runs each of the specified role-based scripts on a node
+# 
+# Options:
+# 
+# Set the VAGRANT_ALLOWABLE_ROLES environment variable to filter roles during provisioning. Example usage:
+# `export VAGRANT_ALLOWABLE_ROLES="node sites"` will prevent any role other than 'node' or 'sites' from running.
+#
 
 set -e
 cd /vagrant

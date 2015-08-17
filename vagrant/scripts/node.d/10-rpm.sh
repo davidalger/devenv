@@ -1,3 +1,4 @@
+# configure rpms we need for installing current package versions
 
 echo "Importing RPM GPG Keys"
 rpm --import ./etc/keys/RPM-GPG-KEY-CentOS-6.txt

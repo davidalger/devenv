@@ -1,3 +1,5 @@
+# install and configure nginx service
+
 yum install -y -q nginx
 
 if [[ -d ./etc/httpd/conf.d/ ]]; then
