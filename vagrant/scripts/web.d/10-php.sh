@@ -1,3 +1,4 @@
 
-yum --enablerepo=remi --enablerepo=remi-php56 install -y -q php php-fpm \
-    php-mhash php-gd php-mcrypt php-curl php-cli php-mysqlnd php-services-json php-xdebug php-intl php-xsl sendmail
+yum --enablerepo=remi --enablerepo=remi-php56 install -y -q php php-cli \
+  php-curl php-gd php-intl php-ioncube-loader php-mcrypt php-mhash php-mysqlnd php-xdebug php-xsl \
+  sendmail
