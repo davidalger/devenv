@@ -2,6 +2,7 @@
 # vi: set ft=ruby :
 
 base_dir = File.dirname(__FILE__)
+allowable_roles = "#{ENV['VAGRANT_ALLOWABLE_ROLES']}"
 
 Vagrant.require_version '>= 1.3.5'
 Vagrant.configure(2) do |config|
@@ -24,7 +25,7 @@ Vagrant.configure(2) do |config|
     
     node.vm.provision :shell do |sh|
       sh.name = 'bootstrap.sh'
-      sh.inline = '/vagrant/scripts/bootstrap.sh "$@"'
+      sh.inline = %-export ALLOWABLE_ROLES="#{allowable_roles}"; /vagrant/scripts/bootstrap.sh "$@"-
       sh.args = ['node', 'web', 'sites']
     end
   end
@@ -36,7 +37,7 @@ Vagrant.configure(2) do |config|
     
     node.vm.provision :shell do |sh|
       sh.name = 'bootstrap.sh'
-      sh.inline = '/vagrant/scripts/bootstrap.sh "$@"'
+      sh.inline = %-export ALLOWABLE_ROLES="#{allowable_roles}"; /vagrant/scripts/bootstrap.sh "$@"-
       sh.args = ['node', 'db']
     end
   end
