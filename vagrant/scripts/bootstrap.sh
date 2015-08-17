@@ -17,10 +17,14 @@ fi
 
 # execute role specific scripts
 for role in $roles; do
-    echo "Configuring $role role"
-    
-    for script in $(ls -1 scripts/$role.d/*.sh); do
-        echo "Running: $role: $(basename $script)"
-        ./$script
-    done
+    if [[ -d "./scripts/$role.d/" ]]; then
+        echo "Configuring for $role role"
+        
+        for script in $(ls -1 ./scripts/$role.d/*.sh); do
+            echo "Running: $role: $(basename $script)"
+            ./$script
+        done
+    else
+        echo "Skipping invalid role: $role"
+    fi
 done

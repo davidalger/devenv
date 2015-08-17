@@ -1,8 +1,8 @@
 
 echo "Importing RPM GPG Keys"
-rpm --import /etc/keys/RPM-GPG-KEY-CentOS-6.txt
-rpm --import /etc/keys/RPM-GPG-KEY-EPEL-6.txt
-rpm --import /etc/keys/RPM-GPG-KEY-remi.txt
+rpm --import ./etc/keys/RPM-GPG-KEY-CentOS-6.txt
+rpm --import ./etc/keys/RPM-GPG-KEY-EPEL-6.txt
+rpm --import ./etc/keys/RPM-GPG-KEY-remi.txt
 
 echo "Installing EPEL repository"
 yum install -y -q epel-release
