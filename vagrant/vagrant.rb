@@ -33,12 +33,18 @@ Vagrant.configure(2) do |config|
     # node.vm.synced_folder File.dirname(base_dir) + '/mysql', '/var/lib/mysql', group: 'root', owner: 'root'
     node.vm.provision('shell') { |conf| bootstrap_sh(conf, ['node', 'db']) }
   end
-
+  
+  config.vm.define :solr, autostart: false do |node|
+    node.vm.hostname = 'dev-solr'
+    node.vm.network :private_network, ip: '10.19.89.30'
+    node.vm.provision('shell') { |conf| bootstrap_sh(conf, ['node', 'solr']) }
+  end
+  
   config.vm.provider :virtualbox do |vm|
     vm.memory = vm_mem
     vm.cpus = vm_cpu
   end
-
+  
   config.vm.provider :vmware_fusion do |vm|
     vm.vmx['memsize'] = vm_mem
     vm.vmx['numvcpus'] = vm_cpu
