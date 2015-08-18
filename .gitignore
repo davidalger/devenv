@@ -1,4 +1,5 @@
 /.vagrant/
+/.cache/
 /sites/*
 !/sites/.gitignore
 /mysql/*

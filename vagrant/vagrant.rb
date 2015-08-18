@@ -4,6 +4,10 @@
 # directory mounted at /vagrant in our machine and basis for all vagrant ops
 base_dir = File.dirname(__FILE__)
 
+# path to local cache directory used to share and persist certain machine data
+cache_dir = File.dirname(base_dir) + '/.cache'
+FileUtils.mkdir_p cache_dir
+
 # virtual machine defaults
 vm_mem = 2048
 vm_cpu = 2
@@ -26,6 +30,9 @@ Vagrant.configure(2) do |config|
   
   config.vm.box = 'chef/centos-6.5'
   config.vm.synced_folder base_dir, '/vagrant'
+  
+  FileUtils.mkdir_p cache_dir + '/yum/'
+  config.vm.synced_folder cache_dir + '/yum/', '/var/cache/yum/'
   
   # configure RAM and CPUs allocated to virtual machines
   config.vm.provider('virtualbox') { |vm| vm.memory = vm_mem; vm.cpus = vm_cpu; }
