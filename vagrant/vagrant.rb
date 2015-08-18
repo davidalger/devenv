@@ -4,6 +4,9 @@
 # directory mounted at /vagrant in our machine and basis for all vagrant ops
 base_dir = File.dirname(__FILE__)
 
+# root setup location
+serve_dir = File.dirname(base_dir)
+
 # path to local cache directory used to share and persist certain machine data
 cache_dir = File.dirname(base_dir) + '/.cache'
 FileUtils.mkdir_p cache_dir
@@ -51,7 +54,11 @@ Vagrant.configure(2) do |config|
   config.vm.define :db do |node|
     node.vm.hostname = 'dev-db'
     node.vm.network :private_network, ip: '10.19.89.20'
-    # node.vm.synced_folder File.dirname(base_dir) + '/mysql', '/var/lib/mysql', group: 'root', owner: 'root'
+    
+    FileUtils.mkdir_p serve_dir + '/mysql/data'
+    node.vm.synced_folder serve_dir + '/mysql/data', '/var/lib/mysql/data', id: '-mysql-data',
+      mount_options: ['uid=27','gid=27']  # mysql uid/gid
+    
     node.vm.provision('shell') { |conf| bootstrap_sh(conf, ['node', 'db']) }
   end
   
