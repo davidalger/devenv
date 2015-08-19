@@ -11,3 +11,4 @@ if [[ -d ./etc/nginx/default.d/ ]]; then
 fi
 
 service nginx start
+chkconfig httpd on

@@ -8,3 +8,4 @@ fi
 perl -pi -e 's/Listen 80//' /etc/httpd/conf/httpd.conf
 
 service httpd start
+chkconfig httpd on

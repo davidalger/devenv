@@ -6,3 +6,4 @@ fi
 
 yum install -y -q mysql-server
 service mysqld start || true        # let the script proceed, even if start issues error code
+chkconfig mysqld on
