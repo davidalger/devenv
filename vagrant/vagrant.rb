@@ -18,8 +18,8 @@ Vagrant.configure(2) do |config|
   config.vm.box = 'chef/centos-6.5'
   config.vm.synced_folder VAGRANT_DIR, '/vagrant'
   
-  FileUtils.mkdir_p BASE_DIR + '/yum/'
-  config.vm.synced_folder BASE_DIR + '/yum/', '/var/cache/yum/'
+  FileUtils.mkdir_p CACHE_DIR + '/yum/'
+  config.vm.synced_folder CACHE_DIR + '/yum/', '/var/cache/yum/'
   
   # configure RAM and CPUs allocated to virtual machines
   config.vm.provider('virtualbox') { |vm| vm.memory = VM_RAM; vm.cpus = VM_CPU; }
