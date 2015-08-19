@@ -2,8 +2,12 @@
 
 yum install -y -q nginx
 
-if [[ -d ./etc/httpd/conf.d/ ]]; then
+if [[ -d ./etc/nginx/conf.d/ ]]; then
     cp ./etc/nginx/conf.d/*.conf /etc/nginx/conf.d/
+fi
+
+if [[ -d ./etc/nginx/default.d/ ]]; then
+    cp ./etc/nginx/default.d/*.conf /etc/nginx/default.d/
 fi
 
 service nginx start

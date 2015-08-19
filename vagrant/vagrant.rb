@@ -29,12 +29,16 @@ Vagrant.configure(2) do |config|
   config.vm.define :web, primary: true do |node|
     node.vm.hostname = 'dev-web'
     node.vm.network :private_network, ip: '10.19.89.10'
-    node.vm.network :forwarded_port, guest: 80, host: 8080
+    node.vm.network :forwarded_port, guest: 80, host: 80
 
     FileUtils.mkdir_p BASE_DIR + '/sites'
     node.vm.synced_folder BASE_DIR + '/sites', '/var/www/sites', id: '-www-sites',
       mount_options: ['uid=48','gid=48']  # apache uid/gid
       
+    FileUtils.mkdir_p BASE_DIR + '/sites/00_localhost'
+    node.vm.synced_folder BASE_DIR + '/sites/00_localhost/pub', '/var/www/html', id: '-www-html',
+      mount_options: ['uid=48','gid=48']  # apache uid/gid
+    
     node.vm.provision('shell') { |conf| bootstrap_sh(conf, ['node', 'web', 'sites']) }
   end
   
