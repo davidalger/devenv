@@ -16,3 +16,10 @@ fi
 if [[ -d ./etc/profile.d/ ]]; then
     cp ./etc/profile.d/*.sh /etc/profile.d/
 fi
+
+# set default mysql connection info in /etc/my.cnf
+echo "[client]
+host=dev-db
+user=root
+password=
+" >> /etc/my.cnf
