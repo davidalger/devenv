@@ -8,10 +8,17 @@ fi
 echo "Importing RPM GPG Keys"
 rpm --import ./etc/keys/RPM-GPG-KEY-CentOS-6.txt
 rpm --import ./etc/keys/RPM-GPG-KEY-EPEL-6.txt
+rpm --import ./etc/keys/RPM-GPG-KEY-MySql.txt
 rpm --import ./etc/keys/RPM-GPG-KEY-remi.txt
 
 echo "Installing EPEL repository"
 yum install -y -q epel-release
+
+echo "Installing MySql Community RPM"
+wget -q http://repo.mysql.com/mysql-community-release-el6-5.noarch.rpm -O /tmp/mysql-community-release-el6-5.noarch.rpm
+rpm -K /tmp/mysql-community-release-el6-5.noarch.rpm
+yum install -y -q /tmp/mysql-community-release-el6-5.noarch.rpm
+rm -f /tmp/mysql-community-release-el6-5.noarch.rpm
 
 echo "Installing Remi's RPM repository"
 wget -q http://rpms.famillecollet.com/enterprise/remi-release-6.rpm -O /tmp/remi-release-6.rpm

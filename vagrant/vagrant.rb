@@ -46,6 +46,7 @@ Vagrant.configure(2) do |config|
   config.vm.define :db do |node|
     node.vm.hostname = 'dev-db'
     node.vm.network :private_network, ip: '10.19.89.20'
+    node.vm.network :forwarded_port, guest: 3306, host: 3306
     
     FileUtils.mkdir_p BASE_DIR + '/mysql/data'
     node.vm.synced_folder BASE_DIR + '/mysql/data', '/var/lib/mysql/data', id: '-mysql-data',
