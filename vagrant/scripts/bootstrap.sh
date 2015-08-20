@@ -30,7 +30,7 @@ for role in $roles; do
         
         for script in $(ls -1 ./scripts/$role.d/*.sh); do
             echo "Running: $role: $(basename $script)"
-            ./$script
+            . $script
         done
     else
         echo "Skipping invalid role: $role"
