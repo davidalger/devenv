@@ -1,5 +1,10 @@
+.DS_Store
+.apdisk
 /.vagrant/
 /.cache/
+/proj/
+/backups/
+/bigfiles/
 /sites/*
 !/sites/.gitignore
 /mysql/*
