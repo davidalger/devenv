@@ -50,7 +50,7 @@ Vagrant.configure(2) do |config|
     
     FileUtils.mkdir_p BASE_DIR + '/mysql/data'
     node.vm.synced_folder BASE_DIR + '/mysql/data', '/var/lib/mysql/data', id: '-mysql-data',
-      mount_options: ['uid=27','gid=27']  # mysql uid/gid
+      mount_options: ['uid=27','gid=27','dmode=700','fmode=600']  # mysql uid/gid
     
     node.vm.provision('shell') { |conf| bootstrap_sh(conf, ['node', 'db']) }
   end
