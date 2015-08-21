@@ -15,6 +15,8 @@
 ### dev-web
 This node is setup to run services required to run web applications. Nginx is setup to deliver static assets directly and act as a proxy for anything else. Apache is setup with mod_php to delivery the web application and sits behind Nginx on an internal port. Redis has been setup for a cache data store such that it never writes information to disk.
 
+Run `./bin/vhosts.sh` to generate vhosts for all sites and reload apache.
+
 ### dev-db
 This node has MySql 5.6.x installed. Since this is a development environment, the root mysql password has been left blank.
 

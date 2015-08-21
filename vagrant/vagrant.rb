@@ -33,6 +33,7 @@ Vagrant.configure(2) do |conf|
     
     mount_nfs(node, '-www-sites', BASE_DIR + '/sites', '/var/www/sites')
     mount_nfs(node, '-www-html', BASE_DIR + '/sites/00_localhost/pub', '/var/www/html')
+    mount_vmfs(node, '-www-sites-conf', VAGRANT_DIR + '/etc/httpd/sites.d', '/var/httpd/sites.d')
     
     bootstrap_sh(node, ['node', 'web', 'sites'])
     service(node, 'httpd', 'start')
