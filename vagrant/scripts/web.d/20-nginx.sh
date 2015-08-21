@@ -9,6 +9,3 @@ fi
 if [[ -d ./etc/nginx/default.d/ ]]; then
     cp ./etc/nginx/default.d/*.conf /etc/nginx/default.d/
 fi
-
-service nginx start
-chkconfig httpd on
