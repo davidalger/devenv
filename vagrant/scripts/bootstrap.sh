@@ -30,7 +30,11 @@ for role in $roles; do
         
         for script in $(ls -1 ./scripts/$role.d/*.sh); do
             echo "Running: $role: $(basename $script)"
-            . $script
+            . $script || true
+            code="$?"
+            if [[ $code != 0 ]]; then
+                echo "ERROR: Failed with exit status $code!"
+            fi
         done
     else
         echo "Skipping invalid role: $role"
