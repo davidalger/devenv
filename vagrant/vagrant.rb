@@ -13,7 +13,7 @@ require_relative 'lib/mount'
 require_relative 'lib/provision'
 
 # begin the configuration sequence
-Vagrant.require_version '>= 1.3.5'
+Vagrant.require_version '>= 1.7.4'
 Vagrant.configure(2) do |conf|
   
   conf.vm.box = 'chef/centos-6.5'
