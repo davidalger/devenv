@@ -35,9 +35,9 @@ Vagrant.configure(2) do |conf|
     mount_nfs(node, '-www-html', BASE_DIR + '/sites/00_localhost/pub', '/var/www/html')
     
     bootstrap_sh(node, ['node', 'web', 'sites'])
-    
     service(node, 'httpd', 'start')
     service(node, 'nginx', 'start')
+    service(node, 'redis', 'start')
   end
   
   # declare database node
