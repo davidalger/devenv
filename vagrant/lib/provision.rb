@@ -11,3 +11,15 @@ def bootstrap_sh (conf, roles)
     conf.args = roles
   end
 end
+
+# Performs a service call on the guest
+# Params:
+# +conf+:: vagrant provisioning conf object
+# +name+:: name of service to operate on
+# +call+:: name of action to take
+def service (conf, name, call)
+  conf.vm.provision :shell, run: 'always' do |conf|
+    conf.name = "service #{name} #{call}"
+    conf.inline = "service #{name} #{call}"
+  end
+end

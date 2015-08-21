@@ -10,7 +10,7 @@ VM_RAM = 2048
 VM_CPU = 2
 
 require_relative 'lib/mount'
-require_relative 'lib/bootstrap'
+require_relative 'lib/provision'
 
 # begin the configuration sequence
 Vagrant.require_version '>= 1.3.5'
@@ -45,6 +45,8 @@ Vagrant.configure(2) do |conf|
     
     mount_nfs(node, '-mysql-data', BASE_DIR + '/mysql/data', '/var/lib/mysql/data')
     bootstrap_sh(node, ['node', 'db'])
+
+    service(node, 'mysqld', 'start')
   end
   
   # declare solr node (optional)
