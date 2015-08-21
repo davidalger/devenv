@@ -10,7 +10,7 @@ yum install -y -q mysql-server
 if [[ ! -f /var/lib/mysql/data/ibdata1 ]]; then
     
     # grab our mount parameters for later use and unmount the data directory
-    _mount=$(grep /var/lib/mysql/data /etc/mtab | awk '{print "mount -t "$3" -o "$4" "$1" "$2}')
+    _mount=$(grep " nfs " /etc/mtab | grep /var/lib/mysql/data | awk '{print "mount -t "$3" -o "$4" "$1" "$2}')
     umount /var/lib/mysql/data/
     
     # start servcie to initialize data directory and then stop for remount
