@@ -47,8 +47,8 @@ Vagrant.configure(2) do |conf|
     node.vm.network :forwarded_port, guest: 3306, host: 3306
     
     mount_nfs(node, '-mysql-data', BASE_DIR + '/mysql/data', '/var/lib/mysql/data')
+    
     bootstrap_sh(node, ['node', 'db'])
-
     service(node, 'mysqld', 'start')
   end
   
