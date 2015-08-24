@@ -10,6 +10,16 @@
             | sudo tee -a /etc/exports > /dev/null
         sudo nfsd restart
 
+* Add the following to the host machine /etc/hosts file:
+
+        ##################################################
+        ## Developer Environment
+        
+        10.19.89.1  dev-host
+        10.19.89.10 dev-web
+        10.19.89.20 dev-db
+        10.19.89.30 dev-solr
+
 ## Virtual Machines
 
 ### dev-web
