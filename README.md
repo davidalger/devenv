@@ -20,6 +20,13 @@
         10.19.89.20 dev-db
         10.19.89.30 dev-solr
 
+* Add the following to the host machine ~/.my.cnf file:
+
+        [client]
+        host=dev-db
+        user=root
+        password=
+
 ## Virtual Machines
 
 ### dev-web
