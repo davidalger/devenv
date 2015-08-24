@@ -39,3 +39,19 @@ This node has MySql 5.6.x installed. Since this is a development environment, th
 
 ## dev-solr
 This node does not boot by default and currently does nothing. It is here as a placeholder for running Solr once the provisioning scripts for it are created.
+
+## Development Notes
+
+### Session Storage
+It is well recognized that PHP cannot store sessions on an NFS mount. Since /var/www/sites/ is mounted in the vm via an NFS mount, this causes trouble with applications which attempt using a session directory inside the document root. Magento 2 seems to handle this just fine and stores it's sessions in the configured session location. Magento 1 requires one of three workarounds to function:
+
+1. add the following to the `app/etc/local.xml` configuration file inside the `global` node:
+
+        <session_save><![CDATA[files]]></session_save>
+        <session_save_path><![CDATA[/var/lib/php/session]]]]></session_save_path>
+
+2. create a soft-link pointing the `var/session` directory to the default php session location
+
+        ln -s /var/lib/php/session var/session
+
+3. use an alternative session storage mechanism such as redis or memcached
