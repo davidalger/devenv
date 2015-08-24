@@ -23,3 +23,21 @@ def service (conf, name, call)
     conf.inline = "service #{name} #{call}"
   end
 end
+
+# Configure the machines memory allocation
+# Params:
+# +conf+:: vagrant provisioning conf object
+# +ram+:: amount of memory specified in megabytes
+def vm_set_ram (conf, ram = VM_RAM)
+  conf.vm.provider('virtualbox') { |vm| vm.memory = ram; }
+  conf.vm.provider('vmware_fusion') { |vm| vm.vmx['memsize'] = ram; }
+end
+
+# Configure the machines CPU allocation
+# Params:
+# +conf+:: vagrant provisioning conf object
+# +cpu+:: number of CPUs to allocate
+def vm_set_cpu(conf, cpu = VM_CPU)
+  conf.vm.provider('virtualbox') { |vm| vm.cpus = cpu; }
+  conf.vm.provider('vmware_fusion') { |vm| vm.vmx['numvcpus'] = cpu; }
+end

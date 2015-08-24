@@ -21,9 +21,9 @@ Vagrant.configure(2) do |conf|
   mount_vmfs(conf, '-vagrant', VAGRANT_DIR, '/vagrant')
   mount_vmfs(conf, '-cache-yum', CACHE_DIR + '/yum/', '/var/cache/yum/')
   
-  # configure RAM and CPUs allocated to virtual machines
-  conf.vm.provider('virtualbox') { |vm| vm.memory = VM_RAM; vm.cpus = VM_CPU; }
-  conf.vm.provider('vmware_fusion') { |vm| vm.vmx['memsize'] = VM_RAM; vm.vmx['numvcpus'] = VM_CPU; }
+  # configure default RAM and number of CPUs allocated to virtual machines
+  vm_set_ram(conf)
+  vm_set_cpu(conf)
   
   # declare application node
   conf.vm.define :web, primary: true do |node|
@@ -46,6 +46,7 @@ Vagrant.configure(2) do |conf|
     node.vm.hostname = 'dev-db'
     node.vm.network :private_network, ip: '10.19.89.20'
     node.vm.network :forwarded_port, guest: 3306, host: 3306
+    vm_set_ram(node, 4096)
     
     mount_nfs(node, '-mysql-data', BASE_DIR + '/mysql/data', '/var/lib/mysql/data')
     
