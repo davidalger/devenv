@@ -1,21 +1,41 @@
 #!/usr/bin/env bash
 
 set -e
+
 confdir=/server/vagrant/etc/httpd/sites.d
 template=$confdir/__vhost.conf.template
+confcust=.vhost.conf
 sitesdir=/server/sites
 
 echo "==> scouting pubs in $sitesdir/"
-for site in $(ls -1d $sitesdir/*/); do
-    if [[ "$(basename $site)" == "00_localhost" ]]; then
+for site in $(find $sitesdir -type d -maxdepth 1); do
+    hostname="$(basename $site)"
+    conffile="$confdir/$hostname.conf"
+    
+    if [[ "$hostname" == "00_localhost" ]]; then
         continue
     fi
+    
+    if [[ -f "$site/$confcust" ]]; then
+        # if the file exists and is identical, don't bother replacing it
+        if [[ -f "$conffile" ]] && cmp "$conffile" "$site/$confcust" > /dev/null; then
+            continue
+        fi
+        
+        if [[ -f "$conffile" ]]; then
+            echo "    added: $hostname (custom vhost was updated)"
+        else
+            echo "    added: $hostname (custom vhost)"
+        fi
+        
+        cp "$site/$confcust" "$conffile"
+        continue
+    fi
+    
     for try in $(echo "pub html htdocs"); do
-        pubdir="${site}${try}"
+        pubdir="${site}/${try}"
         if [[ -d "$pubdir" ]]; then
-            hostname=$(basename $(dirname $pubdir))
             pubname=$(basename $pubdir)
-            conffile="$confdir/$hostname.conf"
             
             if [[ -f "$conffile" ]]; then
                 break
