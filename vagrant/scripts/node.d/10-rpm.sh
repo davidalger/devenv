@@ -43,5 +43,4 @@ install_rpm http://rpms.famillecollet.com/enterprise/remi-release-6.rpm \
     /var/cache/yum/rpms/remi-release-6.rpm
 
 echo "Updating installed software"
-yum update -y -q yum || true        # ignore result code to work around cpio failure caused by synced cache dir
-yum update -y -q -x yum             # keep our software up-to-date
+yum update -y -q
