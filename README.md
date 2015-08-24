@@ -34,6 +34,14 @@ This node is setup to run services required to run web applications. Nginx is se
 
 Run `./bin/vhosts.sh` to generate vhosts for all sites and reload apache.
 
+By default this node is configured to install PHP 5.6 from Remi's repository. Different versions of PHP may be chosen by exporting the `VAGRANT_PHP_VERSION` variable on the command line prior to running `vagrant up` for the first time. To switch PHP versions, export the requested PHP version and then run the following to blow away and re-setup your vm:
+
+        vagrant destroy -f web && vagrant up
+
+The requested version of PHP may be specified  via the following environment variable. Valid values are currently 53, 54, 55 and 56 (default). However, PHP 5.3 is not fully supported as there are no packages available for Xdebug or the ionCube loader in the default RPMs used to build PHP 5.3.
+
+        export VAGRANT_PHP_VERSION=56
+
 ### dev-db
 This node has MySql 5.6.x installed. Since this is a development environment, the root mysql password has been left blank.
 

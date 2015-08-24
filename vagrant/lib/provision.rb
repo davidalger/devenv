@@ -4,10 +4,12 @@
 # +roles+:: +Array+ containing a list of roles to apply to the node in sequence
 def bootstrap_sh (conf, roles)
   conf.vm.provision :shell do |conf|
-    allowable_roles = %-#{ENV['VAGRANT_ALLOWABLE_ROLES']}-
-  
+    env_vars = %-
+      export ALLOWABLE_ROLES="#{ENV['VAGRANT_ALLOWABLE_ROLES']}";
+      export PHP_VERSION="#{ENV['VAGRANT_PHP_VERSION']}";
+    -
     conf.name = 'bootstrap.sh'
-    conf.inline = %-export ALLOWABLE_ROLES="#{allowable_roles}"; /vagrant/scripts/bootstrap.sh "$@"-
+    conf.inline = %-#{env_vars} /vagrant/scripts/bootstrap.sh "$@"-
     conf.args = roles
   end
 end
