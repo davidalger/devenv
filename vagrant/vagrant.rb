@@ -56,6 +56,7 @@ Vagrant.configure(2) do |conf|
     mount_nfs(node, '-mysql-data', BASE_DIR + '/mysql/data', '/var/lib/mysql/data')
     
     bootstrap_sh(node, ['node', 'db'])
+    service(node, 'nfslock', 'restart')
     service(node, 'mysqld', 'start')
   end
   
