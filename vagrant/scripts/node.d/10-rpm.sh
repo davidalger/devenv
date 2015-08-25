@@ -1,4 +1,5 @@
 # configure rpms we need for installing current package versions
+set -e
 
 function install_rpm {
     if [[ -z "$1" ]] || [[ -z "$2" ]]; then

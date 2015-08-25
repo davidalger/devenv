@@ -1,4 +1,5 @@
 # install and configure redis service
+set -e
 
 yum install -y -q redis
 

@@ -1,4 +1,5 @@
 # install and configure mysqld service
+set -e
 
 if [[ -f ./etc/my.cnf ]]; then
     cp ./etc/my.cnf /etc/my.cnf

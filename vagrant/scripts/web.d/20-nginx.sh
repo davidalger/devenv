@@ -1,4 +1,5 @@
 # install and configure nginx service
+set -e
 
 yum install -y -q nginx
 

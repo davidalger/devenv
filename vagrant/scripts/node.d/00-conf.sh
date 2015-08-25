@@ -1,4 +1,5 @@
 # setup misc generic node configuration
+set -e
 
 # configure VM Ware tools to automatically rebuild missing VMX kernel modules upon boot
 # see: https://github.com/mitchellh/vagrant/issues/4362#issuecomment-52589577

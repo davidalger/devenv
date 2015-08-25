@@ -1,4 +1,5 @@
 # install and configure php
+set -e
 
 # determine which version of php we are installing and determine which extra RPMs are needed
 case "$PHP_VERSION" in

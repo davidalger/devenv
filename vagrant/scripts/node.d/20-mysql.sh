@@ -1,4 +1,5 @@
 # install mysql client
+set -e
 
 yum install -y -q mysql
 

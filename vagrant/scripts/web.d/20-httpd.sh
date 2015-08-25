@@ -1,4 +1,5 @@
 # install and configure httpd service
+set -e
 
 yum install -y -q httpd
 
