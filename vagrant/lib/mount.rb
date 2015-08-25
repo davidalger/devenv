@@ -41,6 +41,11 @@ end
 # Params:
 # +host_path+:: +String+ path to required share directory
 def assert_export (host_path)
+  if File.exist?('/etc/exports') == false
+    $stderr.puts "Error: /etc/exports does not exist. See /server/README.md for details"
+    exit false
+  end
+  
   exports = File.readlines('/etc/exports')
   for line in exports
     if line.start_with?(host_path + '/ -alldirs')
