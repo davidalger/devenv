@@ -10,6 +10,7 @@
 
 set -e
 cd /vagrant
+PATH="/usr/local/bin:$PATH"
 
 # filter roles by those specified in env var
 roles=""
@@ -30,10 +31,10 @@ for role in $roles; do
         
         for script in $(ls -1 ./scripts/$role.d/*.sh); do
             echo "Running: $role: $(basename $script)"
-            . $script || true
-            code="$?"
-            if [[ $code != 0 ]]; then
-                echo "ERROR: Failed with exit status $code!"
+            ./$script || code="$?"
+            if [[ $code ]]; then
+                >&2 echo "Error: $script failed with return code $code"
+                code=""
             fi
         done
     else
