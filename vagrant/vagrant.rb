@@ -34,6 +34,7 @@ Vagrant.configure(2) do |conf|
     node.vm.network :forwarded_port, guest: 80, host: 80
     node.vm.network :forwarded_port, guest: 6379, host: 6379
     
+    assert_export(SITES_DIR)
     mount_nfs(node, '-www-sites', SITES_DIR, '/var/www/sites')
     mount_nfs(node, '-www-html', SITES_DIR + '/00_localhost/pub', '/var/www/html')
     mount_vmfs(node, '-www-sites-conf', VAGRANT_DIR + '/etc/httpd/sites.d', '/var/httpd/sites.d')
@@ -51,6 +52,7 @@ Vagrant.configure(2) do |conf|
     node.vm.network :forwarded_port, guest: 3306, host: 3306
     vm_set_ram(node, 4096)
     
+    assert_export(BASE_DIR + '/mysql')
     mount_nfs(node, '-mysql-data', BASE_DIR + '/mysql/data', '/var/lib/mysql/data')
     
     bootstrap_sh(node, ['node', 'db'])

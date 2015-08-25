@@ -36,3 +36,17 @@ def mount_vmfs (conf, id, host_path, guest_path, mount_options: [])
   FileUtils.mkdir_p host_path   # ensure path on host is present
   conf.vm.synced_folder host_path, guest_path, id: id, mount_options: mount_options
 end
+
+# Asserts that an entry is in the /etc/exports file to gaurantee that an NFS mount is possible
+# Params:
+# +host_path+:: +String+ path to required share directory
+def assert_export (host_path)
+  exports = File.readlines('/etc/exports')
+  for line in exports
+    if line.start_with?(host_path + '/ -alldirs')
+      return true
+    end
+  end
+  $stderr.puts "Error: /etc/exports is missing an entry for #{host_path}/. See /server/README.md for details"
+  exit false
+end
