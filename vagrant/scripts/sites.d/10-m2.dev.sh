@@ -16,7 +16,7 @@ if [[ ! -d "$SITES_DIR/m2.dev" ]]; then
     git clone -q "$CACHE_DIR/m2.repo" "$SITES_DIR/m2.dev"
 
     cd "$SITES_DIR/m2.dev"
-    composer install -q
+    composer install -q --prefer-dist
     mysql -e 'create database m2_dev'
 
     bin/magento setup:install -q \
