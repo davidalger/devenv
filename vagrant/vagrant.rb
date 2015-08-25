@@ -3,6 +3,7 @@
 
 VAGRANT_DIR = File.dirname(__FILE__)
 CACHE_DIR = BASE_DIR + '/.cache'
+SITES_DIR = BASE_DIR + '/sites'
 FileUtils.mkdir_p BASE_DIR
 
 # machine defaults
@@ -19,6 +20,7 @@ Vagrant.configure(2) do |conf|
   conf.vm.box = 'chef/centos-6.5'
   
   mount_vmfs(conf, '-vagrant', VAGRANT_DIR, '/vagrant')
+  mount_vmfs(conf, '-cache', CACHE_DIR, '/vagrant/.cache')
   mount_vmfs(conf, '-cache-yum', CACHE_DIR + '/yum/', '/var/cache/yum/')
   
   # configure default RAM and number of CPUs allocated to virtual machines
@@ -32,8 +34,8 @@ Vagrant.configure(2) do |conf|
     node.vm.network :forwarded_port, guest: 80, host: 80
     node.vm.network :forwarded_port, guest: 6379, host: 6379
     
-    mount_nfs(node, '-www-sites', BASE_DIR + '/sites', '/var/www/sites')
-    mount_nfs(node, '-www-html', BASE_DIR + '/sites/00_localhost/pub', '/var/www/html')
+    mount_nfs(node, '-www-sites', SITES_DIR, '/var/www/sites')
+    mount_nfs(node, '-www-html', SITES_DIR + '/00_localhost/pub', '/var/www/html')
     mount_vmfs(node, '-www-sites-conf', VAGRANT_DIR + '/etc/httpd/sites.d', '/var/httpd/sites.d')
     
     bootstrap_sh(node, ['node', 'web', 'sites'])

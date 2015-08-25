@@ -23,7 +23,7 @@ case "$PHP_VERSION" in
 esac
 
 # install php and cross-version dependencies
-yum $extra_repos install -y -q php php-cli php-curl php-gd php-intl php-mcrypt php-pecl-redis php-xsl
+yum $extra_repos install -y -q php php-cli php-curl php-gd php-intl php-mcrypt php-pecl-redis php-xsl php-mbstring
 
 # remi repo provides these extra packages for 5.4 and newer, so skip them on 5.3 setup
 if [[ "$PHP_VERSION" > 53 ]]; then

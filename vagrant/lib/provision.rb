@@ -5,6 +5,9 @@
 def bootstrap_sh (conf, roles)
   conf.vm.provision :shell do |conf|
     env_vars = %-
+      export BASE_DIR="/vagrant";
+      export CACHE_DIR="/vagrant/.cache";
+      export SITES_DIR="/var/www/sites";
       export ALLOWABLE_ROLES="#{ENV['VAGRANT_ALLOWABLE_ROLES']}";
       export PHP_VERSION="#{ENV['VAGRANT_PHP_VERSION']}";
     -
