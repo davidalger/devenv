@@ -52,7 +52,6 @@ Vagrant.configure(2) do |conf|
   conf.vm.define :db do |node|
     node.vm.hostname = 'dev-db'
     node.vm.network :private_network, ip: '10.19.89.20'
-    node.vm.network :forwarded_port, guest: 3306, host: 3306
     vm_set_ram(node, 4096)
 
     assert_export(BASE_DIR + '/mysql')
