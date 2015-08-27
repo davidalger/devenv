@@ -2,6 +2,7 @@
 .apdisk
 /.vagrant/
 /.cache/
+/_var/
 /proj/
 /backups/
 /bigfiles/
