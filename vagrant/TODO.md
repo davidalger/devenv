@@ -1,6 +1,5 @@
 # Short To-Do List
 
-* TODO setup var/* directories local to vm
 * TODO verify that Xdebug configuration works inside the VM
 * TODO add vagrant installation to glowbot
 * TODO create initial machine setup script
