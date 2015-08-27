@@ -8,9 +8,6 @@ CACHE_DIR = BASE_DIR + '/.cache'
 SITES_DIR = BASE_DIR + '/sites'
 FileUtils.mkdir_p BASE_DIR
 
-# guest machine configuration
-VM_RAM = 2048
-VM_CPU = 2
 
 VM_SITES_DIR = '/var/www/sites'
 
@@ -30,8 +27,8 @@ Vagrant.configure(2) do |conf|
   mount_bind(conf, '/vagrant/.cache/yum', '/var/cache/yum')
   
   # configure default RAM and number of CPUs allocated to vm
-  vm_set_ram(conf)
-  vm_set_cpu(conf)
+  vm_set_ram(conf, 2048)
+  vm_set_cpu(conf, 2)
 
   # so we can connect to remote servers from inside the vm
   conf.ssh.forward_agent = true

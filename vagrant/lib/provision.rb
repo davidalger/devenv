@@ -33,7 +33,7 @@ end
 # Params:
 # +conf+:: vagrant provisioning conf object
 # +ram+:: amount of memory specified in megabytes
-def vm_set_ram (conf, ram = VM_RAM)
+def vm_set_ram (conf, ram)
   conf.vm.provider('virtualbox') { |vm| vm.memory = ram; }
   conf.vm.provider('vmware_fusion') { |vm| vm.vmx['memsize'] = ram; }
 end
@@ -42,7 +42,7 @@ end
 # Params:
 # +conf+:: vagrant provisioning conf object
 # +cpu+:: number of CPUs to allocate
-def vm_set_cpu(conf, cpu = VM_CPU)
+def vm_set_cpu(conf, cpu)
   conf.vm.provider('virtualbox') { |vm| vm.cpus = cpu; }
   conf.vm.provider('vmware_fusion') { |vm| vm.vmx['numvcpus'] = cpu; }
 end
