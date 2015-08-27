@@ -19,9 +19,9 @@ Vagrant.configure(2) do |conf|
 
   conf.vm.box = 'chef/centos-6.5'
 
-  mount_vmfs(conf, '-vagrant', VAGRANT_DIR, '/vagrant')
-  mount_vmfs(conf, '-cache', CACHE_DIR, '/vagrant/.cache')
-  mount_vmfs(conf, '-cache-yum', CACHE_DIR + '/yum/', '/var/cache/yum/')
+  mount_vmfs(conf, 'host-vagrant', VAGRANT_DIR, '/vagrant')
+  mount_vmfs(conf, 'host-cache', CACHE_DIR, '/vagrant/.cache')
+  mount_vmfs(conf, 'host-cache-yum', CACHE_DIR + '/yum/', '/var/cache/yum/')
 
   # configure default RAM and number of CPUs allocated to vm
   vm_set_ram(conf)
@@ -38,9 +38,9 @@ Vagrant.configure(2) do |conf|
     node.vm.network :forwarded_port, guest: 6379, host: 6379
 
     assert_export(SITES_DIR)
-    mount_nfs(node, '-www-sites', SITES_DIR, '/var/www/sites')
-    mount_nfs(node, '-www-html', SITES_DIR + '/00_localhost/pub', '/var/www/html')
-    mount_vmfs(node, '-www-sites-conf', VAGRANT_DIR + '/etc/httpd/sites.d', '/var/httpd/sites.d')
+    mount_nfs(node, 'host-www-sites', SITES_DIR, '/var/www/sites')
+    mount_nfs(node, 'host-www-html', SITES_DIR + '/00_localhost/pub', '/var/www/html')
+    mount_vmfs(node, 'host-www-sites-conf', VAGRANT_DIR + '/etc/httpd/sites.d', '/var/httpd/sites.d')
 
     bootstrap_sh(node, ['node', 'web', 'sites'])
     service(node, 'httpd', 'start')
@@ -55,7 +55,7 @@ Vagrant.configure(2) do |conf|
     vm_set_ram(node, 4096)
 
     assert_export(BASE_DIR + '/mysql')
-    mount_nfs(node, '-mysql-data', BASE_DIR + '/mysql/data', '/var/lib/mysql/data')
+    mount_nfs(node, 'host-mysql-data', BASE_DIR + '/mysql/data', '/var/lib/mysql/data')
 
     bootstrap_sh(node, ['node', 'db'])
     service(node, 'nfslock', 'restart')

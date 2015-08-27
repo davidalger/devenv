@@ -33,6 +33,10 @@ end
 # +guest_path+:: +String+ mount location on virtual machine
 # +mount_options+:: +Array+ additional mount options
 def mount_vmfs (conf, id, host_path, guest_path, mount_options: [])
+  if id.start_with?('-')
+    throw "Error: mount_vmfs id may not begin with a hyphen, id of #{id} given"
+  end
+  
   FileUtils.mkdir_p host_path   # ensure path on host is present
   conf.vm.synced_folder host_path, guest_path, id: id, mount_options: mount_options
 end
