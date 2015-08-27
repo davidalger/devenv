@@ -8,7 +8,6 @@
 * TODO setup var/* directories local to vm
 * TODO host shutdown script which will suspend all running virtual machines prior to shutdown
 * TODO setup proxy server in vm to allow loading sites from mobile devices
-* TODO update README to include exports for private 10.19.89 subnet (needed for VirtualBox)
 * TODO update vmfs ids to use 'host' prefix for VB compatibility
 * TODO setup yum cache to use single cache mount in vm
 * TODO verify that Xdebug configuration works inside the VM
