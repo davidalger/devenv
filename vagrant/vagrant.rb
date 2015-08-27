@@ -1,15 +1,19 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
+# host machine configuration
 VAGRANT_DIR = File.dirname(__FILE__)
 BASE_DIR = File.dirname(VAGRANT_DIR)
 CACHE_DIR = BASE_DIR + '/.cache'
 SITES_DIR = BASE_DIR + '/sites'
 FileUtils.mkdir_p BASE_DIR
 
-# machine defaults
+# guest machine configuration
 VM_RAM = 2048
 VM_CPU = 2
+
+VM_WWW_DIR = '/var/www'
+VM_SITES_DIR = VM_WWW_DIR + '/sites'
 
 require_relative 'lib/mount'
 require_relative 'lib/provision'
@@ -39,9 +43,13 @@ Vagrant.configure(2) do |conf|
     node.vm.network :forwarded_port, guest: 6379, host: 6379
 
     assert_export(SITES_DIR)
-    mount_nfs(node, 'host-www-sites', SITES_DIR, '/var/www/sites')
-    mount_nfs(node, 'host-www-html', SITES_DIR + '/00_localhost/pub', '/var/www/html')
+    mount_nfs(node, 'host-www-sites', SITES_DIR, VM_SITES_DIR)
+    mount_nfs(node, 'host-www-html', SITES_DIR + '/00_localhost/pub', VM_WWW_DIR + '/html')
     mount_vmfs(node, 'host-www-sites-conf', VAGRANT_DIR + '/etc/httpd/sites.d', '/var/httpd/sites.d')
+
+    mount_bind(node, VM_SITES_DIR, '/sites')
+    mount_bind(node, VM_SITES_DIR, '/server/sites')
+    mount_bind(node, VM_SITES_DIR, '/Volumes/Server/sites')
 
     bootstrap_sh(node, ['node', 'web', 'sites'])
     service(node, 'httpd', 'start')
