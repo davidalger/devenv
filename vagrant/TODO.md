@@ -10,7 +10,6 @@
 * TODO setup proxy server in vm to allow loading sites from mobile devices
 * TODO update README to include exports for private 10.19.89 subnet (needed for VirtualBox)
 * TODO update vmfs ids to use 'host' prefix for VB compatibility
-* TODO ensure all scripts checked in with execute permissions so they will run after an initial clone
 * TODO setup yum cache to use single cache mount in vm
 * TODO verify that Xdebug configuration works inside the VM
 * TODO add vagrant installation to glowbot
