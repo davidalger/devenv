@@ -5,14 +5,15 @@
 def bootstrap_sh (conf, roles)
   conf.vm.provision :shell do |conf|
     env_vars = %-
-      export BASE_DIR="/vagrant";
-      export CACHE_DIR="/vagrant/.cache";
-      export SITES_DIR="/var/www/sites";
+      export BASE_DIR="#{BASE_DIR}";
+      export VAGRANT_DIR="#{VAGRANT_DIR}";
+      export CACHE_DIR="#{CACHE_DIR}";
+      export SITES_DIR="#{SITES_DIR}";
       export ALLOWABLE_ROLES="#{ENV['VAGRANT_ALLOWABLE_ROLES']}";
       export PHP_VERSION="#{ENV['VAGRANT_PHP_VERSION']}";
     -
     conf.name = 'bootstrap.sh'
-    conf.inline = %-#{env_vars} /vagrant/scripts/bootstrap.sh "$@"-
+    conf.inline = %-#{env_vars} #{VAGRANT_DIR}/scripts/bootstrap.sh "$@"-
     conf.args = roles
   end
 end
