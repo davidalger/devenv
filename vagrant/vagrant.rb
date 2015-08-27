@@ -12,8 +12,7 @@ FileUtils.mkdir_p BASE_DIR
 VM_RAM = 2048
 VM_CPU = 2
 
-VM_WWW_DIR = '/var/www'
-VM_SITES_DIR = VM_WWW_DIR + '/sites'
+VM_SITES_DIR = '/var/www/sites'
 
 require_relative 'lib/mount'
 require_relative 'lib/provision'
@@ -28,6 +27,8 @@ Vagrant.configure(2) do |conf|
   mount_vmfs(conf, 'host-cache', CACHE_DIR, '/vagrant/.cache')
   mount_vmfs(conf, 'host-cache-yum', CACHE_DIR + '/yum/', '/var/cache/yum/')
 
+  mount_bind(conf, '/vagrant', '/server/vagrant')
+  
   # configure default RAM and number of CPUs allocated to vm
   vm_set_ram(conf)
   vm_set_cpu(conf)
@@ -44,12 +45,12 @@ Vagrant.configure(2) do |conf|
 
     assert_export(SITES_DIR)
     mount_nfs(node, 'host-www-sites', SITES_DIR, VM_SITES_DIR)
-    mount_nfs(node, 'host-www-html', SITES_DIR + '/00_localhost/pub', VM_WWW_DIR + '/html')
-    mount_vmfs(node, 'host-www-sites-conf', VAGRANT_DIR + '/etc/httpd/sites.d', '/var/httpd/sites.d')
 
     mount_bind(node, VM_SITES_DIR, '/sites')
     mount_bind(node, VM_SITES_DIR, '/server/sites')
     mount_bind(node, VM_SITES_DIR, '/Volumes/Server/sites')
+    mount_bind(node, VM_SITES_DIR + '/00_localhost/pub', '/var/www/html')
+    mount_bind(node, '/vagrant/etc/httpd/sites.d', '/etc/httpd/sites.d')
 
     bootstrap_sh(node, ['node', 'web', 'sites'])
     service(node, 'httpd', 'start')

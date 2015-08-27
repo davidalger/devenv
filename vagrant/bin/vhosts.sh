@@ -7,8 +7,8 @@ template=$confdir/__vhost.conf.template
 confcust=.vhost.conf
 sitesdir=/server/sites
 
-echo "==> scouting pubs in $sitesdir/"
-for site in $(find $sitesdir -type d -maxdepth 1); do
+echo "==> scouting for new pub locations in $sitesdir/"
+for site in $(find $sitesdir -maxdepth 1 -type d); do
     hostname="$(basename $site)"
     conffile="$confdir/$hostname.conf"
     
@@ -45,7 +45,7 @@ for site in $(find $sitesdir -type d -maxdepth 1); do
             perl -pi -e "s/__HOSTNAME__/$hostname/g" "$conffile"
             perl -pi -e "s/__PUBNAME__/$pubname/g" "$conffile"
 
-            echo "    added: $hostname"
+            echo "    opened $hostname"
             break
         fi
     done
@@ -60,10 +60,14 @@ for conffile in $(ls -1 $confdir/*.conf); do
     fi
     if [[ ! -d "$sitesdir/$confname" ]]; then
         rm -f "$conffile"
-        echo "closed: $confname"
+        echo "    closed $confname"
     fi
 done
 echo "==> all old pubs closed"
 echo "==> reloading apache"
-vagrant ssh web -- "sudo service httpd reload"
+if [[ -x vagrant ]]; then
+    vagrant ssh web -- "sudo service httpd reload"
+else
+    service httpd reload || true    # mask the LSB exit code (expected to be 4)
+fi
 echo "==> apache ready to run"
