@@ -1,12 +1,14 @@
 # install a sandbox m2.dev site
-wd=$(pwd)
 set -e
+wd=$(pwd)
+
+set -x
 
 if [[ ! -d "$CACHE_DIR/m2.repo" ]]; then
-    git clone --bare -q "https://github.com/magento/magento2.git" "$CACHE_DIR/m2.repo"
+    git clone --mirror -q "https://github.com/magento/magento2.git" "$CACHE_DIR/m2.repo"
 else
     cd "$CACHE_DIR/m2.repo"
-    git pull -q 2> /dev/null || true
+    git fetch -q || true
 fi
 
 if [[ ! -d "$SITES_DIR/m2.dev" ]]; then
