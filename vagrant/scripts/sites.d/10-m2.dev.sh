@@ -2,8 +2,6 @@
 set -e
 wd=$(pwd)
 
-set -x
-
 if [[ ! -d "$CACHE_DIR/m2.repo" ]]; then
     git clone --mirror -q "https://github.com/magento/magento2.git" "$CACHE_DIR/m2.repo"
 else
