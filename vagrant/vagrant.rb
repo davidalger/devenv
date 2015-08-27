@@ -25,9 +25,9 @@ Vagrant.configure(2) do |conf|
 
   mount_vmfs(conf, 'host-vagrant', VAGRANT_DIR, '/vagrant')
   mount_vmfs(conf, 'host-cache', CACHE_DIR, '/vagrant/.cache')
-  mount_vmfs(conf, 'host-cache-yum', CACHE_DIR + '/yum/', '/var/cache/yum/')
 
   mount_bind(conf, '/vagrant', '/server/vagrant')
+  mount_bind(conf, '/vagrant/.cache/yum', '/var/cache/yum')
   
   # configure default RAM and number of CPUs allocated to vm
   vm_set_ram(conf)
