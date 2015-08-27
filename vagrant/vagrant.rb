@@ -2,6 +2,7 @@
 # vi: set ft=ruby :
 
 VAGRANT_DIR = File.dirname(__FILE__)
+BASE_DIR = File.dirname(VAGRANT_DIR)
 CACHE_DIR = BASE_DIR + '/.cache'
 SITES_DIR = BASE_DIR + '/sites'
 FileUtils.mkdir_p BASE_DIR
