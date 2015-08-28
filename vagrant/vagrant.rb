@@ -13,6 +13,9 @@ CACHE_DIR = BASE_DIR + '/.cache'
 SITES_DIR = '/sites'
 SITES_MOUNT = '/var/www/sites'
 
+# auto configure host machine
+auto_config_host
+
 # begin the configuration sequence
 Vagrant.require_version '>= 1.7.4'
 Vagrant.configure(2) do |conf|
