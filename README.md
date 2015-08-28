@@ -56,6 +56,11 @@ To access this site, you'll need to add an entry to your local /etc/hosts file (
 ### dev-db
 This node has MySql 5.6.x installed. Since this is a development environment, the root mysql password has been left blank.
 
+To allow for custom database settings without modifying the default my.cnf file directly, files found at `vagrant/etc/my.cnf.d/*.cnf` will be copied onto this node and are applied via the `!includedir` directive in the `/etc/my.cnf` defaults file. Example use case: create the file `vagrant/etc/my.cnf.d/lower_case_table_names.cnf` with the following contents and then re-provision the vm:
+
+    [mysqld]
+    lower_case_table_names = 1
+
 ***WARNING:*** Because this node is running the mysqld service and persisting data, attempts to forcefully shutdown (aka run `vagrant destroy`) on the db node will cause data corruption and fail subsequent mysqld start operations unless the vm has first been halted and/or the mysqld service stopped gracefully prior to vm destruction. The recommended sequence to wipe the vm and create from scratch is halt, destroy, then up.
 
 ## dev-solr
