@@ -5,6 +5,11 @@ if [[ -f ./etc/my.cnf ]]; then
     cp ./etc/my.cnf /etc/my.cnf
 fi
 
+if [[ -d ./etc/my.cnf.d ]] && [[ ! -z "$(ls -1 ./etc/my.cnf.d/)" ]]; then
+    mkdir /etc/my.cnf.d/    # it won't exist before mysql has been installed
+    cp ./etc/my.cnf.d/*.cnf /etc/my.cnf.d/
+fi
+
 yum install -y -q mysql-server
 
 # test for presence of ibdata1 to determine if we have a new install or not
