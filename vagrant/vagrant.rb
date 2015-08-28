@@ -37,6 +37,22 @@ Vagrant.configure(2) do |conf|
   # so we can connect to remote servers from inside the vm
   conf.ssh.forward_agent = true
 
+  # declare database node
+  conf.vm.define :db do |node|
+    node.vm.hostname = 'dev-db'
+    node.vm.network :private_network, ip: '10.19.89.20'
+    vm_set_ram(node, 4096)
+
+    # verify exports and mount nfs mysql data directory
+    assert_export(SERVER_MOUNT + '/mysql')
+    mount_nfs(node, 'host-mysql-data', SERVER_MOUNT + '/mysql/data', '/var/lib/mysql/data')
+
+    # setup guest provisioners
+    bootstrap_sh(node, ['node', 'db'])
+    service(node, 'nfslock', 'restart')
+    service(node, 'mysqld', 'start')
+  end
+
   # declare application node
   conf.vm.define :web, primary: true do |node|
     node.vm.hostname = 'dev-web'
@@ -64,22 +80,6 @@ Vagrant.configure(2) do |conf|
     service(node, 'httpd', 'start')
     service(node, 'nginx', 'start')
     service(node, 'redis', 'start')
-  end
-
-  # declare database node
-  conf.vm.define :db do |node|
-    node.vm.hostname = 'dev-db'
-    node.vm.network :private_network, ip: '10.19.89.20'
-    vm_set_ram(node, 4096)
-
-    # verify exports and mount nfs mysql data directory
-    assert_export(SERVER_MOUNT + '/mysql')
-    mount_nfs(node, 'host-mysql-data', SERVER_MOUNT + '/mysql/data', '/var/lib/mysql/data')
-
-    # setup guest provisioners
-    bootstrap_sh(node, ['node', 'db'])
-    service(node, 'nfslock', 'restart')
-    service(node, 'mysqld', 'start')
   end
 
   # declare solr node (optional)
