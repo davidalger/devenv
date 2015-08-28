@@ -9,9 +9,8 @@ import json
 import tempfile as tf
 import shutil
 
-sc_name = 'setup-py'
+sc_name = 'glowbot-py'
 tmp = None
-
 
 def main():
     global tmp
