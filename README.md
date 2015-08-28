@@ -44,6 +44,15 @@ The requested version of PHP may be specified  via the following environment var
 
         export VAGRANT_PHP_VERSION=56
 
+#### m2.dev
+By default one site is automatically created upon machine initialization. It is m2.dev and will run off of the official magento/magento2 repositories develop branch.
+
+To access this site, you'll need to add an entry to your local /etc/hosts file (as with any other site running the vm) and use the following information to login to the admin:
+
+* [http://m2.dev/backend/admin/](http://m2.dev/backend/admin/)
+* user: admin
+* pass: A123456
+
 ### dev-db
 This node has MySql 5.6.x installed. Since this is a development environment, the root mysql password has been left blank.
 

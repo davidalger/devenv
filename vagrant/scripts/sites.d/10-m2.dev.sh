@@ -2,6 +2,8 @@
 set -e
 wd=$(pwd)
 
+var_dirs=cache,page_cache,session,log,generation,composer_home,view_preprocessed
+
 # use a bare clone to keep up-to-date local mirror of master
 if [[ ! -d "$CACHE_DIR/m2.repo" ]]; then
     echo "Cloning remote repository to local mirror. This could take a while..."
@@ -23,24 +25,27 @@ if [[ ! -d "$SITES_DIR/m2.dev" ]]; then
 
     cd "$SITES_DIR/m2.dev"
     composer install -q --prefer-dist
-    mkdir -p /server/_var/m2.dev
-    ln -s "/server/_var/m2.dev/{session,log,generation,composer_home,view_preprocessed}" "var/"
+    bash -c "mkdir -p /server/_var/m2.dev/{$var_dirs}"
+    bash -c "ln -s /server/_var/m2.dev/{$var_dirs} var/"
+    chown -R vagrant:vagrant "/server/_var/"
+    chmod -R 777 "/server/_var/"
 
     >&2 echo "Note: please add a record to your /etc/hosts file for m2.dev and re-run the vhost generator"
 else
     cd "$SITES_DIR/m2.dev"
     git pull -q
-    rm -rf "var/{session,log,generation,composer_home,view_preprocessed}/*"
+    bash -c "rm -rf var/{$var_dirs}/*"
     composer install -q --prefer-dist
 fi
 
 # either install or upgrade database
 code=
-mysql -e 'use m2_dev' || code="$?"
+mysql -e 'use m2_dev' 2> /dev/null || code="$?"
 if [[ $code ]]; then
     mysql -e 'create database m2_dev'
     
     bin/magento setup:install -q \
+        --backend-frontname=backend \
         --admin-user=admin \
         --admin-firstname=Admin \
         --admin-lastname=Admin \
