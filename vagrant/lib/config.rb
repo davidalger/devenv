@@ -39,12 +39,10 @@ unset i
 ## VAGRANT END ##' \
         | sudo tee \-a /etc/profile > /dev/null
     -
-    changes = true
   end
   
   if not File.symlink?('/etc/profile.d')
     puts "==> host: Linking /etc/profile.d -> #{VAGRANT_DIR}/etc/profile.d"
     system %-sudo ln \-s #{VAGRANT_DIR}/etc/profile.d /etc/profile.d-
-    changes = true
   end
 end
