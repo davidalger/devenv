@@ -19,24 +19,28 @@ fi
 # install or update codebase from local mirror
 if [[ ! -d "$SITES_DIR/m2.dev" ]]; then
     echo "Setting up site from scratch. This could take a while..."
+    >&2 echo "Note: please add a record to your /etc/hosts file for m2.dev and re-run the vhost generator"
     
     mkdir -p "$SITES_DIR/m2.dev"
     git clone -q "$CACHE_DIR/m2.repo" "$SITES_DIR/m2.dev"
 
     cd "$SITES_DIR/m2.dev"
-    composer install -q --prefer-dist
-    bash -c "mkdir -p /server/_var/m2.dev/{$var_dirs}"
     bash -c "ln -s /server/_var/m2.dev/{$var_dirs} var/"
-    chown -R vagrant:vagrant "/server/_var/"
-    chmod -R 777 "/server/_var/"
-
-    >&2 echo "Note: please add a record to your /etc/hosts file for m2.dev and re-run the vhost generator"
 else
     cd "$SITES_DIR/m2.dev"
     git pull -q
-    bash -c "rm -rf var/{$var_dirs}/*"
-    composer install -q --prefer-dist
 fi
+
+# make sure linked var_dirs targets exist and owned properly
+bash -c "mkdir -p /server/_var/m2.dev/{$var_dirs}"
+chown -R vagrant:vagrant "/server/_var/"
+chmod -R 777 "/server/_var/"
+
+# flush all var_dirs
+bash -c "rm -rf var/{$var_dirs}/*"
+
+# install all dependencies in prep for setup / upgrade
+composer install -q --prefer-dist
 
 # either install or upgrade database
 code=
