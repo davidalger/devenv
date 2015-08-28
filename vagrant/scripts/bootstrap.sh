@@ -9,7 +9,7 @@
 #
 
 set -e
-cd /vagrant
+cd $VAGRANT_DIR
 PATH="/usr/local/bin:$PATH"
 
 # filter roles by those specified in env var

@@ -3,25 +3,23 @@
 # +conf+:: vagrant provisioning conf object
 # +host_path+:: +String+ full path to directory on host machine
 # +guest_path+:: +String+ mount location on virtual machine
-# +read_only+:: +Boolean+ flag to indicate whether to mount in read-only mode
-def mount_nfs (conf, id, host_path, guest_path, read_only = false)
-  
-  # compute final list of nfs mount options
-  mount_options = 'vers=3,udp'
-  if read_only == true
-    mount_options = mount_options + ',ro'
-  end
-  
-  # configure the nfs mount using the built-in
+# +mount_options+:: +Array+ additional mount options
+def mount_nfs (conf, id, host_path, guest_path, mount_options: [])
   conf.vm.synced_folder host_path, guest_path, id: id, create: true, nfs_export: false, type: 'nfs',
     :nfs => { mount_options: mount_options }
-  
-  # bind host path on guest so absolute symlinks on host will correctly point to a valid location
+end
+
+# Binds location on guest machine from provided source to target
+# Params:
+# +conf+:: vagrant provisioning conf object
+# +source_path+:: +String+ full path to directory on host machine
+# +target_path+:: +String+ mount location on virtual machine
+def mount_bind (conf, source_path, target_path)
   conf.vm.provision :shell, run: 'always' do |conf|
-    conf.name = 'binding ' + guest_path
+    conf.name = "binding #{source_path} -> #{target_path}"
     conf.inline = %-
-      mkdir \-p #{host_path}
-      sudo mount \-o bind #{guest_path} #{host_path}
+      mkdir \-p #{target_path}
+      sudo mount \-o bind #{source_path} #{target_path}
     -
   end
 end

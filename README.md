@@ -34,7 +34,7 @@
 ### dev-web
 This node is setup to run services required to run web applications. Nginx is setup to deliver static assets directly and act as a proxy for anything else. Apache is setup with mod_php to delivery the web application and sits behind Nginx on an internal port. Redis has been setup for a cache data store such that it never writes information to disk.
 
-Run `./bin/vhosts.sh` to generate vhosts for all sites and reload apache.
+Run `vhosts.sh` to generate vhosts for all sites and reload apache. This will be automatically run once when the machine is provisioned, and may be subsequently run from `/server/vagrant/bin/vhosts.sh` on either the host or guest environment.
 
 By default this node is configured to install PHP 5.6 from Remi's repository. Different versions of PHP may be chosen by exporting the `VAGRANT_PHP_VERSION` variable on the command line prior to running `vagrant up` for the first time. To switch PHP versions, export the requested PHP version and then run the following to blow away and re-setup your vm:
 
@@ -43,6 +43,15 @@ By default this node is configured to install PHP 5.6 from Remi's repository. Di
 The requested version of PHP may be specified  via the following environment variable. Valid values are currently 53, 54, 55 and 56 (default). However, PHP 5.3 is not fully supported as there are no packages available for Xdebug or the ionCube loader in the default RPMs used to build PHP 5.3.
 
         export VAGRANT_PHP_VERSION=56
+
+#### m2.dev
+By default one site is automatically created upon machine initialization. It is m2.dev and will run off of the official magento/magento2 repositories develop branch.
+
+To access this site, you'll need to add an entry to your local /etc/hosts file (as with any other site running the vm) and use the following information to login to the admin:
+
+* [http://m2.dev/backend/admin/](http://m2.dev/backend/admin/)
+* user: admin
+* pass: A123456
 
 ### dev-db
 This node has MySql 5.6.x installed. Since this is a development environment, the root mysql password has been left blank.
