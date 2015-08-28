@@ -49,7 +49,6 @@ Vagrant.configure(2) do |conf|
 
     # setup guest provisioners
     bootstrap_sh(node, ['node', 'db'])
-    service(node, 'nfslock', 'restart')
     service(node, 'mysqld', 'start')
   end
 
