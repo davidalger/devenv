@@ -17,7 +17,7 @@ SITES_MOUNT = '/var/www/sites'
 Vagrant.require_version '>= 1.7.4'
 Vagrant.configure(2) do |conf|
 
-  conf.vm.box = 'chef/centos-6.5'
+  conf.vm.box = 'bento/centos-6.7'
 
   # disable default /vagrant mount and mount at /server/vagrant
   conf.vm.synced_folder VAGRANT_DIR, '/vagrant', disabled: true
