@@ -150,10 +150,8 @@ class PackageInstaller:
         Package('zlib', 'brew'),
         Package('textmate'),
         Package('dropbox'),
-        # Package('zsce'),
         Package('www'),
         Package('server'),
-        # Package('smc'),
     ]
 
     def run(self):
@@ -264,65 +262,6 @@ class PackageInstaller:
 
     def pkg_check_dropbox(self, pkg):
         if os.path.exists('/Applications/DropBox.app'):
-            return True
-        return False
-
-    def pkg_ins_zsce(self, pkg):
-        # TODO: Seperate ins method for custom conf changes such as those to my.cnf file
-
-        # TODO: Verified that this download number changes... which means we have to be dynamic here if we do this. :P
-        downloadNumber = '517'
-        print 'Note: Assuming the download number for this stays at ' + downloadNumber
-
-        print 'Grabbing Zend Cookie'
-        cookie = self.shell.call_out([
-            '/bin/sh', '-c',
-            'curl -sfI \'https://www.zend.com/download/' + downloadNumber + '?start=true\' | grep Set-Cookie'
-        ])['output'][0].split(': ')[1]
-
-        print 'Downloading Zend Server CE PHP 5.3'
-        tmpFile = self.shell.curl_download('https://www.zend.com/download/' + downloadNumber + '?start=true',
-                                           'zend-server-php-5-3.dmg', '-H "Cookie: ' + cookie + '"')
-
-        print 'Mounting disk image'
-        mountPoint = self.shell.call_out('/usr/bin/hdiutil mount ' + tmpFile)['output'][0].strip().split(
-            '\n').pop().strip().split('\t').pop()
-
-        print 'Running installer'
-        self.shell.call(['sudo', '/usr/sbin/installer', '-pkg', mountPoint + '/Zend Server.pkg', '-target', '/'])
-
-        print 'Moving the Zend Controller into place'
-        self.shell.call(['/bin/cp', '-a', mountPoint + '/Zend Controller.app', '/Applications/Zend Controller.app'])
-
-        print 'Cleaning up'
-        self.shell.call(['/usr/bin/hdiutil', 'unmount', '-quiet', mountPoint])
-        self.shell.ohai('Alert: Please install the Java SE 6 runtime when prompted.')
-        os.unlink(tmpFile)
-
-    def pkg_check_zsce(self, pkg):
-        if os.path.exists('/usr/local/zend/bin/zendctl.sh'):
-            return True
-        return False
-
-    def pkg_ins_smc(self, pkg):
-        ## TODO: This will need updating when the SMC installation method changes.
-        print 'Exporting binary...\n' \
-              '  Note: You will need your subversion credentials for this.\n' \
-              '  ** Please accept the SSL certificate permanently when prompted.\n'
-        result = self.shell.call(['/usr/bin/svn', 'export',
-                                  'https://svn.classyllama.net/svn/internal/tools/sm/trunk/smc',
-                                  '/usr/local/bin/smc']
-                                 )['result']
-        if result != 0:
-            return False
-
-        print 'Verifying permissions'
-        result = self.shell.call('/bin/chmod 755 /usr/local/bin/smc')['result']
-        if result != 0:
-            return False
-
-    def pkg_check_smc(self, pkg):
-        if os.path.exists('/usr/local/bin/smc'):
             return True
         return False
 
