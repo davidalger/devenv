@@ -36,8 +36,8 @@ if [[ ! -f /var/lib/mysql/data/ibdata1 ]]; then
     # grant root mysql user privileges to connect for other vms and host machine
     service mysqld start
     mysql -uroot -e "
-        GRANT ALL PRIVILEGES ON *.* TO 'root'@'10.19.89.1' WITH GRANT OPTION;
         GRANT ALL PRIVILEGES ON *.* TO 'root'@'localhost' WITH GRANT OPTION;
+        GRANT ALL PRIVILEGES ON *.* TO 'root'@'dev-host' WITH GRANT OPTION;
         GRANT ALL PRIVILEGES ON *.* TO 'root'@'dev-web' WITH GRANT OPTION;
         FLUSH PRIVILEGES;
     "
