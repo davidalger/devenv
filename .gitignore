@@ -1,6 +1,7 @@
 .DS_Store
 .apdisk
 .Spotlight-V100
+.TemporaryItems
 .fseventsd
 /.vagrant/
 /.cache/
