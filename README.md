@@ -28,6 +28,8 @@
         host=dev-db
         user=root
         password=
+    
+    _Note: If there is a `~/.mylogin.cnf` file present on the host, it will supersede this file, potentially breaking things._
 
 ## Virtual Machines
 
