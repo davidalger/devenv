@@ -33,7 +33,9 @@ def main():
         exit(1)
 
     # authenticate via sudo early on to avoid asking later
-    sh.call('sudo echo')
+    if sh.call('sudo echo')['result'] is not 0:
+        sh.error('Failed authentication. Please try again!')
+        exit(1)
 
     # setup temp directory
     if args.tmp is not None and os.path.isdir(args.tmp) is True:
