@@ -13,11 +13,14 @@ CACHE_DIR = BASE_DIR + '/.cache'
 SITES_DIR = '/sites'
 SITES_MOUNT = '/var/www/sites'
 
+# auto configure host machine
+auto_config_host
+
 # begin the configuration sequence
 Vagrant.require_version '>= 1.7.4'
 Vagrant.configure(2) do |conf|
 
-  conf.vm.box = 'chef/centos-6.5'
+  conf.vm.box = 'bento/centos-6.7'
 
   # disable default /vagrant mount and mount at /server/vagrant
   conf.vm.synced_folder VAGRANT_DIR, '/vagrant', disabled: true
@@ -34,11 +37,25 @@ Vagrant.configure(2) do |conf|
   # so we can connect to remote servers from inside the vm
   conf.ssh.forward_agent = true
 
+  # declare database node
+  conf.vm.define :db do |node|
+    node.vm.hostname = 'dev-db'
+    node.vm.network :private_network, ip: '10.19.89.20'
+    vm_set_ram(node, 4096)
+
+    # verify exports and mount nfs mysql data directory
+    assert_export(SERVER_MOUNT + '/mysql')
+    mount_nfs(node, 'host-mysql-data', SERVER_MOUNT + '/mysql/data', '/var/lib/mysql/data')
+
+    # setup guest provisioners
+    bootstrap_sh(node, ['node', 'db'])
+    service(node, 'mysqld', 'start')
+  end
+
   # declare application node
   conf.vm.define :web, primary: true do |node|
     node.vm.hostname = 'dev-web'
     node.vm.network :private_network, ip: '10.19.89.10'
-    node.vm.network :forwarded_port, guest: 80, host: 80
     node.vm.network :forwarded_port, guest: 6379, host: 6379
 
     # verify exports and mount nfs sites location
@@ -61,22 +78,6 @@ Vagrant.configure(2) do |conf|
     service(node, 'httpd', 'start')
     service(node, 'nginx', 'start')
     service(node, 'redis', 'start')
-  end
-
-  # declare database node
-  conf.vm.define :db do |node|
-    node.vm.hostname = 'dev-db'
-    node.vm.network :private_network, ip: '10.19.89.20'
-    vm_set_ram(node, 4096)
-
-    # verify exports and mount nfs mysql data directory
-    assert_export(SERVER_MOUNT + '/mysql')
-    mount_nfs(node, 'host-mysql-data', SERVER_MOUNT + '/mysql/data', '/var/lib/mysql/data')
-
-    # setup guest provisioners
-    bootstrap_sh(node, ['node', 'db'])
-    service(node, 'nfslock', 'restart')
-    service(node, 'mysqld', 'start')
   end
 
   # declare solr node (optional)

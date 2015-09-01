@@ -65,8 +65,8 @@ for conffile in $(ls -1 $confdir/*.conf); do
 done
 echo "==> all old pubs closed"
 echo "==> reloading apache"
-if [[ -x vagrant ]]; then
-    vagrant ssh web -- "sudo service httpd reload"
+if [[ -x "$(which vagrant 2> /dev/null)" ]]; then
+    vagrant ssh web -- 'sudo service httpd reload'
 else
     service httpd reload || true    # mask the LSB exit code (expected to be 4)
 fi

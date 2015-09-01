@@ -14,3 +14,35 @@ def env_root (base_link)
 
   return File.readlink(base_link)
 end
+
+def auto_config_host ()
+  if not File.exist?('/etc/.vagranthost')
+    puts '==> host: Touching host indicator'
+    system %-sudo touch /etc/.vagranthost-
+  end
+  
+  if not %x{grep '## VAGRANT START ##' /etc/profile}.strip!
+    puts "==> host: Configuring /etc/profile for running sub-scripts"
+    system %-
+      printf "\n%s\n" \
+'## VAGRANT START ##
+for i in /etc/profile.d/*.sh ; do
+    if [ \-r "$i" ]; then
+        if [ "${\-#*i}" != "$\-" ]; then
+            . "$i"
+        else
+            . "$i" >/dev/null 2>&1
+        fi
+    fi
+done
+unset i
+## VAGRANT END ##' \
+        | sudo tee \-a /etc/profile > /dev/null
+    -
+  end
+  
+  if not File.symlink?('/etc/profile.d')
+    puts "==> host: Linking /etc/profile.d -> #{VAGRANT_DIR}/etc/profile.d"
+    system %-sudo ln \-s #{VAGRANT_DIR}/etc/profile.d /etc/profile.d-
+  end
+end
