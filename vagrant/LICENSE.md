@@ -1,1 +1,1 @@
-../LICENSE.md
+/server/LICENSE.md

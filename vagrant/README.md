@@ -1,1 +1,1 @@
-../README.md
+/server/README.md
