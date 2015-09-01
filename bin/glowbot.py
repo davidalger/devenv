@@ -152,8 +152,8 @@ class PackageInstaller:
         Package('zlib', 'brew'),
         Package('textmate'),
         Package('dropbox'),
-        Package('www'),
         Package('server'),
+        Package('sites'),
     ]
 
     def run(self):
@@ -248,8 +248,9 @@ class PackageInstaller:
         tmpFile = self.shell.curl_download('https://www.dropbox.com/download?plat=mac', 'dropbox.dmg')
 
         print 'Mouting disk image'
-        mountPoint = self.shell.call_out('/usr/bin/hdiutil mount ' + tmpFile)['output'][0].strip().split(
-            '\n').pop().strip().split('\t').pop()
+        mountPoint = self.shell.call_out(
+                '/usr/bin/hdiutil mount ' + tmpFile
+            )['output'][0].strip().split('\n').pop().strip().split('\t').pop()
 
         print 'Copying application'
         self.shell.call(['/bin/cp', '-a', mountPoint + '/Dropbox.app', '/Applications/Dropbox.app'])
@@ -267,22 +268,22 @@ class PackageInstaller:
             return True
         return False
 
-    def pkg_ins_www(self, pkg):
-        print 'Softlinking /www to /Volumes/Server'
-        if os.path.exists('/Volumes/Server/www') == False:
+    def pkg_ins_sites(self, pkg):
+        print 'Softlinking /sites to /server/sites'
+        if os.path.exists('/Volumes/Server/sites') == False:
             if os.path.exists('/Volumes/Server'):
-                self.shell.call('mkdir /Volumes/Server/www')
+                self.shell.call('mkdir /Volumes/Server/sites')
             else:
                 self.shell.warn('Can not find /Volumes/Server')
                 return False
 
-        result = self.shell.call('sudo /bin/ln -s /Volumes/Server/www /www')['result']
+        result = self.shell.call('sudo /bin/ln -s /Volumes/Server/sites /sites')['result']
         if result != 0:
             self.shell.warn('Installation of %s failed with error code: %d' % (pkg.get_desc(), result))
             return False
 
-    def pkg_check_www(self, pkg):
-        if os.path.exists('/www'):
+    def pkg_check_sites(self, pkg):
+        if os.path.exists('/sites'):
             return True
         return False
 
