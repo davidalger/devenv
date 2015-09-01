@@ -25,19 +25,23 @@ def main():
     print '## Mac OS X Developer Environment Setup'.ljust(77) + ' ##'
     print str().ljust(80, '#') + '\n'
 
-    if args.tmp is not None and os.path.isdir(args.tmp) is True:
-        tmp = args.tmp
-
-    if tmp is None:
-        tmp = tf.mkdtemp('-' + sc_name)
-    print 'tmp: ' + tmp
-
     # check in on the version of OS X we are running under
     osx_ver = re.match('^(10\.\d+)(\.\d+){0,1}$', platform.mac_ver()[0]).groups()[0]
 
     if osx_ver != '10.9' and osx_ver != '10.10' and osx_ver != '10.11':
         sh.ohai('This script requires Mac OS X 10.9 or newer (currently on version ' + osx_ver + ')\n')
         exit(1)
+
+    # authenticate via sudo early on to avoid asking later
+    sh.call('sudo echo')
+
+    # setup temp directory
+    if args.tmp is not None and os.path.isdir(args.tmp) is True:
+        tmp = args.tmp
+
+    if tmp is None:
+        tmp = tf.mkdtemp('-' + sc_name)
+    print 'tmp: ' + tmp + '\n'
 
     # Install Command Line Tools if missing
     sh.ohai('Verifying presence of Command Line Tools')
