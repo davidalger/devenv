@@ -118,7 +118,6 @@ class PackageInstaller:
 
     shell = Shell()
     packages = [
-        # Package('ps1'),
         Package('brew'),
         Package('ack', 'brew'),
         Package('composer', 'brew'),
@@ -298,20 +297,6 @@ class PackageInstaller:
         if os.path.exists('/server'):
             return True
         return False
-
-    def pkg_ins_ps1(self, pkg):
-        with open(os.environ['HOME'] + '/.bash_profile', 'a') as profileFile:
-            profileFile.write('export PS1=\'\[\\033[0;34m\]\u\[\\033[0m\]:\@:\[\\033[0;37m\]\w\[\\033[0m\]$ \'\n')
-
-    def pkg_check_ps1(self, pkg):
-        if ('PS1' in os.environ) == False:
-            return False
-
-        if os.environ['PS1'] == '\[\\033[0;34m\]\u\[\\033[0m\]:\@:\[\\033[0;37m\]\w\[\\033[0m\]$ ':
-            return True
-
-        return False
-
 
 if __name__ == '__main__':
     main()
