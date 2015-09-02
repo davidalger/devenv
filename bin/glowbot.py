@@ -184,41 +184,6 @@ class Brew:
             return False
         return True
 
-class Dropbox:
-
-    shell = Shell()
-
-    def __init__(self):
-        pass
-
-    def describe(self):
-        return 'dropbox'
-
-    def check(self):
-        if os.path.exists('/Applications/DropBox.app'):
-            return True
-        return False
-
-    def install(self):
-        print 'Downloading Dropbox for Mac'
-        tmpFile = self.shell.curl_download('https://www.dropbox.com/download?plat=mac', 'dropbox.dmg')
-
-        print 'Mouting disk image'
-        mountPoint = self.shell.call_out(
-                '/usr/bin/hdiutil mount ' + tmpFile
-            )['output'][0].strip().split('\n').pop().strip().split('\t').pop()
-
-        print 'Copying application'
-        self.shell.call(['/bin/cp', '-a', mountPoint + '/Dropbox.app', '/Applications/Dropbox.app'])
-        self.shell.call(['/usr/bin/hdiutil', 'unmount', '-quiet', mountPoint])
-
-        print 'Launching application'
-        self.shell.call(['/usr/bin/open', '/Applications/Dropbox.app'])
-
-        os.unlink(tmpFile)
-
-        print 'Installation complete!'
-
 class Shortcuts:
 
     shell = Shell()
@@ -271,19 +236,41 @@ class Manifest:
         CommandLineTools(),
         Brew([
             'ack',
+            'aescrypt',
+            'ansible',
+            'autoconf',
+            'automake',
             'bash-completion',
-            'caskroom/cask/brew-cask',
+            'brew-cask',
+            'composer',
             'figlet',
             'git',
             'git-flow',
+            'glib',
+            'grunt-completion',
             'hub',
+            'less',
             'md5sha1sum',
             'mysql',
+            'nmap',
+            'node',
+            'openssl',
             'pcre',
+            'php-code-sniffer',
+            'php-cs-fixer',
+            'php56',
+            'php56-intl',
+            'php56-mcrypt',
+            'php56-xdebug',
+            'phpcpd',
+            'phpmd',
+            'phpunit',
             'pv',
+            'python',
             'readline',
             'redis',
             'rename',
+            'serf',
             'siege',
             'sloccount',
             'sqlite',
@@ -292,14 +279,27 @@ class Manifest:
             'wakeonlan',
             'watch',
             'wget',
-            'zlib'
+            'zlib',
         ],[
-            'textmate',
+            '1password',
+            'alfred',
+            'caskroom/homebrew-versions/java6',
+            'clipmenu',
+            'dropbox',
+            'firefox',
+            'google-chrome',
+            'imageoptim',
+            'livereload',
+            'phpstorm',
+            'sequel-pro',
+            'sizeup',
+            'skype',
             'sourcetree',
+            'textmate',
             'vagrant',
             'virtualbox',
+
         ]),
-        Dropbox(),
         Shortcuts(),
     ]
 
