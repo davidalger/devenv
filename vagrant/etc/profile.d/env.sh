@@ -19,7 +19,7 @@ if [ -d "/Applications/TextMate.app/Contents/SharedSupport/Support" ]; then
 fi
 
 # brew completion if present
-if [ -x "$(which brew)" ] && [ -f $(brew --prefix)/etc/bash_completion ]; then
+if [ -x "$(which brew 2> /dev/null)" ] && [ -f $(brew --prefix)/etc/bash_completion ]; then
   . $(brew --prefix)/etc/bash_completion
 fi
 
