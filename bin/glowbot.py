@@ -184,38 +184,6 @@ class Brew:
             return False
         return True
 
-class Textmate:
-
-    shell = Shell()
-
-    def __init__(self):
-        pass
-
-    def describe(self):
-        return 'textmate'
-
-    def check(self):
-        if os.path.exists('/Applications/TextMate.app'):
-            return True
-        return False
-
-    def install(self):
-        print 'Finding latest version'
-        release = 'https://api.textmate.org/downloads/release'
-
-        print 'Downloading ' + release
-        tmpFile = self.shell.curl_download(release, 'TextMate2-Release.tbz')
-        self.shell.call(['/usr/bin/tar', '-xjf', tmpFile, '-C', '/Applications/'])
-        os.unlink(tmpFile)
-
-        print 'Installing command line tool'
-        shutil.copy('/Applications/TextMate.app/Contents/Resources/mate', '/usr/local/bin/mate')
-        mate_ver = self.shell.call_out('/usr/local/bin/mate --version')['output'][0].split(' ')[1]
-        self.shell.call('/usr/bin/defaults write com.macromates.TextMate.preview mateInstallPath /usr/local/bin/mate')
-        self.shell.call('/usr/bin/defaults write com.macromates.TextMate.preview mateInstallVersion ' + mate_ver)
-        self.shell.call('/usr/bin/defaults write com.macromates.TextMate mateInstallPath /usr/local/bin/mate')
-        self.shell.call('/usr/bin/defaults write com.macromates.TextMate mateInstallVersion ' + mate_ver)
-
 class Dropbox:
 
     shell = Shell()
@@ -326,10 +294,11 @@ class Manifest:
             'wget',
             'zlib'
         ],[
+            'textmate',
+            'sourcetree',
             'vagrant',
             'virtualbox',
         ]),
-        Textmate(),
         Dropbox(),
         Shortcuts(),
     ]
