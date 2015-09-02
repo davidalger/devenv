@@ -28,3 +28,7 @@ fi
 
 # setup rvm if present
 [ -s "$HOME/.rvm/scripts/rvm" ] && source "$HOME/.rvm/scripts/rvm" # Load RVM into a shell session *as a function*
+
+# bash specific env
+bind '"\e[A":history-search-backward'
+bind '"\e[B":history-search-forward'
