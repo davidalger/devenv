@@ -257,7 +257,6 @@ class Manifest:
             'homebrew/php/php56-xdebug',
             'homebrew/php/composer',
             'homebrew/php/php-code-sniffer',
-            'homebrew/php/php-cs-fixer',
             'homebrew/php/phpcpd',
             'homebrew/php/phpmd',
             'homebrew/php/phpunit',
