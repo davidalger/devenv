@@ -56,7 +56,6 @@ Vagrant.configure(2) do |conf|
   conf.vm.define :web, primary: true do |node|
     node.vm.hostname = 'dev-web'
     node.vm.network :private_network, ip: '10.19.89.10'
-    node.vm.network :forwarded_port, guest: 80, host: 80
     node.vm.network :forwarded_port, guest: 6379, host: 6379
 
     # verify exports and mount nfs sites location

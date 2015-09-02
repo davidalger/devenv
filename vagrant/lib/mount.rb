@@ -18,6 +18,7 @@ def mount_bind (conf, source_path, target_path)
   conf.vm.provision :shell, run: 'always' do |conf|
     conf.name = "binding #{source_path} -> #{target_path}"
     conf.inline = %-
+      mkdir \-p #{source_path}
       mkdir \-p #{target_path}
       sudo mount \-o bind #{source_path} #{target_path}
     -
