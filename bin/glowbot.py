@@ -102,7 +102,7 @@ class CommandLineTools:
         if self.shell.call_out(['/bin/sh', '-c', 'xcode-select -p 2> /dev/null'])['result'] is not 0:
             return False
         return True
-    
+
     def install(self):
         # sets internal flag which causes software update to look for CLI tool packages
         self.shell.call('touch /tmp/.com.apple.dt.CommandLineTools.installondemand.in-progress')
@@ -115,30 +115,42 @@ class CommandLineTools:
         # install the package
         self.shell.ohay('Installing via Software Update')
         self.shell.call(['softwareupdate', '-i', ver, '-v'])
-        
+
 
 class Brew:
 
     shell = Shell()
     packages = []
-    
-    def __init__(self, packages):
+    casks = []
+
+    def __init__(self, packages, casks):
         self.packages = packages
+        self.casks = casks
 
     def describe(self):
         return 'brew'
-        
+
     def check(self):
+        result = True
+
         if os.path.exists('/usr/local/bin/brew') is False:
             self.shell.ohay('brew not installed')
             return False
-    
-        for pkg in self.packages:
-            if self.check_keg(pkg) is False:
-                self.shell.ohay('missing %s' % pkg)
-                return False
-        return True
-        
+
+        for name in self.packages:
+            self.shell.ohay('- checking %s' % name)
+            if self.check_keg(name) is False:
+                self.shell.ohay('- missing %s' % name)
+                result = False
+
+        for cask in self.casks:
+            self.shell.ohay('- checking cask %s' % cask)
+            if self.check_keg(cask, 'cask') is False:
+                self.shell.ohay('- missing cask %s' % cask)
+                result = False
+
+        return result
+
     def install(self):
         if os.path.exists('/usr/local/bin/brew') is False:
             self.shell.call([
@@ -156,17 +168,19 @@ class Brew:
                 exit(1)
             else:
                 print 'Your system is ready to brew.'
-        
-        for pkg in self.packages:
-            if self.check_keg(pkg) is False:
-                self.shell.ohay('tapping %s' % pkg)
-                self.shell.call('/usr/local/bin/brew install %s' % pkg)
 
-    def manager(self):
-        return True
-        
-    def check_keg(self, name):
-        if self.shell.call(['/bin/sh', '-c', 'brew list %s > /dev/null 2>&1' % name])['result'] is 1:
+        for name in self.packages:
+            if self.check_keg(name) is False:
+                self.shell.ohay('- tapping %s' % name)
+                self.shell.call('/usr/local/bin/brew install %s' % name)
+
+        for name in self.casks:
+            if self.check_keg(name, 'cask') is False:
+                self.shell.ohay('- tapping cask %s' % name)
+                self.shell.call('/usr/local/bin/brew cask install %s' % name)
+
+    def check_keg(self, name, type = ''):
+        if self.shell.call(['/bin/sh', '-c', 'brew %s list %s > /dev/null 2>&1' % (type, name)])['result'] is 1:
             return False
         return True
 
@@ -289,10 +303,11 @@ class Manifest:
         CommandLineTools(),
         Brew([
             'ack',
+            'bash-completion',
+            'caskroom/cask/brew-cask',
             'figlet',
             'git',
             'git-flow',
-            'git-completion'
             'hub',
             'md5sha1sum',
             'mysql',
@@ -305,10 +320,14 @@ class Manifest:
             'sloccount',
             'sqlite',
             'tree',
+            'vagrant-completion',
             'wakeonlan',
             'watch',
             'wget',
             'zlib'
+        ],[
+            'vagrant',
+            'virtualbox',
         ]),
         Textmate(),
         Dropbox(),
