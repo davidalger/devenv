@@ -241,7 +241,7 @@ class Manifest:
             'autoconf',
             'automake',
             'bash-completion',
-            'brew-cask',
+            'caskroom/cask/brew-cask',
             'composer',
             'figlet',
             'git',
