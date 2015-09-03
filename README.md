@@ -30,7 +30,7 @@ There should be a 150 GB *Mac OS X Extended (Case-sensitive, Journaled)* partiti
             | sudo tee -a /etc/exports > /dev/null
         sudo nfsd restart
 
-4. Add the following to the `/etc/hosts` file on the host machine using `mate /etc/hosts` or `vi /etc/hosts`:
+4. Add the following to the `/etc/hosts` file on the host machine using `mate /etc/hosts` or `sudo vi /etc/hosts`:
 
         ##################################################
         ## Developer Environment
