@@ -40,7 +40,7 @@ chmod -R 777 "/server/_var/"
 bash -c "rm -rf var/{$var_dirs}/*"
 
 # install all dependencies in prep for setup / upgrade
-composer install -q --prefer-dist
+composer install -q --no-interaction --prefer-dist
 
 # either install or upgrade database
 code=
