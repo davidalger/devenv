@@ -16,11 +16,14 @@ def env_root (base_link)
 end
 
 def auto_config_host ()
+  
+  # place flag on host machine for use in common shell scripts
   if not File.exist?('/etc/.vagranthost')
     puts '==> host: Touching host indicator'
     system %-sudo touch /etc/.vagranthost-
   end
   
+  # enable profile.d scripts on host
   if not %x{grep '## VAGRANT START ##' /etc/profile}.strip!
     puts "==> host: Configuring /etc/profile for running sub-scripts"
     system %-
@@ -41,6 +44,7 @@ unset i
     -
   end
   
+  # create symlink to profile.d scripts
   if not File.symlink?('/etc/profile.d')
     puts "==> host: Linking /etc/profile.d -> #{VAGRANT_DIR}/etc/profile.d"
     system %-sudo ln \-s #{VAGRANT_DIR}/etc/profile.d /etc/profile.d-
