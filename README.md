@@ -19,18 +19,7 @@ There should be a 150 GB *Mac OS X Extended (Case-sensitive, Journaled)* partiti
         vagrant status
         source /etc/profile
 
-3. Run the following to export paths mounted within the virtual machines
-
-        MAPALL="-mapall=$(id -u):$(grep ^admin: /etc/group | cut -d : -f 3)"
-        printf "%s\n%s\n" \
-            "/Volumes/Server/sites/ -alldirs -network 192.168.235.0 -mask 255.255.255.0 $MAPALL" \
-            "/Volumes/Server/sites/ -alldirs -network 10.19.89.0 -mask 255.255.255.0 $MAPALL" \
-            "/Volumes/Server/mysql/ -alldirs -network 192.168.235.0 -mask 255.255.255.0 $MAPALL" \
-            "/Volumes/Server/mysql/ -alldirs -network 10.19.89.0 -mask 255.255.255.0 $MAPALL" \
-            | sudo tee -a /etc/exports > /dev/null
-        sudo nfsd restart
-
-4. Add the following to the `/etc/hosts` file on the host machine using `mate /etc/hosts` or `sudo vi /etc/hosts`:
+3. Add the following to the `/etc/hosts` file on the host machine using `mate /etc/hosts` or `sudo vi /etc/hosts`:
 
         ##################################################
         ## Developer Environment
@@ -46,7 +35,7 @@ There should be a 150 GB *Mac OS X Extended (Case-sensitive, Journaled)* partiti
         10.19.89.10 m2.dev
         
 
-5.  Add the following to the `~/.my.cnf` file on the host machine:
+4.  Add the following to the `~/.my.cnf` file on the host machine:
 
         [client]
         host=dev-db
@@ -56,25 +45,25 @@ There should be a 150 GB *Mac OS X Extended (Case-sensitive, Journaled)* partiti
     
     _Note: If there is a `~/.mylogin.cnf` file present on the host, it will supersede this file, potentially breaking things._
 
-6. Install the compass tools used for scss compilation
+5. Install the compass tools used for scss compilation
 
         sudo gem update --system
         sudo gem install compass
 
-7. Generate an RSA key pair. The generated public key will be used to authenticate remote SSH connections
+6. Generate an RSA key pair. The generated public key will be used to authenticate remote SSH connections
 
         ssh-keygen -f ~/.ssh/id_rsa
 
     *Note: When prompted, enter a memorable passphrase (you’ll need to use it later)*
 
-8. Run the following to start up the virtual machines. This will take a while on first run
+7. Run the following to start up the virtual machines. This will take a while on first run
 
         cd /server
         vagrant up
 
-9. You should be ready to roll! Go ahead and load the [m2.dev](http://m2.dev/) site which should be setup and running inside the virtual machine to make sure everything is working correctly
+8. You should be ready to roll! Go ahead and load the [m2.dev](http://m2.dev/) site which should be setup and running inside the virtual machine to make sure everything is working correctly
 
-10. To SSH into the vm, you can use `vcd` or `vcd web` to connect and automatically mirror the working directory if a matching location exists on the vm
+9. To SSH into the vm, you can use `vcd` or `vcd web` to connect and automatically mirror the working directory if a matching location exists on the vm
 
 ## Virtual Machines
 
@@ -130,3 +119,16 @@ It is well recognized that PHP cannot store sessions on an NFS mount. Since /var
         ln -s /var/lib/php/session var/session
 
 3. use an alternative session storage mechanism such as redis or memcached
+
+## VMWare Provider
+
+Using VMWare Fusion is a supported (but non-default) setup. There are additional steps involved to use it due to differences in how Virtual Box and VMX configure network interfaces and handle NFS mounts.
+
+For NFS mounts to function, run the following to add the necessary exports to your `/etc/exports` file on the host machine and restart nfsd:
+
+        MAPALL="-mapall=$(id -u):$(grep ^admin: /etc/group | cut -d : -f 3)"
+        printf "%s\n%s\n" \
+            "/Volumes/Server/sites/ -alldirs -network 192.168.235.0 -mask 255.255.255.0 $MAPALL" \
+            "/Volumes/Server/mysql/ -alldirs -network 192.168.235.0 -mask 255.255.255.0 $MAPALL" \
+            | sudo tee -a /etc/exports > /dev/null
+        sudo nfsd restart
