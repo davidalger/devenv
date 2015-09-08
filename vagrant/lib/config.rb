@@ -74,19 +74,13 @@ unset i
     -
     changes = true
   end
-  
+
   if changes
     puts '==> host: Auto configuration complete'
   end
-  
-  # some changes may require a new shell environment
-  if newsh
-    puts 'Please re-run the command in a new shell...'
-    exit 1
-  end
-  
-  # prevent run if shell doesn't have expected env vars set from profile.d scripts
-  if changes == false && ENV['VAGRANT_CWD'] != BASE_DIR
+
+  # prevent run if shell doesn't have expected env vars set from profile.d scripts or if changes require such
+  if newsh or (changes == false && ENV['VAGRANT_CWD'] != BASE_DIR)
     puts 'Please re-run the command in a new shell...'
     exit 1
   end
