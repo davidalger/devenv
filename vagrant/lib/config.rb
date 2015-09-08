@@ -16,19 +16,27 @@ def env_root (base_link)
 end
 
 def auto_config_host ()
+  changes = false
   
   # place flag on host machine for use in common shell scripts
   if not File.exist?('/etc/.vagranthost')
     puts '==> host: Touching host indicator'
     system %-sudo touch /etc/.vagranthost-
+    changes = true
   end
-  
+
+  # create symlink to profile.d scripts
+  if not File.symlink?('/etc/profile.d')
+    puts "==> host: Linking /etc/profile.d -> #{VAGRANT_DIR}/etc/profile.d"
+    system %-sudo ln \-s #{VAGRANT_DIR}/etc/profile.d /etc/profile.d-
+    changes = true
+  end
+
   # enable profile.d scripts on host
   if not %x{grep '## VAGRANT START ##' /etc/profile}.strip!
     puts "==> host: Configuring /etc/profile for running sub-scripts"
-    system %-
-      printf "\n%s\n" \
-'## VAGRANT START ##
+
+    profile_script=%-
 for i in /etc/profile.d/*.sh ; do
     if [ \-r "$i" ]; then
         if [ "${\-#*i}" != "$\-" ]; then
@@ -39,14 +47,23 @@ for i in /etc/profile.d/*.sh ; do
     fi
 done
 unset i
-## VAGRANT END ##' \
-        | sudo tee \-a /etc/profile > /dev/null
+-
+
+    # append script to /etc/profile and then execute that new portion to pickup env configuration
+    system %-
+      printf "\n## VAGRANT START ##%s## VAGRANT END ##\n" '#{profile_script}'| sudo tee \-a /etc/profile > /dev/null
     -
+    changes = true
   end
   
-  # create symlink to profile.d scripts
-  if not File.symlink?('/etc/profile.d')
-    puts "==> host: Linking /etc/profile.d -> #{VAGRANT_DIR}/etc/profile.d"
-    system %-sudo ln \-s #{VAGRANT_DIR}/etc/profile.d /etc/profile.d-
+  if changes
+    puts '==> host: Auto configuration complete'
+    puts 'Please re-run the command in a new shell...'
+    exit 1
+  end
+  
+  if changes == false && ENV['VAGRANT_ENV_ARE_SET'] != '1'
+    puts 'Please re-run the command in a new shell...'
+    exit 1
   end
 end
