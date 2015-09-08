@@ -62,7 +62,8 @@ unset i
     exit 1
   end
   
-  if changes == false && ENV['VAGRANT_ENV_ARE_SET'] != '1'
+  # prevent run if shell doesn't have expected env vars set from profile.d scripts
+  if changes == false && ENV['VAGRANT_CWD'] != BASE_DIR
     puts 'Please re-run the command in a new shell...'
     exit 1
   end

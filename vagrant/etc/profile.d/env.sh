@@ -5,7 +5,6 @@ export MAGE_IS_DEVELOPER_MODE=1
 export MAGE_MODE=developer
 
 # set vagrant environemnt vars
-export VAGRANT_ENV_ARE_SET=1
 export VAGRANT_CWD=/server
 export VAGRANT_HOME=/server/.vagrant/home
 export VAGRANT_DOTFILE_PATH=/server/.vagrant/state
