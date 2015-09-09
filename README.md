@@ -6,9 +6,9 @@
 
 ## Environment Setup
 
-1. Retrieve your personal access token from the [GitHub Settings](https://github.com/settings/tokens) page and set this in your current shell by running the following (replacing <your_token> with the one you previously retrieved from your GitHub account):
+1. Retrieve your personal access token from the [GitHub Settings](https://github.com/settings/tokens) page and set this in your current shell by running the following (replacing <your_api_token> with the one you previously retrieved from your GitHub account):
 
-        export HOMEBREW_GITHUB_API_TOKEN=<your_token_here>
+        export HOMEBREW_GITHUB_API_TOKEN=<your_api_token>
 
 2. Run the following to kickstart your environment with common software packages. You will be prompted for your password a few times as this runs to completion
 
@@ -65,6 +65,10 @@
         ssh-keygen -f ~/.ssh/id_rsa
 
     *Note: When prompted, enter a memorable passphrase (you’ll need to use it later)*
+
+8. Configure the GitHub API token for composer to use. This may be the same or different than the one created in step 1.
+
+        composer config -g github-oauth.github.com <your_api_token>
 
 8. Run the following to start up the virtual machines. This will take a while on first run
 
