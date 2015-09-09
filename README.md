@@ -1,15 +1,21 @@
 # Development Environment
 
+## System Requirements
+* Mac OS X 10.9+
+* An HFS+ **Case-sensitive** partition mounted at `/Volumes/Server` (opting to not use a case-sensitive partition may result in database issues)
+
 ## Environment Setup
-There should be a 150 GB *Mac OS X Extended (Case-sensitive, Journaled)* partition named Server present on the host machine before beginning this setup procedure. If this does not exist, please create one. This can be done via Disk Utility while booted into Recovery Mode. Running `ls -lhd /Volumes/Server` will easily determine if this partition is present or not.
 
 1. Retrieve your personal access token from the [GitHub Settings](https://github.com/settings/tokens) page and set this in your current shell by running the following (replacing <your_token> with the one you previously retrieved from your GitHub account):
 
         export HOMEBREW_GITHUB_API_TOKEN=<your_token_here>
 
-2. Run the following to kickstart your environment (you will be prompted for your password multiple times while the first line runs):
+2. Run the following to kickstart your environment with common software packages. You will be prompted for your password a few times as this runs to completion
 
         curl -s https://raw.githubusercontent.com/davidalger/devenv/master/bin/glowbot.py | python
+
+3. Install the vagrant based developer environment on your machine:
+
         cd /server
         sudo chown $(whoami):admin /server
         git init
@@ -19,7 +25,7 @@ There should be a 150 GB *Mac OS X Extended (Case-sensitive, Journaled)* partiti
         vagrant status
         source /etc/profile
 
-3. Add the following to the `/etc/hosts` file on the host machine using `mate /etc/hosts` or `sudo vi /etc/hosts`:
+4. Add the following to the `/etc/hosts` file on the host machine using `mate /etc/hosts` or `sudo vi /etc/hosts`:
 
         ##################################################
         ## Developer Environment
@@ -39,7 +45,7 @@ There should be a 150 GB *Mac OS X Extended (Case-sensitive, Journaled)* partiti
         10.19.89.10 m2.dev
         
 
-4.  Add the following to the `~/.my.cnf` file on the host machine:
+5.  Add the following to the `~/.my.cnf` file on the host machine:
 
         [client]
         host=dev-db
@@ -49,25 +55,25 @@ There should be a 150 GB *Mac OS X Extended (Case-sensitive, Journaled)* partiti
     
     _Note: If there is a `~/.mylogin.cnf` file present on the host, it will supersede this file, potentially breaking things._
 
-5. Install the compass tools used for scss compilation
+6. Install the compass tools used for scss compilation
 
         sudo gem update --system
         sudo gem install compass
 
-6. Generate an RSA key pair. The generated public key will be used to authenticate remote SSH connections
+7. Generate an RSA key pair. The generated public key will be used to authenticate remote SSH connections
 
         ssh-keygen -f ~/.ssh/id_rsa
 
     *Note: When prompted, enter a memorable passphrase (you’ll need to use it later)*
 
-7. Run the following to start up the virtual machines. This will take a while on first run
+8. Run the following to start up the virtual machines. This will take a while on first run
 
         cd /server
         vagrant up
 
-8. You should be ready to roll! Go ahead and load the [m2.dev](http://m2.dev/) site which should be setup and running inside the virtual machine to make sure everything is working correctly
+9. You should be ready to roll! Go ahead and load the [m2.dev](http://m2.dev/) site which should be setup and running inside the virtual machine to make sure everything is working correctly
 
-9. To SSH into the vm, you can use `vcd` or `vcd web` to connect and automatically mirror the working directory if a matching location exists on the vm
+10. To SSH into the vm, you can use `vcd` or `vcd web` to connect and automatically mirror the working directory if a matching location exists on the vm
 
 ## Virtual Machines
 
