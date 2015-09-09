@@ -7,7 +7,7 @@ def bootstrap_sh (conf, roles)
     env_vars = %-
       export BASE_DIR="#{BASE_DIR}";
       export VAGRANT_DIR="#{VAGRANT_DIR}";
-      export CACHE_DIR="#{CACHE_DIR}";
+      export SHARED_DIR="#{SHARED_DIR}";
       export SITES_DIR="#{SITES_DIR}";
       export ALLOWABLE_ROLES="#{ENV['VAGRANT_ALLOWABLE_ROLES']}";
       export PHP_VERSION="#{ENV['VAGRANT_PHP_VERSION']}";

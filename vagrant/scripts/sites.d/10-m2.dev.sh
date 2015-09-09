@@ -5,14 +5,14 @@ wd=$(pwd)
 var_dirs=cache,page_cache,session,log,generation,composer_home,view_preprocessed
 
 # use a bare clone to keep up-to-date local mirror of master
-if [[ ! -d "$CACHE_DIR/m2.repo" ]]; then
+if [[ ! -d "$SHARED_DIR/m2.repo" ]]; then
     echo "Cloning remote repository to local mirror. This could take a while..."
-    git clone --bare -q "https://github.com/magento/magento2.git" "$CACHE_DIR/m2.repo"
-    cd "$CACHE_DIR/m2.repo"
+    git clone --bare -q "https://github.com/magento/magento2.git" "$SHARED_DIR/m2.repo"
+    cd "$SHARED_DIR/m2.repo"
     git remote add origin "https://github.com/magento/magento2.git"
     git fetch -q
 else
-    cd "$CACHE_DIR/m2.repo"
+    cd "$SHARED_DIR/m2.repo"
     git fetch -q || true
 fi
 
@@ -22,7 +22,7 @@ if [[ ! -d "$SITES_DIR/m2.dev" ]]; then
     >&2 echo "Note: please add a record to your /etc/hosts file for m2.dev and re-run the vhost generator"
     
     mkdir -p "$SITES_DIR/m2.dev"
-    git clone -q "$CACHE_DIR/m2.repo" "$SITES_DIR/m2.dev"
+    git clone -q "$SHARED_DIR/m2.repo" "$SITES_DIR/m2.dev"
 
     cd "$SITES_DIR/m2.dev"
     bash -c "ln -s /server/_var/m2.dev/{$var_dirs} var/"
@@ -40,7 +40,7 @@ chmod -R 777 "/server/_var/"
 bash -c "rm -rf var/{$var_dirs}/*"
 
 # install all dependencies in prep for setup / upgrade
-composer install -q --prefer-dist
+composer install -q --no-interaction --prefer-dist
 
 # either install or upgrade database
 code=

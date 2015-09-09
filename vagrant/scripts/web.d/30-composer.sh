@@ -3,7 +3,7 @@ wd="$(pwd)"
 set -e
 
 composer_url="https://getcomposer.org/composer.phar"
-composer_home="$CACHE_DIR/composer"
+composer_home="$SHARED_DIR/composer"
 composer_path="/usr/local/bin/composer"
 
 mkdir -p "$composer_home"
