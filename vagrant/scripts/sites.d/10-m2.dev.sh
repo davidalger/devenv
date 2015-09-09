@@ -2,8 +2,9 @@
 set -e
 wd=$(pwd)
 
-if [ "$PHP_VERSION" != "56" ] && [ "$PHP_VERSION" != "55" ]; then
-    echo "Skipping due to outdated PHP version"
+php_version=$(php -r 'echo phpversion();' | cut -d . -f2)
+if [[ $php_version < 5 ]]; then
+    echo "Skipping due to outdated PHP version (Magento 2 requires PHP 5.5 or newer)"
     exit
 fi
 
