@@ -18,7 +18,7 @@ def configure_common (conf)
   conf.ssh.forward_agent = true
 end
 
-def configure_web_vm (node, host: nil, ip: nil)
+def configure_web_vm (node, host: nil, ip: nil, php_version: nil)
   node.vm.hostname = host
   node.vm.network :private_network, ip: ip
 
@@ -38,24 +38,32 @@ def configure_web_vm (node, host: nil, ip: nil)
   mount_bind(node, VAGRANT_DIR + '/etc/httpd/sites.d', '/etc/httpd/sites.d')
 
   # setup guest provisioners
-  bootstrap_sh(node, ['node', 'web', 'sites'])
+  bootstrap_sh(node, ['node', 'web', 'sites'], { php_version: php_version })
   service(node, 'httpd', 'start')
   service(node, 'nginx', 'start')
   service(node, 'redis', 'start')
 end
 
-def configure_db_vm (node, host: nil, ip: nil)
+def configure_db_vm (node, host: nil, ip: nil, mysql_version: nil)
   node.vm.hostname = host
   node.vm.network :private_network, ip: ip
 
   vm_set_ram(node, 4096)
 
+  # default local data directory location
+  local_data_dir_name = MOUNT_PATH + '/mysql/data'
+  
+  # if non-default version specified, append to data dir path
+  if mysql_version and mysql_version != 56
+    local_data_dir_name = "#{local_data_dir_name}#{mysql_version}"
+  end
+
   # verify exports and mount nfs mysql data directory
   assert_export(MOUNT_PATH + '/mysql')
-  mount_nfs(node, 'host-mysql-data', MOUNT_PATH + '/mysql/data', '/var/lib/mysql/data')
+  mount_nfs(node, 'host-mysql-data', local_data_dir_name, '/var/lib/mysql/data')
 
   # setup guest provisioners
-  bootstrap_sh(node, ['node', 'db'])
+  bootstrap_sh(node, ['node', 'db'], { mysql_version: mysql_version })
   service(node, 'mysqld', 'start')
 end
 

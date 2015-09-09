@@ -26,7 +26,11 @@ There should be a 150 GB *Mac OS X Extended (Case-sensitive, Journaled)* partiti
         
         10.19.89.1  dev-host
         10.19.89.10 dev-web
+        10.19.89.11 dev-web55
+        10.19.89.12 dev-web54
+        10.19.89.13 dev-web53
         10.19.89.20 dev-db
+        10.19.89.21 dev-db51
         10.19.89.30 dev-solr
         
         ##################################################
@@ -74,13 +78,9 @@ Run `vhosts.sh` to generate vhosts for all sites and reload apache. This will be
 
 The IP address of this node is fixed at `10.19.89.10`. This IP should be used in `/etc/hosts` on the host machine to facilitate loading applications running within the vm from a browser on the host.
 
-By default this node is configured to install PHP 5.6 from Remi's repository. Different versions of PHP may be chosen by exporting the `VAGRANT_PHP_VERSION` variable on the command line prior to running `vagrant up` for the first time. To switch PHP versions, export the requested PHP version and then run the following to blow away and re-setup your vm:
+#### PHP Versions
 
-        vagrant destroy -f web && vagrant up
-
-The requested version of PHP may be specified  via the following environment variable. Valid values are currently 53, 54, 55 and 56 (default). However, PHP 5.3 is not fully supported as there are no packages available for Xdebug or the ionCube loader in the default RPMs used to build PHP 5.3.
-
-        export VAGRANT_PHP_VERSION=56
+This node has PHP 5.6 from Remi's repository installed. Older versions are available as pre-configured machines, but do not start automatically. To use them, start via `vagrant up web55` or similar. Then configure your local hosts file to point the site needing this specific version of PHP to the correct machine instance.
 
 #### m2.dev
 By default one site is automatically created upon machine initialization. It is m2.dev and will run off of the official magento/magento2 repositories develop branch.
@@ -100,6 +100,10 @@ To allow for custom database settings without modifying the default my.cnf file 
     lower_case_table_names = 1
 
 ***WARNING:*** Because this node is running the mysqld service and persisting data, attempts to forcefully shutdown (aka run `vagrant destroy`) on the db node will cause data corruption and fail subsequent mysqld start operations unless the vm has first been halted and/or the mysqld service stopped gracefully prior to vm destruction. The recommended sequence to wipe the vm and create from scratch is halt, destroy, then up.
+
+#### MySql Versions
+
+This node has MySql 5.6 from the community MySql RPM installed. Should MySql 5.1 be required, there is a pre-configured machine available, but it will not start by default. Start this machine via `vagrant up db51`. The data directory of this will be kept separate from the MySql 5.6 data in order to preserve data integrity. These machines may be run simultaneously. Configure sites to connect to `dev-db` or `dev-db51` as needed.
 
 ## dev-solr
 This node does not boot by default and currently does nothing. It is here as a placeholder for running Solr once the provisioning scripts for it are created.
@@ -127,8 +131,9 @@ Using VMWare Fusion is a supported (but non-default) setup. There are additional
 For NFS mounts to function, run the following to add the necessary exports to your `/etc/exports` file on the host machine and restart nfsd:
 
         MAPALL="-mapall=$(id -u):$(grep ^admin: /etc/group | cut -d : -f 3)"
+        MOUNT_DIR="$(readlink /server || echo /server)"
         printf "%s\n%s\n" \
-            "/Volumes/Server/sites/ -alldirs -network 192.168.235.0 -mask 255.255.255.0 $MAPALL" \
-            "/Volumes/Server/mysql/ -alldirs -network 192.168.235.0 -mask 255.255.255.0 $MAPALL" \
+            "$MOUNT_DIR/sites/ -alldirs -network 192.168.235.0 -mask 255.255.255.0 $MAPALL" \
+            "$MOUNT_DIR/mysql/ -alldirs -network 192.168.235.0 -mask 255.255.255.0 $MAPALL" \
             | sudo tee -a /etc/exports > /dev/null
         sudo nfsd restart

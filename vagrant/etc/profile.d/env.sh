@@ -6,8 +6,7 @@ export MAGE_MODE=developer
 
 # set vagrant environemnt vars
 export VAGRANT_IS_SETUP=true
-export VAGRANT_HOME=/server/.vagrant/home
-export VAGRANT_DOTFILE_PATH=.vagrant/state
+export VAGRANT_HOME=/server/.vagrant
 export VAGRANT_LOG=
 
 # set central composer home

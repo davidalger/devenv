@@ -2,6 +2,12 @@
 set -e
 wd=$(pwd)
 
+php_version=$(php -r 'echo phpversion();' | cut -d . -f2)
+if [[ $php_version < 5 ]]; then
+    echo "Skipping due to outdated PHP version (Magento 2 requires PHP 5.5 or newer)"
+    exit
+fi
+
 var_dirs=cache,page_cache,session,log,generation,composer_home,view_preprocessed
 
 # use a bare clone to keep up-to-date local mirror of master
