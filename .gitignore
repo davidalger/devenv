@@ -4,7 +4,7 @@
 .TemporaryItems
 .fseventsd
 /.vagrant/
-/.cache/
+/.shared/
 /_var/
 /proj/
 /private/

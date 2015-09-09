@@ -1,21 +1,38 @@
-# Validates base_dir as a valid symlink pointing to our env and returns fully qualifed path to root
+# Validates path as a valid symlink pointing to our env or the containing directory of our env. Returns path
 # Params:
-# +base_link+:: +String+ path to base symlink
-def env_root (base_link)
-  # assert base_dir points to a valid symlink
-  if not File.symlink?(base_link)
+# +base_dir+:: +String+ path to base directory or symlink to environment root
+def base_dir (base_dir)
+  # evaluates to true if is not either a valid directory a symlink pointing to a directory
+  if !File.directory?(base_dir)
     throw 'Error: please create a /server link pointing to the environment root'
   end
 
   # assert base_dir points to our environment root
-  if %-#{File.readlink(base_link)}/#{File.basename(VAGRANT_FILE)}- != VAGRANT_FILE
-    throw "Error: #{base_link} link does not point at this environment root (did you link with a trailing slash?)"
+  if %-#{mount_path(base_dir)}/#{File.basename(VAGRANT_FILE)}- != VAGRANT_FILE
+    throw "Error: #{base_dir} does not point at this environment root (did you link with a trailing slash?)"
   end
-
-  return File.readlink(base_link)
+  
+  return base_dir
 end
 
-def auto_config_host ()
+# Resolves the mount path from the base_dir. Will return unchanged if base_dir is not a symlink.
+# Params:
+# +base_dir+:: +String+ path to base directory
+def mount_path (base_dir)
+  if File.symlink?(base_dir)
+    base_dir = File.readlink(base_dir)
+  end
+  
+  if !File.directory?(base_dir)
+    throw "Error: #{base_dir} does not exist"
+  end
+  
+  return base_dir
+end
+
+# Runs the host machine autoconfiguration routine
+# Params:
+def auto_config_host
   changes = false
   newsh = false
   
@@ -65,8 +82,8 @@ unset i
     
     mapall = %x{printf $(id \-u):$(grep ^admin: /etc/group | cut \-d : \-f 3)}
     nfs_exports = %-
-#{SERVER_MOUNT}/sites/ \-alldirs \-network 10.19.89.0 \-mask 255.255.255.0 \-mapall=#{mapall}
-#{SERVER_MOUNT}/mysql/ \-alldirs \-network 10.19.89.0 \-mask 255.255.255.0 \-mapall=#{mapall}
+#{MOUNT_PATH}/sites/ \-alldirs \-network 10.19.89.0 \-mask 255.255.255.0 \-mapall=#{mapall}
+#{MOUNT_PATH}/mysql/ \-alldirs \-network 10.19.89.0 \-mask 255.255.255.0 \-mapall=#{mapall}
 -
     system %-
       printf "\n## VAGRANT START ##%s## VAGRANT END ##\n" '#{nfs_exports}'| sudo tee \-a /etc/exports > /dev/null
@@ -80,8 +97,8 @@ unset i
   end
 
   # prevent run if shell doesn't have expected env vars set from profile.d scripts or if changes require such
-  if newsh or (changes == false && ENV['VAGRANT_CWD'] != BASE_DIR)
-    puts 'Please re-run the command in a new shell...'
+  if newsh or (changes == false && ENV['VAGRANT_IS_SETUP'] != 'true')
+    puts 'Please re-run the command in a new shell... or type `source /etc/profile` and then try again'
     exit 1
   end
 end

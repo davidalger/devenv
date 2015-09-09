@@ -5,13 +5,13 @@ export MAGE_IS_DEVELOPER_MODE=1
 export MAGE_MODE=developer
 
 # set vagrant environemnt vars
-export VAGRANT_CWD=/server
+export VAGRANT_IS_SETUP=true
 export VAGRANT_HOME=/server/.vagrant/home
-export VAGRANT_DOTFILE_PATH=/server/.vagrant/state
+export VAGRANT_DOTFILE_PATH=.vagrant/state
 export VAGRANT_LOG=
 
 # set central composer home
-export COMPOSER_HOME=/server/.cache/composer
+export COMPOSER_HOME=/server/.shared/composer
 
 # configure PATH to use local and user scripts
 export PATH=~/bin:/usr/local/bin:$PATH:/usr/local/sbin

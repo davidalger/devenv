@@ -7,10 +7,10 @@ require_relative 'lib/provision'
 require_relative 'lib/machine'
 
 # configure environment paths
-BASE_DIR = '/server'
-SERVER_MOUNT = env_root(BASE_DIR)
+BASE_DIR = base_dir('/server')
+MOUNT_PATH = mount_path(BASE_DIR)
 VAGRANT_DIR = BASE_DIR + '/vagrant'
-CACHE_DIR = BASE_DIR + '/.cache'
+SHARED_DIR = BASE_DIR + '/.shared'
 SITES_DIR = '/sites'
 SITES_MOUNT = '/var/www/sites'
 
