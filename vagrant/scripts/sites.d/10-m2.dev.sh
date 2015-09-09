@@ -2,6 +2,11 @@
 set -e
 wd=$(pwd)
 
+if [ "$PHP_VERSION" != "56" ] && [ "$PHP_VERSION" != "55" ]; then
+    echo "Skipping due to outdated PHP version"
+    exit
+fi
+
 var_dirs=cache,page_cache,session,log,generation,composer_home,view_preprocessed
 
 # use a bare clone to keep up-to-date local mirror of master

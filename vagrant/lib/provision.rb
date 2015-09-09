@@ -2,18 +2,23 @@
 # Params:
 # +conf+:: vagrant provisioning conf object
 # +roles+:: +Array+ containing a list of roles to apply to the node in sequence
-def bootstrap_sh (conf, roles)
+def bootstrap_sh (conf, roles, env = {})
   conf.vm.provision :shell do |conf|
-    env_vars = %-
-      export BASE_DIR="#{BASE_DIR}";
-      export VAGRANT_DIR="#{VAGRANT_DIR}";
-      export SHARED_DIR="#{SHARED_DIR}";
-      export SITES_DIR="#{SITES_DIR}";
-      export ALLOWABLE_ROLES="#{ENV['VAGRANT_ALLOWABLE_ROLES']}";
-      export PHP_VERSION="#{ENV['VAGRANT_PHP_VERSION']}";
-    -
+    env = {
+      base_dir: BASE_DIR,
+      vagrant_dir: VAGRANT_DIR,
+      shared_dir: SHARED_DIR,
+      sites_dir: SITES_DIR,
+      allowable_roles: ENV['VAGRANT_ALLOWABLE_ROLES'],
+    }.merge(env)
+
+    exports = ''
+    env.each do |key, val|
+      exports = %-#{exports}\nexport #{key.upcase}="#{val}";-
+    end
+
     conf.name = 'bootstrap.sh'
-    conf.inline = %-#{env_vars} #{VAGRANT_DIR}/scripts/bootstrap.sh "$@"-
+    conf.inline = %-#{exports} #{VAGRANT_DIR}/scripts/bootstrap.sh "$@"-
     conf.args = roles
   end
 end

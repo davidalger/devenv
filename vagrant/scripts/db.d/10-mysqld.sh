@@ -5,8 +5,8 @@ if [[ -f ./etc/my.cnf ]]; then
     cp ./etc/my.cnf /etc/my.cnf
 fi
 
+mkdir /etc/my.cnf.d/    # won't exist prior to install, and 5.1 doesn't automatically create it
 if [[ -d ./etc/my.cnf.d ]] && [[ ! -z "$(ls -1 ./etc/my.cnf.d/)" ]]; then
-    mkdir /etc/my.cnf.d/    # it won't exist before mysql has been installed
     cp ./etc/my.cnf.d/*.cnf /etc/my.cnf.d/
 fi
 
@@ -39,6 +39,9 @@ if [[ ! -f /var/lib/mysql/data/ibdata1 ]]; then
         GRANT ALL PRIVILEGES ON *.* TO 'root'@'localhost' WITH GRANT OPTION;
         GRANT ALL PRIVILEGES ON *.* TO 'root'@'dev-host' WITH GRANT OPTION;
         GRANT ALL PRIVILEGES ON *.* TO 'root'@'dev-web' WITH GRANT OPTION;
+        GRANT ALL PRIVILEGES ON *.* TO 'root'@'dev-web55' WITH GRANT OPTION;
+        GRANT ALL PRIVILEGES ON *.* TO 'root'@'dev-web54' WITH GRANT OPTION;
+        GRANT ALL PRIVILEGES ON *.* TO 'root'@'dev-web53' WITH GRANT OPTION;
         FLUSH PRIVILEGES;
     "
     service mysqld stop # will be started in seperate provisioner

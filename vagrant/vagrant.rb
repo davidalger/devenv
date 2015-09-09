@@ -32,6 +32,25 @@ Vagrant.configure(2) do |conf|
     node.vm.network :forwarded_port, guest: 6379, host: 6379
   end
 
+  conf.vm.define :web55, autostart: false do |node|
+    configure_web_vm node, host: 'dev-web55', ip: '10.19.89.11', php_version: 55
+    node.vm.network :forwarded_port, guest: 6380, host: 6380
+  end
+
+  conf.vm.define :web54, autostart: false do |node|
+    configure_web_vm node, host: 'dev-web54', ip: '10.19.89.12', php_version: 54
+    node.vm.network :forwarded_port, guest: 6381, host: 6381
+  end
+
+  conf.vm.define :web53, autostart: false do |node|
+    configure_web_vm node, host: 'dev-web53', ip: '10.19.89.13', php_version: 53
+    node.vm.network :forwarded_port, guest: 6382, host: 6382
+  end
+
+  conf.vm.define :db51, autostart: false do |node|
+    configure_db_vm node, host: 'dev-db51', ip: '10.19.89.21', mysql_version: 51
+  end
+
   conf.vm.define :solr, autostart: false do |node|
     configure_solr_vm node, host: 'dev-solr', ip: '10.19.89.30'
   end
