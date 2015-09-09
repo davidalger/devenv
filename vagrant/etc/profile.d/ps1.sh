@@ -2,7 +2,7 @@
 
 if [[ -f "/etc/.vagranthost" ]]; then
     export PS1='\[\033[0;34m\]\u\[\033[0m\]:\@:\[\033[0;37m\]\w\[\033[0m\]$(
-        (git rev-parse --show-toplevel 2>/dev/null | grep -vE "^/Volumes/Server$" 1>/dev/null) && printf " $(
+        (git rev-parse --show-toplevel 2>/dev/null | grep -vE "^$(readlink /server || echo /server)$" 1>/dev/null) && printf " $(
             git status -sb 2>/dev/null | grep -v "## " | head -n 1 | wc -l | tr 01 " *" | tr -d "[:blank:]";
             git status -sb 2>/dev/null | grep "## " | tr -d "#[:blank:]" | cut -d "." -f1;
         ) " | tr -d "\n" | grep -v "  "

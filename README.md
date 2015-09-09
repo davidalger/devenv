@@ -127,8 +127,9 @@ Using VMWare Fusion is a supported (but non-default) setup. There are additional
 For NFS mounts to function, run the following to add the necessary exports to your `/etc/exports` file on the host machine and restart nfsd:
 
         MAPALL="-mapall=$(id -u):$(grep ^admin: /etc/group | cut -d : -f 3)"
+        MOUNT_DIR="$(readlink /server || echo /server)"
         printf "%s\n%s\n" \
-            "/Volumes/Server/sites/ -alldirs -network 192.168.235.0 -mask 255.255.255.0 $MAPALL" \
-            "/Volumes/Server/mysql/ -alldirs -network 192.168.235.0 -mask 255.255.255.0 $MAPALL" \
+            "$MOUNT_DIR/sites/ -alldirs -network 192.168.235.0 -mask 255.255.255.0 $MAPALL" \
+            "$MOUNT_DIR/mysql/ -alldirs -network 192.168.235.0 -mask 255.255.255.0 $MAPALL" \
             | sudo tee -a /etc/exports > /dev/null
         sudo nfsd restart
