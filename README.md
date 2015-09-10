@@ -1,31 +1,18 @@
 # Development Environment
+This setup relies on VirtualBox and Vagrant running on Mac OS X to power the virtualized environment. These technical dependencies are installed as part of the setup process using [Homebrew](http://brew.sh) and [Homebrew Cask](http://caskroom.io).
 
 ## System Requirements
-* Mac OS X 10.9+
-* An HFS+ **Case-sensitive** partition mounted at `/Volumes/Server` (opting to not use a case-sensitive partition may result in database issues)
+* Mac OS X 10.9 or later
+* An HFS+ **Case-sensitive** partition mounted at `/Volumes/Server` or `/server`
 
 ## Environment Setup
 
-1. Retrieve your personal access token from the [GitHub Settings](https://github.com/settings/tokens) page and set this in your current shell by running the following (replacing <your_api_token> with the one you previously retrieved from your GitHub account):
-
-        export HOMEBREW_GITHUB_API_TOKEN=<your_api_token>
-
-2. Run the following to install the necessary dependencies and a few general developer tools. Note: You may be prompted for your password a few times mid-run:
+1. Install technical dependencies and setup the environment, entering your account password when prompted (this may happen a few times):
 
         curl -s https://raw.githubusercontent.com/davidalger/devenv/master/vagrant/bin/install.sh | bash
-
-3. Install the vagrant based developer environment on your machine:
-
-        cd /server
-        sudo chown $(whoami):admin /server
-        git init
-        git remote add origin https://github.com/davidalger/devenv.git
-        git fetch origin
-        git checkout master
-        vagrant status
         source /etc/profile
 
-4. Add the following to the `/etc/hosts` file on the host machine using `mate /etc/hosts` or `sudo vi /etc/hosts`:
+2. Append the following to the `/etc/hosts` file on the host machine using `mate /etc/hosts` or `sudo vi /etc/hosts`:
 
         ##################################################
         ## Developer Environment
@@ -45,7 +32,7 @@
         10.19.89.10 m2.dev
         
 
-5.  Add the following to the `~/.my.cnf` file on the host machine:
+3.  Add the following to the `~/.my.cnf` file on the host machine:
 
         [client]
         host=dev-db
@@ -55,29 +42,31 @@
     
     _Note: If there is a `~/.mylogin.cnf` file present on the host, it will supersede this file, potentially breaking things._
 
-6. Install the compass tools used for scss compilation
+4. Because of GitHub's rate limits on their API it can happen that Composer will silently fail on the m2.dev provisioning step of the dev-web machine. To prevent this from happening, create an OAuth token via the [GitHub Settings](https://github.com/settings/tokens) area in your GitHub account. You can read more about these tokens [here](https://github.com/blog/1509-personal-api-tokens). Add this token to the composer configuration by running:
 
-        sudo gem update --system
-        sudo gem install compass
+        composer config -g github-oauth.github.com <oauthtoken>
 
-7. Generate an RSA key pair. The generated public key will be used to authenticate remote SSH connections
-
-        ssh-keygen -f ~/.ssh/id_rsa
-
-    *Note: When prompted, enter a memorable passphrase (you’ll need to use it later)*
-
-8. Configure the GitHub API token for composer to use. This may be the same or different than the one created in step 1.
-
-        composer config -g github-oauth.github.com <your_api_token>
-
-8. Run the following to start up the virtual machines. This will take a while on first run
+5. Run the following to start up the virtual machines. This will take a while on first run, as there is a lot to do!
 
         cd /server
         vagrant up
 
-9. You should be ready to roll! Go ahead and load the [m2.dev](http://m2.dev/) site which should be setup and running inside the virtual machine to make sure everything is working correctly
+6. You should be ready to roll! Go ahead and load the [m2.dev](http://m2.dev/) site which should be setup and running inside the virtual machine to make sure everything is working correctly
 
-10. To SSH into the vm, you can use `vcd` or `vcd web` to connect and automatically mirror the working directory if a matching location exists on the vm
+7. To SSH into the vm, you can use `vcd` or `vcd web` to connect and automatically mirror your working directory, assuming the location also exists within the virtual machine
+
+### Optional Setup Steps
+
+1. Install the compass tools used for scss compilation (optional step)
+
+        sudo gem update --system
+        sudo gem install compass
+
+2. Generate an RSA key pair (optional step). The generated public key will be used to authenticate remote SSH connections
+
+        ssh-keygen -f ~/.ssh/id_rsa
+
+    *Note: When prompted, enter a memorable passphrase (you’ll need to use it later)*
 
 ## Virtual Machines
 
