@@ -62,6 +62,7 @@ fi
 sudo mkdir -p /usr/local/bin
 if [[ "$(stat -f "%u" /usr/local/bin/)" != "$(id -u)" ]]; then
     sudo chown $(whoami):admin /usr/local/bin
+    made_changes=1
 fi
 
 # general tooling
@@ -88,6 +89,7 @@ if [[ ! -x /usr/local/bin/composer ]]; then
     mkdir -p /server/.shared/composer
     wget -q https://getcomposer.org/composer.phar -O /usr/local/bin/composer
     chmod +x /usr/local/bin/composer
+    made_changes=1
 fi
 
 ##############################
