@@ -1,25 +1,22 @@
 # Development Environment
+This setup relies on Vagrant and VirtualBox (or [VMWare Fusion](#vmware-provider) if that's what you prefer) running on Mac OS X to power the virtualized developer environment. These dependencies are installed as part of the setup process using [Homebrew](http://brew.sh) and [Homebrew Cask](http://caskroom.io).
+
+It is setup with two primary machines: web and db. Together these two virtual machines provide all the neccesary components to build on Magento 1 and Magento 2, including support for running multiple PHP / MySql versions side-by-side if neccesary ([see below for details](#virtual-machines)). The web node runs a traditional LAMP stack, with Nginx sitting in front of Apache as a proxy for static assets. It also includes [Xdebug](http://xdebug.org) pre-configured to connect to your IDE on the host machine.
+
+## System Requirements
+* Mac OS X 10.9 or later
+* An HFS+ **Case-sensitive** partition mounted at `/Volumes/Server` or `/server`
+
+    *Note: The environment should install and run from a case-insensitive mount, but this is not reccomended for two reasons: a) the majority of deployments are done to case-sensitive file-systems, so development done on a case-sensitive mount is less error prone (ex: autoloaders may find a class in development, then fail on production); b) mysql will behave differently as it pertains to [identifier case sensitivity](https://dev.mysql.com/doc/refman/5.0/en/identifier-case-sensitivity.html) potentially causing unexpected behaviour*
 
 ## Environment Setup
-There should be a 150 GB *Mac OS X Extended (Case-sensitive, Journaled)* partition named Server present on the host machine before beginning this setup procedure. If this does not exist, please create one. This can be done via Disk Utility while booted into Recovery Mode. Running `ls -lhd /Volumes/Server` will easily determine if this partition is present or not.
 
-1. Retrieve your personal access token from the [GitHub Settings](https://github.com/settings/tokens) page and set this in your current shell by running the following (replacing <your_token> with the one you previously retrieved from your GitHub account):
+1. Install technical dependencies and setup the environment, entering your account password when prompted (this may happen a few times):
 
-        export HOMEBREW_GITHUB_API_TOKEN=<your_token_here>
-
-2. Run the following to kickstart your environment (you will be prompted for your password multiple times while the first line runs):
-
-        curl -s https://raw.githubusercontent.com/davidalger/devenv/master/bin/glowbot.py | python
-        cd /server
-        sudo chown $(whoami):admin /server
-        git init
-        git remote add origin https://github.com/davidalger/devenv.git
-        git fetch origin
-        git checkout master
-        vagrant status
+        curl -s https://raw.githubusercontent.com/davidalger/devenv/master/vagrant/bin/install.sh | bash
         source /etc/profile
 
-3. Add the following to the `/etc/hosts` file on the host machine using `mate /etc/hosts` or `sudo vi /etc/hosts`:
+2. Append the following to the `/etc/hosts` file on the host machine using `mate /etc/hosts` or `sudo vi /etc/hosts`:
 
         ##################################################
         ## Developer Environment
@@ -39,7 +36,7 @@ There should be a 150 GB *Mac OS X Extended (Case-sensitive, Journaled)* partiti
         10.19.89.10 m2.dev
         
 
-4.  Add the following to the `~/.my.cnf` file on the host machine:
+3.  Add the following to the `~/.my.cnf` file on the host machine:
 
         [client]
         host=dev-db
@@ -49,25 +46,31 @@ There should be a 150 GB *Mac OS X Extended (Case-sensitive, Journaled)* partiti
     
     _Note: If there is a `~/.mylogin.cnf` file present on the host, it will supersede this file, potentially breaking things._
 
-5. Install the compass tools used for scss compilation
+4. Because of GitHub's rate limits on their API it can happen that Composer will silently fail on the m2.dev provisioning step of the dev-web machine. To prevent this from happening, create an OAuth token via the [GitHub Settings](https://github.com/settings/tokens) area in your GitHub account. You can read more about these tokens [here](https://github.com/blog/1509-personal-api-tokens). Add this token to the composer configuration by running:
 
-        sudo gem update --system
-        sudo gem install compass
+        composer config -g github-oauth.github.com <oauthtoken>
 
-6. Generate an RSA key pair. The generated public key will be used to authenticate remote SSH connections
-
-        ssh-keygen -f ~/.ssh/id_rsa
-
-    *Note: When prompted, enter a memorable passphrase (you’ll need to use it later)*
-
-7. Run the following to start up the virtual machines. This will take a while on first run
+5. Run the following to start up the virtual machines. This will take a while on first run, as there is a lot to do!
 
         cd /server
         vagrant up
 
-8. You should be ready to roll! Go ahead and load the [m2.dev](http://m2.dev/) site which should be setup and running inside the virtual machine to make sure everything is working correctly
+6. You should be ready to roll! Go ahead and load the [m2.dev](http://m2.dev/) site which should be setup and running inside the virtual machine to make sure everything is working correctly
 
-9. To SSH into the vm, you can use `vcd` or `vcd web` to connect and automatically mirror the working directory if a matching location exists on the vm
+7. To SSH into the vm, you can use `vcd` or `vcd web` to connect and automatically mirror your working directory, assuming the location also exists within the virtual machine
+
+### Optional Steps
+
+1. Install the compass tools used for scss compilation
+
+        sudo gem update --system
+        sudo gem install compass
+
+2. Generate an RSA key pair. The generated public key will be used to authenticate remote SSH connections
+
+        ssh-keygen -f ~/.ssh/id_rsa
+
+    *Note: When prompted, enter a memorable passphrase (you’ll need to use it later)*
 
 ## Virtual Machines
 
