@@ -10,9 +10,9 @@
 
         export HOMEBREW_GITHUB_API_TOKEN=<your_api_token>
 
-2. Run the following to kickstart your environment with common software packages. You will be prompted for your password a few times as this runs to completion
+2. Run the following to install the necessary dependencies and a few general developer tools. Note: You may be prompted for your password a few times mid-run:
 
-        curl -s https://raw.githubusercontent.com/davidalger/devenv/master/bin/glowbot.py | python
+        curl -s https://raw.githubusercontent.com/davidalger/devenv/master/vagrant/bin/install.sh | bash
 
 3. Install the vagrant based developer environment on your machine:
 
