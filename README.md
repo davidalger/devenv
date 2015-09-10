@@ -55,14 +55,14 @@ This setup relies on VirtualBox and Vagrant running on Mac OS X to power the vir
 
 7. To SSH into the vm, you can use `vcd` or `vcd web` to connect and automatically mirror your working directory, assuming the location also exists within the virtual machine
 
-### Optional Setup Steps
+### Optional Steps
 
-1. Install the compass tools used for scss compilation (optional step)
+1. Install the compass tools used for scss compilation
 
         sudo gem update --system
         sudo gem install compass
 
-2. Generate an RSA key pair (optional step). The generated public key will be used to authenticate remote SSH connections
+2. Generate an RSA key pair. The generated public key will be used to authenticate remote SSH connections
 
         ssh-keygen -f ~/.ssh/id_rsa
 
