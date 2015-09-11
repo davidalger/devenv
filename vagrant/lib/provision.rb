@@ -31,7 +31,7 @@ end
 def service (conf, name, call)
   conf.vm.provision :shell, run: 'always' do |conf|
     conf.name = "service #{name} #{call}"
-    conf.inline = "service #{name} #{call}"
+    conf.inline = "service #{name} #{call} > /dev/null"
   end
 end
 
