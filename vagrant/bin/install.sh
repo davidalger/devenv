@@ -7,6 +7,16 @@ echo "==> Checking dependencies"
 ##############################
 # declare internal functions
 
+function assert_tap {
+    echo "==> Checking tap $1"
+    
+    if ! brew tap | grep "$1" > /dev/null 2>&1; then
+        brew tap "$1" 2> /dev/null | cat
+
+        made_changes=1
+    fi
+}
+
 function assert_pack {
     echo "==> Checking pack $1"
     
@@ -59,7 +69,11 @@ fi
 ##############################
 # install dependencies
 
-sudo mkdir -p /usr/local/bin
+if [[ ! -d /usr/local/bin ]]; then
+    sudo mkdir -p /usr/local/bin
+    made_changes=1
+fi
+
 if [[ "$(stat -f "%u" /usr/local/bin/)" != "$(id -u)" ]]; then
     sudo chown $(whoami):admin /usr/local/bin
     made_changes=1
@@ -71,15 +85,26 @@ assert_pack bash-completion
 assert_pack git
 assert_pack mysql
 assert_pack pv
+assert_pack perl    # no El Capitan support yet
 assert_pack redis
 assert_pack ruby
 assert_pack tree
 assert_pack wget
 
+assert_tap homebrew/php
+assert_pack homebrew/php/php56
+assert_pack homebrew/php/php56-mcrypt
+assert_pack homebrew/php/php56-redis    # no El Capitan support yet
+assert_pack homebrew/php/php56-intl
+
 # virtualization tech
+assert_tap caskroom/cask
 assert_pack caskroom/cask/brew-cask
+
 assert_cask vagrant
+assert_tap homebrew/completions
 assert_pack homebrew/completions/vagrant-completion
+
 assert_cask virtualbox
 
 ##############################
@@ -96,6 +121,7 @@ fi
 # nothing is at /server, so begin setup by creating it
 if [[ ! -d /server ]] && [[ ! -L /server ]]; then
     if [[ -d "/Volumes/Server" ]]; then
+        echo "==> Creating /server -> /Volumes/Server symbolic link"
         sudo ln -s /Volumes/Server /server
         made_changes=1
     else
@@ -106,12 +132,19 @@ if [[ ! -d /server ]] && [[ ! -L /server ]]; then
 fi
 
 if [[ -d /server ]] && [[ ! -L /server ]]; then
-    >&2 echo "Warning: /server is a directory. This may cause case-insensitivity issues in virtual machines."
+    >&2 echo "Warning: /server is a directory. This may cause case-insensitivity issues in virtual machines"
 fi
 
-# verify /server is empty before we start
+# create /sites link if not exists
+if [[ ! -d /sites ]] && [[ ! -L /sites ]]; then
+    echo "==> Creating /sites -> /server/sites symbolic link"
+    sudo ln -s /server/sites /sites
+    made_changes=1
+fi
+
+# verify /server is empty (barring system dotfiles) and hasn't been git inited
 if [[ ! "$(ls /server | head -n1)" ]] && [[ ! -f /server/.git/config ]] ; then
-    echo "==> Installing devenv at /server"
+    echo "==> Installing environment at /server"
     sudo chown $(whoami):admin /server
     cd /server
     git init -q
