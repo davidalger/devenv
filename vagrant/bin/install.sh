@@ -62,6 +62,7 @@ fi
 sudo mkdir -p /usr/local/bin
 if [[ "$(stat -f "%u" /usr/local/bin/)" != "$(id -u)" ]]; then
     sudo chown $(whoami):admin /usr/local/bin
+    made_changes=1
 fi
 
 # general tooling
@@ -80,15 +81,6 @@ assert_pack caskroom/cask/brew-cask
 assert_cask vagrant
 assert_pack homebrew/completions/vagrant-completion
 assert_cask virtualbox
-
-# composer has no brew package
-echo "==> Checking for composer"
-if [[ ! -x /usr/local/bin/composer ]]; then
-    echo "==> Installing composer"
-    mkdir -p /server/.shared/composer
-    wget -q https://getcomposer.org/composer.phar -O /usr/local/bin/composer
-    chmod +x /usr/local/bin/composer
-fi
 
 ##############################
 # verify server link and mount
@@ -118,7 +110,7 @@ if [[ -d /server ]] && [[ ! -L /server ]]; then
 fi
 
 # verify /server is empty before we start
-if [[ ! "$(ls -A /server | head -n1)" ]]; then
+if [[ ! "$(ls /server | head -n1)" ]] && [[ ! -f /server/.git/config ]] ; then
     echo "==> Installing devenv at /server"
     sudo chown $(whoami):admin /server
     cd /server
@@ -132,6 +124,17 @@ if [[ ! "$(ls -A /server | head -n1)" ]]; then
     made_changes=1
 elif [[ ! -f /server/vagrant/vagrant.rb ]]; then
     >&2 echo "Error: /server is not empty, but does not appear to be setup either. Moving on..."
+fi
+
+##############################
+# install composer (must come after /server creation)
+echo "==> Checking for composer"
+if [[ ! -x /usr/local/bin/composer ]]; then
+    echo "==> Installing composer"
+    mkdir -p /server/.shared/composer
+    wget -q https://getcomposer.org/composer.phar -O /usr/local/bin/composer
+    chmod +x /usr/local/bin/composer
+    made_changes=1
 fi
 
 ##############################
