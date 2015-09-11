@@ -46,11 +46,11 @@ fi
 
 # make sure linked var_dirs targets exist and owned properly
 bash -c "sudo mkdir -p /server/_var/m2.dev/{$var_dirs}"
-sudo chown -R vagrant:vagrant "/server/_var/"
-chmod -R 777 "/server/_var/"
+sudo chown -R apache:apache "/server/_var/"
+sudo chmod -R 777 "/server/_var/"
 
 # flush all var_dirs
-bash -c "rm -rf var/{$var_dirs}/*"
+bash -c "sudo rm -rf var/{$var_dirs}/*"
 
 # install all dependencies in prep for setup / upgrade
 echo "Installing composer dependencies"
