@@ -96,6 +96,7 @@ fi
 # nothing is at /server, so begin setup by creating it
 if [[ ! -d /server ]] && [[ ! -L /server ]]; then
     if [[ -d "/Volumes/Server" ]]; then
+        echo "==> Creating /server -> /Volumes/Server symbolic link"
         sudo ln -s /Volumes/Server /server
         made_changes=1
     else
@@ -106,12 +107,19 @@ if [[ ! -d /server ]] && [[ ! -L /server ]]; then
 fi
 
 if [[ -d /server ]] && [[ ! -L /server ]]; then
-    >&2 echo "Warning: /server is a directory. This may cause case-insensitivity issues in virtual machines."
+    >&2 echo "Warning: /server is a directory. This may cause case-insensitivity issues in virtual machines"
 fi
 
-# verify /server is empty before we start
+# create /sites link if not exists
+if [[ ! -d /sites ]] && [[ ! -L /sites ]]; then
+    echo "==> Creating /sites -> /server/sites symbolic link"
+    sudo ln -s /server/sites /sites
+    made_changes=1
+fi
+
+# verify /server is empty (barring system dotfiles) and hasn't been git inited
 if [[ ! "$(ls /server | head -n1)" ]] && [[ ! -f /server/.git/config ]] ; then
-    echo "==> Installing devenv at /server"
+    echo "==> Installing environment at /server"
     sudo chown $(whoami):admin /server
     cd /server
     git init -q
