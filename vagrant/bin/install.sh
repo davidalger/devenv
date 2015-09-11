@@ -11,8 +11,8 @@ function assert_tap {
     echo "==> Checking tap $1"
     
     if ! brew tap | grep "$1" > /dev/null 2>&1; then
-        echo "==> Installing brew $1"
-        brew tap "$1" > /dev/null
+        echo "==> Tapping $1"
+        brew tap "$1" 2> /dev/null
 
         made_changes=1
     fi
