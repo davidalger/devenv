@@ -70,6 +70,7 @@ assert_pack ack
 assert_pack bash-completion
 assert_pack git
 assert_pack mysql
+assert_pack perl
 assert_pack pv
 assert_pack redis
 assert_pack ruby
