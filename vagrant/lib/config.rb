@@ -46,10 +46,9 @@ end
 def auto_config_host
   changes = false
   newsh = false
-  
-  assert_hosts_entry 'm2.dev', '10.19.89.10'
+
   assert_hosts_entry 'dev-host', '10.19.89.1'
-  
+
   # place flag on host machine for use in common shell scripts
   if not File.exist?('/etc/.vagranthost')
     puts '==> host: Touching host indicator'

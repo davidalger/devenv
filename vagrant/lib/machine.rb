@@ -39,7 +39,7 @@ def configure_web_vm (node, host: nil, ip: nil, php_version: nil)
   mount_bind(node, VAGRANT_DIR + '/etc/httpd/sites.d', '/etc/httpd/sites.d')
 
   # setup guest provisioners
-  bootstrap_sh(node, ['node', 'web', 'sites'], { php_version: php_version })
+  bootstrap_sh(node, ['node', 'web'], { php_version: php_version })
   service(node, 'httpd', 'start')
   service(node, 'nginx', 'start')
   service(node, 'redis', 'start')

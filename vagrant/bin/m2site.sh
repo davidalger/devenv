@@ -2,6 +2,14 @@
 set -e
 wd=$(pwd)
 
+SHARED_DIR=/server/.shared
+SITES_DIR=/server/sites
+
+if [[ -f /etc/.vagranthost ]]; then
+    >&2 echo "Error: This script should be run from within the vagrant machine. Please vagrant ssh, then retry"
+    exit 1
+fi
+
 php_version=$(php -r 'echo phpversion();' | cut -d . -f2)
 if [[ $php_version < 5 ]]; then
     echo "Skipping due to outdated PHP version (Magento 2 requires PHP 5.5 or newer)"
@@ -25,8 +33,7 @@ fi
 # install or update codebase from local mirror
 if [[ ! -d "$SITES_DIR/m2.dev" ]]; then
     echo "Setting up site from scratch. This could take a while..."
-    >&2 echo "Note: please add a record to your /etc/hosts file for m2.dev and re-run the vhost generator"
-    
+
     mkdir -p "$SITES_DIR/m2.dev"
     git clone -q "$SHARED_DIR/m2.repo" "$SITES_DIR/m2.dev"
 
@@ -38,8 +45,8 @@ else
 fi
 
 # make sure linked var_dirs targets exist and owned properly
-bash -c "mkdir -p /server/_var/m2.dev/{$var_dirs}"
-chown -R vagrant:vagrant "/server/_var/"
+bash -c "sudo mkdir -p /server/_var/m2.dev/{$var_dirs}"
+sudo chown -R vagrant:vagrant "/server/_var/"
 chmod -R 777 "/server/_var/"
 
 # flush all var_dirs
