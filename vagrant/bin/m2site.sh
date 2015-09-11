@@ -12,7 +12,7 @@ fi
 
 php_version=$(php -r 'echo phpversion();' | cut -d . -f2)
 if [[ $php_version < 5 ]]; then
-    echo "Skipping due to outdated PHP version (Magento 2 requires PHP 5.5 or newer)"
+    echo "Error: Magento 2 requires PHP 5.5 or newer"
     exit
 fi
 
@@ -26,6 +26,7 @@ if [[ ! -d "$SHARED_DIR/m2.repo" ]]; then
     git remote add origin "https://github.com/magento/magento2.git"
     git fetch -q
 else
+    echo "Updating local magento2 repository mirror"
     cd "$SHARED_DIR/m2.repo"
     git fetch -q || true
 fi
@@ -40,6 +41,7 @@ if [[ ! -d "$SITES_DIR/m2.dev" ]]; then
     cd "$SITES_DIR/m2.dev"
     bash -c "ln -s /server/_var/m2.dev/{$var_dirs} var/"
 else
+    echo "Updating site from mirror"
     cd "$SITES_DIR/m2.dev"
     git pull -q
 fi
