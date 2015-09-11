@@ -30,11 +30,25 @@ def mount_path (base_dir)
   return base_dir
 end
 
+# Asserts that an entry is in the /etc/hosts file for the given host / ip combination
+# Params:
+# +host+:: +String+ hostname of the hosts file entry
+# +ip+:: +String+ ip address of the hosts file entry
+def assert_hosts_entry (host, ip)
+  if not %x{grep -E '^#{ip}\\W+#{host}$' /etc/hosts}.strip!
+    puts "==> host: appending '#{ip} #{host}' to /etc/hosts file"
+    system %-echo '#{ip} #{host}' | sudo tee \-a /etc/hosts > /dev/null-
+  end
+end
+
 # Runs the host machine autoconfiguration routine
 # Params:
 def auto_config_host
   changes = false
   newsh = false
+  
+  assert_hosts_entry 'm2.dev', '10.19.89.10'
+  assert_hosts_entry 'dev-host', '10.19.89.1'
   
   # place flag on host machine for use in common shell scripts
   if not File.exist?('/etc/.vagranthost')

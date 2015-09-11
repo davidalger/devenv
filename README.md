@@ -16,27 +16,7 @@ It is setup with two primary machines: web and db. Together these two virtual ma
         curl -s https://raw.githubusercontent.com/davidalger/devenv/master/vagrant/bin/install.sh | bash
         source /etc/profile
 
-2. Append the following to the `/etc/hosts` file on the host machine using `mate /etc/hosts` or `sudo vi /etc/hosts`:
-
-        ##################################################
-        ## Developer Environment
-        
-        10.19.89.1  dev-host
-        10.19.89.10 dev-web
-        10.19.89.11 dev-web55
-        10.19.89.12 dev-web54
-        10.19.89.13 dev-web53
-        10.19.89.20 dev-db
-        10.19.89.21 dev-db51
-        10.19.89.30 dev-solr
-        
-        ##################################################
-        ## Vagrant Sites
-        
-        10.19.89.10 m2.dev
-        
-
-3.  Add the following to the `~/.my.cnf` file on the host machine:
+2.  Add the following to the `~/.my.cnf` file on the host machine:
 
         [client]
         host=dev-db
@@ -46,18 +26,18 @@ It is setup with two primary machines: web and db. Together these two virtual ma
     
     _Note: If there is a `~/.mylogin.cnf` file present on the host, it will supersede this file, potentially breaking things._
 
-4. Because of GitHub's rate limits on their API it can happen that Composer will silently fail on the m2.dev provisioning step of the dev-web machine. To prevent this from happening, create an OAuth token via the [GitHub Settings](https://github.com/settings/tokens) area in your GitHub account. You can read more about these tokens [here](https://github.com/blog/1509-personal-api-tokens). Add this token to the composer configuration by running:
+3. Because of GitHub's rate limits on their API it can happen that Composer will silently fail on the m2.dev provisioning step of the dev-web machine. To prevent this from happening, create an OAuth token via the [GitHub Settings](https://github.com/settings/tokens) area in your GitHub account. You can read more about these tokens [here](https://github.com/blog/1509-personal-api-tokens). Add this token to the composer configuration by running:
 
         composer config -g github-oauth.github.com <oauthtoken>
 
-5. Run the following to start up the virtual machines. This will take a while on first run, as there is a lot to do!
+4. Run the following to start up the virtual machines. This will take a while on first run, as there is a lot to do!
 
         cd /server
         vagrant up
 
-6. You should be ready to roll! Go ahead and load the [m2.dev](http://m2.dev/) site which should be setup and running inside the virtual machine to make sure everything is working correctly
+5. You should be ready to roll! Go ahead and load the [m2.dev](http://m2.dev/) site which should be setup and running inside the virtual machine to make sure everything is working correctly
 
-7. To SSH into the vm, you can use `vcd` or `vcd web` to connect and automatically mirror your working directory, assuming the location also exists within the virtual machine
+6. To SSH into the vm, you can use `vcd` or `vcd web` to connect and automatically mirror your working directory, assuming the location also exists within the virtual machine
 
 ### Optional Steps
 

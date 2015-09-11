@@ -21,6 +21,7 @@ end
 def configure_web_vm (node, host: nil, ip: nil, php_version: nil)
   node.vm.hostname = host
   node.vm.network :private_network, ip: ip
+  assert_hosts_entry host, ip
 
   # verify exports and mount nfs sites location
   assert_export(MOUNT_PATH + SITES_DIR)
@@ -53,6 +54,7 @@ end
 def configure_db_vm (node, host: nil, ip: nil, mysql_version: nil)
   node.vm.hostname = host
   node.vm.network :private_network, ip: ip
+  assert_hosts_entry host, ip
 
   vm_set_ram(node, 4096)
 
@@ -76,6 +78,7 @@ end
 def configure_solr_vm (node, host: nil, ip: nil)
   node.vm.hostname = host
   node.vm.network :private_network, ip: ip
+  assert_hosts_entry host, ip
 
   # setup guest provisioners
   bootstrap_sh(node, ['node', 'solr'])
