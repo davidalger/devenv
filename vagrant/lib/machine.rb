@@ -42,6 +42,12 @@ def configure_web_vm (node, host: nil, ip: nil, php_version: nil)
   service(node, 'httpd', 'start')
   service(node, 'nginx', 'start')
   service(node, 'redis', 'start')
+  
+  # run vhosts.sh on every reload
+  node.vm.provision :shell, run: 'always' do |conf|
+    conf.name = "vhosts.sh"
+    conf.inline = "/server/vagrant/bin/vhosts.sh"
+  end
 end
 
 def configure_db_vm (node, host: nil, ip: nil, mysql_version: nil)
