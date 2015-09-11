@@ -36,7 +36,7 @@ end
 # +ip+:: +String+ ip address of the hosts file entry
 def assert_hosts_entry (host, ip)
   if not %x{grep -E '^#{ip}\\W+#{host}$' /etc/hosts}.strip!
-    puts "==> host: appending '#{ip} #{host}' to /etc/hosts file"
+    puts "==> host: Appending '#{ip} #{host}' to /etc/hosts file"
     system %-echo '#{ip} #{host}' | sudo tee \-a /etc/hosts > /dev/null-
   end
 end
@@ -90,6 +90,16 @@ unset i
     newsh = true
   end
   
+  # add ~/.my.cnf if not present
+  if not File.exist?("#{ENV['HOME']}/.my.cnf")
+    puts "==> host: Creating ~/.my.cnf file with default info"
+    system %-printf "[client]\nhost=dev\-db\nuser=root\npassword=\n" > ~/.my.cnf-
+    if File.exist?("#{ENV['HOME']}/.mylogin.cnf")
+      puts "==> host: Warning: the ~/.mylogin.cnf file may interfere with connection info set in ~/.my.cnf"
+    end
+    changes = true
+  end
+  
   # add exports for NFS mounts to /etc/exports
   if not (File.exist?('/etc/exports') and %x{grep '## VAGRANT START ##' /etc/exports}.strip!)
     puts "==> host: Adding entries to /etc/exports for NFS mounts"
@@ -100,7 +110,7 @@ unset i
 #{MOUNT_PATH}/mysql/ \-alldirs \-network 10.19.89.0 \-mask 255.255.255.0 \-mapall=#{mapall}
 -
     system %-
-      printf "\n## VAGRANT START ##%s## VAGRANT END ##\n" '#{nfs_exports}'| sudo tee \-a /etc/exports > /dev/null
+      printf "\n## VAGRANT START ##%s## VAGRANT END ##\n" '#{nfs_exports}' | sudo tee \-a /etc/exports > /dev/null
       sudo nfsd restart
     -
     changes = true
