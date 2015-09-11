@@ -7,7 +7,7 @@ It is setup with two primary machines: web and db. Together these two virtual ma
 * Mac OS X 10.9 or later
 * An HFS+ **Case-sensitive** partition mounted at `/Volumes/Server` or `/server`
 
-    *Note: The environment should install and run from a case-insensitive mount, but this is not reccomended for two reasons: a) the majority of deployments are done to case-sensitive file-systems, so development done on a case-sensitive mount is less error prone (ex: autoloaders may find a class in development, then fail on production); b) mysql will behave differently as it pertains to [identifier case sensitivity](https://dev.mysql.com/doc/refman/5.0/en/identifier-case-sensitivity.html) potentially causing unexpected behaviour*
+    *Note: The environment should install and run from a case-insensitive mount, but this is not reccomended for two reasons: a) the majority of deployments are done to case-sensitive file-systems, so development done on a case-sensitive mount is less error prone (ex: autoloaders may find a class in development, then fail on production); b) mysql will behave differently as it pertains to [identifier case sensitivity](https://dev.mysql.com/doc/refman/5.0/en/identifier-case-sensitivity.html) potentially causing unexpected behavior*
 
 ## Environment Setup
 
