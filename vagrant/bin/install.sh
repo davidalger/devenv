@@ -7,6 +7,17 @@ echo "==> Checking dependencies"
 ##############################
 # declare internal functions
 
+function assert_tap {
+    echo "==> Checking tap $1"
+    
+    if ! brew tap | grep "$1" > /dev/null 2>&1; then
+        echo "==> Installing brew $1"
+        brew tap "$1" > /dev/null
+
+        made_changes=1
+    fi
+}
+
 function assert_pack {
     echo "==> Checking pack $1"
     
@@ -59,7 +70,11 @@ fi
 ##############################
 # install dependencies
 
-sudo mkdir -p /usr/local/bin
+if [[ ! -d /usr/local/bin ]]; then
+    sudo mkdir -p /usr/local/bin
+    made_changes=1
+fi
+
 if [[ "$(stat -f "%u" /usr/local/bin/)" != "$(id -u)" ]]; then
     sudo chown $(whoami):admin /usr/local/bin
     made_changes=1
@@ -70,21 +85,27 @@ assert_pack ack
 assert_pack bash-completion
 assert_pack git
 assert_pack mysql
-assert_pack perl
-assert_pack homebrew/php/php56
-assert_pack homebrew/php/php56-mcrypt
-assert_pack homebrew/php/php56-redis
-assert_pack homebrew/php/php56-intl
 assert_pack pv
+assert_pack perl    # no El Capitan support yet
 assert_pack redis
 assert_pack ruby
 assert_pack tree
 assert_pack wget
 
+assert_tap homebrew/php
+assert_pack homebrew/php/php56
+assert_pack homebrew/php/php56-mcrypt
+assert_pack homebrew/php/php56-redis    # no El Capitan support yet
+assert_pack homebrew/php/php56-intl
+
 # virtualization tech
+assert_tap caskroom/cask
 assert_pack caskroom/cask/brew-cask
+
 assert_cask vagrant
+assert_tap homebrew/completions
 assert_pack homebrew/completions/vagrant-completion
+
 assert_cask virtualbox
 
 ##############################
