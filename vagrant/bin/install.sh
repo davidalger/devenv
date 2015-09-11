@@ -71,6 +71,10 @@ assert_pack bash-completion
 assert_pack git
 assert_pack mysql
 assert_pack perl
+assert_pack homebrew/php/php56
+assert_pack homebrew/php/php56-mcrypt
+assert_pack homebrew/php/php56-redis
+assert_pack homebrew/php/php56-intl
 assert_pack pv
 assert_pack redis
 assert_pack ruby
