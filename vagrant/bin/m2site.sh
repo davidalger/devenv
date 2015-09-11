@@ -48,11 +48,9 @@ fi
 
 # make sure linked var_dirs targets exist and owned properly
 bash -c "sudo mkdir -p /server/_var/m2.dev/{$var_dirs}"
-sudo chown -R apache:apache "/server/_var/"
+sudo chown -R vagrant:vagrant "/server/_var/"
 sudo chmod -R 777 "/server/_var/"
-
-# flush all var_dirs
-bash -c "sudo rm -rf var/{$var_dirs}/*"
+bash -c "sudo rm -rf var/{$var_dirs}/*" # flush all var_dirs just in case they already existed
 
 # install all dependencies in prep for setup / upgrade
 echo "Installing composer dependencies"
@@ -79,6 +77,9 @@ else
     echo "Running setup:upgrade"
     bin/magento setup:upgrade -q
 fi
+
+echo "Flushing all file caches"
+bash -c "sudo rm -rf var/{$var_dirs}/*"
 
 echo "Running vhosts.sh and reloading apache"
 /server/vagrant/bin/vhosts.sh > /dev/null
