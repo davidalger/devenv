@@ -53,12 +53,14 @@ chmod -R 777 "/server/_var/"
 bash -c "rm -rf var/{$var_dirs}/*"
 
 # install all dependencies in prep for setup / upgrade
+echo "Installing composer dependencies"
 composer install -q --no-interaction --prefer-dist
 
 # either install or upgrade database
 code=
 mysql -e 'use m2_dev' 2> /dev/null || code="$?"
 if [[ $code ]]; then
+    echo "Initializing database via setup:install"
     mysql -e 'create database m2_dev'
     
     bin/magento setup:install -q \
@@ -72,7 +74,11 @@ if [[ $code ]]; then
         --db-user=root \
         --db-name="m2_dev"
 else
+    echo "Running setup:upgrade"
     bin/magento setup:upgrade -q
 fi
+
+echo "Running vhosts.sh and reloading apache"
+/server/vagrant/bin/vhosts.sh > /dev/null
 
 cd "$wd"
