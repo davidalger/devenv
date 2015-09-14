@@ -58,7 +58,7 @@ function assert_cli_tools {
         xcode_package=$(softwareupdate -l | grep '* Command Line' | head -n1 | sed -E 's/ +\* //g')
     
         echo "==> Installing $xcode_package"
-        softwareupdate -i "$xcode_package" -v
+        softwareupdate -i "$xcode_package"
     
         rm -f /tmp/.com.apple.dt.CommandLineTools.installondemand.in-progress
         made_changes=1
