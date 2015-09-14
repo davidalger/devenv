@@ -108,7 +108,7 @@ function assert_devenv {
         git remote add origin https://github.com/davidalger/devenv.git
         git fetch -q origin
         git checkout -q master
-        vagrant status
+        vagrant status | grep -v '/etc/profile' || true  # note: expected to spit out error about re-running vagrant
         echo "==> Please run `source /etc/profile` in your shell before starting vagrant"
 
         made_changes=1
