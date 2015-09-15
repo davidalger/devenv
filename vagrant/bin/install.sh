@@ -55,9 +55,7 @@ function assert_cask {
 
         made_changes=1
     elif [ $update_mode ]; then
-        echo "==> Upgrading cask $1"
-        brew cask upgrade "$1" > /dev/null
-        made_changes=1
+        echo "==> Skipping cask $1 upgrade (unsupported)"
     fi
 }
 
