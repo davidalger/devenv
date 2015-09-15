@@ -41,7 +41,10 @@ function assert_pack {
         made_changes=1
     elif [ $update_mode ]; then
         echo "==> Upgrading brew $1"
-        brew upgrade "$1" > /dev/null || true   # don't fail on upgrade err (likely not a fatal problem)
+        brew upgrade "$1" 2>&1 1>/dev/null \
+            | sed -E 's/Error: (.*already installed)/==> Package \1/g' \
+            || true   # don't fail on already installed err
+        
         made_changes=1
     fi
 }
