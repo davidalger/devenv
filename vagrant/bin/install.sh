@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -e
 
+update_mode=
+
 ##############################
 # declare homebrew assertions
 
@@ -11,6 +13,10 @@ function assert_brew {
         curl -s https://raw.githubusercontent.com/Homebrew/install/master/install | ruby > /dev/null 2>&1
         brew doctor
 
+        made_changes=1
+    elif [ $update_mode ]; then
+        echo "==> Updating brew taps"
+        brew update > /dev/null
         made_changes=1
     fi
 }
@@ -33,6 +39,10 @@ function assert_pack {
         brew install "$1" > /dev/null
 
         made_changes=1
+    elif [ $update_mode ]; then
+        echo "==> Upgrading brew $1"
+        brew upgrade "$1" > /dev/null || true   # don't fail on upgrade err (likely not a fatal problem)
+        made_changes=1
     fi
 }
 
@@ -40,9 +50,13 @@ function assert_cask {
     echo "==> Checking cask $1"
     
     if ! brew cask list "$1" > /dev/null 2>&1 ; then
-        echo "==> Installing cask "$1""
+        echo "==> Installing cask $1"
         brew cask install "$1" > /dev/null
 
+        made_changes=1
+    elif [ $update_mode ]; then
+        echo "==> Upgrading cask $1"
+        brew cask upgrade "$1" > /dev/null
         made_changes=1
     fi
 }
@@ -52,7 +66,7 @@ function assert_cask {
 
 function assert_cli_tools {
     echo "==> Checking command line tools"
-    if ! xcode-select -p > /dev/null 2>&1; then
+    if ! xcode-select -p > /dev/null 2>&1 || [ $update_mode ]; then
         echo "==> Finding command line tools package"
         touch /tmp/.com.apple.dt.CommandLineTools.installondemand.in-progress
         xcode_package=$(softwareupdate -l | grep '* Command Line' | head -n1 | sed -E 's/ +\* //g')
@@ -115,6 +129,8 @@ function assert_devenv {
     elif [[ ! -f /server/vagrant/vagrant.rb ]]; then
         >&2 echo "Error: /server is not empty, but does not appear to be setup either. Moving on..."
     fi
+    
+    # TODO: add --update support to devenv assertion
 }
 
 function assert_composer {
@@ -125,6 +141,10 @@ function assert_composer {
         mkdir -p /server/.shared/composer
         wget -q https://getcomposer.org/composer.phar -O /usr/local/bin/composer
         chmod +x /usr/local/bin/composer
+        made_changes=1
+    elif [ $update_mode ]; then
+        echo "==> Updating composer via self-update"
+        composer self-update > /dev/null
         made_changes=1
     fi
 }
@@ -158,7 +178,7 @@ function install_environment {
     assert_pack git
     assert_pack mysql
     assert_pack pv
-    assert_pack perl    # no El Capitan support yet
+    assert_pack perl
     assert_pack redis
     assert_pack ruby
     assert_pack tree
@@ -167,7 +187,7 @@ function install_environment {
     assert_tap homebrew/php
     assert_pack homebrew/php/php56
     assert_pack homebrew/php/php56-mcrypt
-    assert_pack homebrew/php/php56-redis    # no El Capitan support yet
+    assert_pack homebrew/php/php56-redis
     assert_pack homebrew/php/php56-intl
 
     # virtualization tech
@@ -191,6 +211,10 @@ function install_environment {
         echo "Nothing to do!"
     fi
 }
+
+if [[ "$1" == "--update" ]]; then
+    update_mode=1
+fi
 
 if [[ "$1" != "--lib-mode" ]]; then
     install_environment
