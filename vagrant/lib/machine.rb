@@ -33,7 +33,7 @@ def configure_web_vm (node, host: nil, ip: nil, php_version: nil)
   mount_bind(node, SITES_MOUNT, MOUNT_PATH + SITES_DIR)
   
   # bind localhost pub directory
-  mount_bind(node, SITES_MOUNT + '/00_localhost/pub', '/var/www/html')
+  mount_bind(node, SITES_MOUNT + '/__localhost/pub', '/var/www/html')
   
   # bind apache sites.d configuration directory
   mount_bind(node, VAGRANT_DIR + '/etc/httpd/sites.d', '/etc/httpd/sites.d')

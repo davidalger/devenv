@@ -1,0 +1,6 @@
+*
+!/.gitignore
+!/__localhost
+!/__localhost/pub
+!/__localhost/pub/index.html
+!/__localhost/pub/info.php

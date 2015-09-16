@@ -5,14 +5,8 @@
 .fseventsd
 /.vagrant/
 /.shared/
-/_var/
+/var/
 /proj/
 /private/
 /backups/
 /bigfiles/
-/sites/*
-!/sites/.gitignore
-/mysql/*
-!/mysql/.gitignore
-/vagrant/etc/httpd/sites.d/*.conf
-!/vagrant/etc/httpd/sites.d/00_localhost.conf
