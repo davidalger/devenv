@@ -4,6 +4,7 @@
 .TemporaryItems
 .fseventsd
 /.vagrant/
+/.machines/
 /.shared/
 /var/
 /proj/
