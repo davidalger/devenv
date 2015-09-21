@@ -11,8 +11,9 @@
 set -e
 cd $VAGRANT_DIR
 PATH="/usr/local/bin:$PATH"
+source ./scripts/lib/utils.sh
 
-echo "==> BEGIN bootstrap.sh at $(date)" >> $BOOTSTRAP_LOG
+echo "==> BEGIN bootstrap.sh at $(datetime) UTC" >> $BOOTSTRAP_LOG
 
 # filter roles by those specified in env var
 roles=""
@@ -29,20 +30,18 @@ fi
 # execute role specific scripts
 for role in $roles; do
     if [[ -d "./scripts/$role.d/" ]]; then
-        echo "Configuring for $role role" | tee -a $BOOTSTRAP_LOG
-        
+        log_tee "Configuring for $role role"
         for script in $(ls -1 ./scripts/$role.d/*.sh); do
-            echo "Running: $role: $(basename $script)" >> $BOOTSTRAP_LOG
+            log "Running: $role: $(basename $script)"
             ./$script >> $BOOTSTRAP_LOG 2> >(tee -a $BOOTSTRAP_LOG >&2) || code="$?"
             if [[ $code ]]; then
-                echo "Error: $script failed with return code $code" >> $BOOTSTRAP_LOG
-                >&2 echo "Error: $script failed with return code $code"
+                log_err "Error: $script failed with return code $code"
                 code=""
             fi
         done
     else
-        echo "Skipping invalid role: $role"
+        log_tee "Skipping invalid role: $role"
     fi
 done
 
-echo "==> END bootstrap.sh at $(date)" >> $BOOTSTRAP_LOG
+echo "==> END bootstrap.sh at $(datetime) UTC" >> $BOOTSTRAP_LOG
