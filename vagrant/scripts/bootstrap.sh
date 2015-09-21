@@ -33,7 +33,7 @@ for role in $roles; do
         
         for script in $(ls -1 ./scripts/$role.d/*.sh); do
             echo "Running: $role: $(basename $script)" >> $BOOTSTRAP_LOG
-            ./$script >> $BOOTSTRAP_LOG || code="$?"
+            ./$script >> $BOOTSTRAP_LOG 2> >(tee -a $BOOTSTRAP_LOG >&2) || code="$?"
             if [[ $code ]]; then
                 echo "Error: $script failed with return code $code" >> $BOOTSTRAP_LOG
                 >&2 echo "Error: $script failed with return code $code"
