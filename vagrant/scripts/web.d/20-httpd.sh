@@ -1,7 +1,7 @@
 # install and configure httpd service
 set -e
 
-yum install -y -q httpd
+yum install -y httpd
 
 if [[ -d ./etc/httpd/conf.d/ ]]; then
     cp ./etc/httpd/conf.d/*.conf /etc/httpd/conf.d/

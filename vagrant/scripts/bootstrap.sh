@@ -32,9 +32,10 @@ for role in $roles; do
         echo "Configuring for $role role" | tee -a $BOOTSTRAP_LOG
         
         for script in $(ls -1 ./scripts/$role.d/*.sh); do
-            echo "Running: $role: $(basename $script)" | tee -a $BOOTSTRAP_LOG
-            ./$script || code="$?"
+            echo "Running: $role: $(basename $script)" >> $BOOTSTRAP_LOG
+            ./$script >> $BOOTSTRAP_LOG || code="$?"
             if [[ $code ]]; then
+                echo "Error: $script failed with return code $code" >> $BOOTSTRAP_LOG
                 >&2 echo "Error: $script failed with return code $code"
                 code=""
             fi

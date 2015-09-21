@@ -15,7 +15,7 @@ rpm --import ./etc/keys/RPM-GPG-KEY-MySql.txt
 rpm --import ./etc/keys/RPM-GPG-KEY-remi.txt
 
 echo "Installing EPEL repository"
-yum install -y -q epel-release
+yum install -y epel-release
 
 echo "Installing Remi's RPM repository"
 install_rpm http://rpms.famillecollet.com/enterprise/remi-release-6.rpm \

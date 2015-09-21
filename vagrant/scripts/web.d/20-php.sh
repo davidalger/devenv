@@ -24,19 +24,19 @@ case "$PHP_VERSION" in
 esac
 
 # install php and cross-version dependencies
-yum $extra_repos install -y -q php php-cli \
+yum $extra_repos install -y php php-cli \
     php-curl php-gd php-intl php-mcrypt php-pecl-redis php-xsl php-mbstring php-soap php-bcmath
 
 # remi repo provides these extra packages for 5.4 and newer, so skip them on 5.3 setup
 if [[ "$PHP_VERSION" > 53 ]]; then
-    yum install $extra_repos install -y -q php-ioncube-loader php-mysqlnd php-xdebug php-mhash
+    yum install $extra_repos install -y php-ioncube-loader php-mysqlnd php-xdebug php-mhash
     
     if [[ "$PHP_VERSION" < 56 ]]; then
         mv /etc/php.d/xdebug.ini /etc/php.d/15-xdebug.ini
         mv /etc/php.d/ioncube_loader.ini /etc/php.d/05-ioncube_loader.ini
     fi
 else
-    yum install $extra_repos install -y -q php-mysql
+    yum install $extra_repos install -y php-mysql
 fi
 
 # copy in our custom configuration files

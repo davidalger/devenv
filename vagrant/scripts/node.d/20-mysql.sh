@@ -22,7 +22,7 @@ if [ "$MYSQL_VERSION" == "56" ]; then
         /var/cache/yum/rpms/mysql-community-release-el6-5.noarch.rpm
 fi
 
-yum install -y -q mysql | grep -vf $VAGRANT_DIR/etc/filters/yum || true
+yum install -y mysql
 
 # set default mysql connection info in /etc/my.cnf
 echo "[client]
