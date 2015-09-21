@@ -30,16 +30,9 @@ end
 # +name+:: name of service to operate on
 # +call+:: name of action to take
 def service (conf, name, call)
-  
-  # file used to filter the stderr output of service calls
-  service_filter = "#{VAGRANT_DIR}/etc/filters/service"
-  
   conf.vm.provision :shell, run: 'always' do |conf|
     conf.name = "service #{name} #{call}"
-    conf.inline = "
-      service #{name} #{call} 2>&1 1> /tmp/service-stdout | grep -f #{service_filter} -v 1>&2 || true
-      cat /tmp/service-stdout
-    "
+    conf.inline = "service #{name} #{call} 2> >(grep -v -f #{VAGRANT_DIR}/etc/filters/service >&2)"
   end
 end
 
