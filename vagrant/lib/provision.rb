@@ -10,6 +10,7 @@ def bootstrap_sh (conf, roles, env = {})
       shared_dir: SHARED_DIR,
       sites_dir: SITES_DIR,
       allowable_roles: ENV['VAGRANT_ALLOWABLE_ROLES'],
+      bootstrap_log: '/var/log/bootstrap.log'
     }.merge(env)
 
     exports = ''

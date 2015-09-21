@@ -12,6 +12,8 @@ set -e
 cd $VAGRANT_DIR
 PATH="/usr/local/bin:$PATH"
 
+echo "BEGIN bootstrap.sh at $(date)" >> $BOOTSTRAP_LOG
+
 # filter roles by those specified in env var
 roles=""
 if [[ "$ALLOWABLE_ROLES" ]]; then
@@ -41,3 +43,5 @@ for role in $roles; do
         echo "Skipping invalid role: $role"
     fi
 done
+
+echo "END bootstrap.sh at $(date)" >> $BOOTSTRAP_LOG
