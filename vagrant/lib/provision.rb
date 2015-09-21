@@ -36,7 +36,10 @@ def service (conf, name, call)
   
   conf.vm.provision :shell, run: 'always' do |conf|
     conf.name = "service #{name} #{call}"
-    conf.inline = "service #{name} #{call} 2>&1 1> /dev/null | grep -f #{service_filter} -v 1>&2 || true"
+    conf.inline = "
+      service #{name} #{call} 2>&1 1> /tmp/service-stdout | grep -f #{service_filter} -v 1>&2 || true
+      cat /tmp/service-stdout
+    "
   end
 end
 
