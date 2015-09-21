@@ -1,0 +1,3 @@
+Package mysql-server is obsoleted by mysql-community-server, trying to install mysql-community-server
+Package mysql is obsoleted by mysql-community-client, trying to install mysql-community-client
+warning: /etc/my.cnf created as /etc/my.cnf.rpmnew

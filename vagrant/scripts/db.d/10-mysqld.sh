@@ -10,7 +10,7 @@ if [[ -d ./etc/my.cnf.d ]] && [[ ! -z "$(ls -1 ./etc/my.cnf.d/)" ]]; then
     cp ./etc/my.cnf.d/*.cnf /etc/my.cnf.d/
 fi
 
-yum install -y -q mysql-server
+yum install -y -q mysql-server | grep -vf $VAGRANT_DIR/etc/filters/yum || true
 
 # test for presence of ibdata1 to determine if we have a new install or not
 if [[ ! -f /var/lib/mysql/data/ibdata1 ]]; then

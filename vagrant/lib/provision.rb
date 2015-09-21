@@ -32,7 +32,7 @@ end
 def service (conf, name, call)
   
   # file used to filter the stderr output of service calls
-  service_filter = "#{VAGRANT_DIR}/etc/service-filter.txt"
+  service_filter = "#{VAGRANT_DIR}/etc/filters/service"
   
   conf.vm.provision :shell, run: 'always' do |conf|
     conf.name = "service #{name} #{call}"
