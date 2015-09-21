@@ -10,7 +10,7 @@ if [[ -d ./etc/my.cnf.d ]] && [[ ! -z "$(ls -1 ./etc/my.cnf.d/)" ]]; then
     cp ./etc/my.cnf.d/*.cnf /etc/my.cnf.d/
 fi
 
-yum install -y -q mysql-server
+yum install -y mysql-server
 
 # test for presence of ibdata1 to determine if we have a new install or not
 if [[ ! -f /var/lib/mysql/data/ibdata1 ]]; then
@@ -20,8 +20,8 @@ if [[ ! -f /var/lib/mysql/data/ibdata1 ]]; then
     umount /var/lib/mysql/data/
     
     # start servcie to initialize data directory and then stop for remount
-    service mysqld start
-    service mysqld stop
+    service mysqld start >> $BOOTSTRAP_LOG 2>&1
+    service mysqld stop >> $BOOTSTRAP_LOG 2>&1
     
     # move aside new data directory and remount persistent data storage
     mv /var/lib/mysql/data/ /var/lib/mysql/data.new
@@ -34,7 +34,7 @@ if [[ ! -f /var/lib/mysql/data/ibdata1 ]]; then
     rmdir /var/lib/mysql/data.new
     
     # grant root mysql user privileges to connect for other vms and host machine
-    service mysqld start
+    service mysqld start >> $BOOTSTRAP_LOG 2>&1
     mysql -uroot -e "
         GRANT ALL PRIVILEGES ON *.* TO 'root'@'localhost' WITH GRANT OPTION;
         GRANT ALL PRIVILEGES ON *.* TO 'root'@'dev-host' WITH GRANT OPTION;
@@ -44,5 +44,5 @@ if [[ ! -f /var/lib/mysql/data/ibdata1 ]]; then
         GRANT ALL PRIVILEGES ON *.* TO 'root'@'dev-web53' WITH GRANT OPTION;
         FLUSH PRIVILEGES;
     "
-    service mysqld stop # will be started in seperate provisioner
+    service mysqld stop >> $BOOTSTRAP_LOG 2>&1 # leave it in stopped state
 fi

@@ -115,6 +115,14 @@ unset i
     changes = true
   end
 
+  # verify virtualbox machine directory
+  vbox_machine_dir = %x{VBoxManage list systemproperties | grep 'Default machine folder:' | sed 's/.*: *//g'}.strip!
+  if vbox_machine_dir != "#{BASE_DIR}/.machines"
+    puts "==> host: Setting global VirtualBox machine folder to /server/.machines"
+    system %-VBoxManage setproperty machinefolder #{BASE_DIR}/.machines-
+    changes = true
+  end
+
   if changes
     puts '==> host: Auto configuration complete'
   end

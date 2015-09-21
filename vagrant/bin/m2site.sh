@@ -39,7 +39,7 @@ if [[ ! -d "$SITES_DIR/m2.dev" ]]; then
     git clone -q "$SHARED_DIR/m2.repo" "$SITES_DIR/m2.dev"
 
     cd "$SITES_DIR/m2.dev"
-    bash -c "ln -s /server/_var/m2.dev/{$var_dirs} var/"
+    bash -c "ln -s /server/var/m2.dev/{$var_dirs} var/"
 else
     echo "Updating site from mirror"
     cd "$SITES_DIR/m2.dev"
@@ -47,9 +47,9 @@ else
 fi
 
 # make sure linked var_dirs targets exist and owned properly
-bash -c "sudo mkdir -p /server/_var/m2.dev/{$var_dirs}"
-sudo chown -R vagrant:vagrant "/server/_var/"
-sudo chmod -R 777 "/server/_var/"
+bash -c "sudo mkdir -p /server/var/m2.dev/{$var_dirs}"
+sudo chown -R vagrant:vagrant "/server/var/"
+sudo chmod -R 777 "/server/var/"
 bash -c "sudo rm -rf var/{$var_dirs}/*" # flush all var_dirs just in case they already existed
 
 # install all dependencies in prep for setup / upgrade

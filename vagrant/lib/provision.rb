@@ -10,6 +10,7 @@ def bootstrap_sh (conf, roles, env = {})
       shared_dir: SHARED_DIR,
       sites_dir: SITES_DIR,
       allowable_roles: ENV['VAGRANT_ALLOWABLE_ROLES'],
+      bootstrap_log: '/var/log/bootstrap.log'
     }.merge(env)
 
     exports = ''
@@ -31,7 +32,7 @@ end
 def service (conf, name, call)
   conf.vm.provision :shell, run: 'always' do |conf|
     conf.name = "service #{name} #{call}"
-    conf.inline = "service #{name} #{call} > /dev/null"
+    conf.inline = "service #{name} #{call} 2> >(grep -v -f #{VAGRANT_DIR}/etc/filters/service >&2)"
   end
 end
 

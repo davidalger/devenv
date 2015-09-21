@@ -1,7 +1,7 @@
 # install and configure nginx service
 set -e
 
-yum install -y -q nginx
+yum install -y nginx
 
 if [[ -d ./etc/nginx/conf.d/ ]]; then
     cp ./etc/nginx/conf.d/*.conf /etc/nginx/conf.d/

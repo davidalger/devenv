@@ -7,6 +7,8 @@ if [ -f "/etc/.vagranthost" ]; then
     # general shortcuts
     alias vcd='vagrant ssh -c "[ -d $(pwd) ] && cd $(pwd); bash"'
     alias st="open -a sourcetree"
+    alias togglehidden='SET="com.apple.finder AppleShowAllFiles"; VAL=YES && [ "$(defaults read $SET)" == "YES" ] && VAL=NO; defaults write $SET $VAL; killall Finder'
+    
     if [ -x /System/Library/CoreServices/Applications/Network\ Utility.app/Contents/Resources/stroke ]; then
         alias stroke="/System/Library/CoreServices/Applications/Network\ Utility.app/Contents/Resources/stroke"
     fi
@@ -43,14 +45,16 @@ alias mexceptions='ack "^Exception" "$1" | sort | uniq -c | sort -nr | vi -c "se
 # alias cron-reset="find var/cache/ -type f -name '*CRON*' -print0 | xargs -0 rm"
 
 # setup git aliases if they do not exist
-if [ "$(git config --global --get alias.permission-reset)" = "" ]; then
-    git config --global --add alias.permission-reset \
-        '!git diff -p -R | grep -E "^(diff|(old|new) mode)" | git apply'
-fi
+if [ -x "$(which git 2> /dev/null)" ]; then
+    if [ "$(git config --global --get alias.permission-reset)" = "" ]; then
+        git config --global --add alias.permission-reset \
+            '!git diff -p -R | grep -E "^(diff|(old|new) mode)" | git apply'
+    fi
 
-# TODO convert these to git aliases
-alias git-prune-remote-branches='git branch -r --merged | grep -v develop | grep -v master | grep origin | grep -v "$(git branch | grep \* | cut -d " " -f2)" | grep -v ">" | xargs -L1 | cut -d "/" -f2-5 | xargs git push origin --delete'
-alias git-prune-local-branches='git branch --merged | grep -v develop | grep -v master | grep -v "$(git branch | grep \* | cut -d " " -f2)" | grep -v ">" | xargs -L1 | xargs -n1 git branch -d'
+    # TODO convert these to git aliases
+    alias git-prune-remote-branches='git branch -r --merged | grep -v develop | grep -v master | grep origin | grep -v "$(git branch | grep \* | cut -d " " -f2)" | grep -v ">" | xargs -L1 | cut -d "/" -f2-5 | xargs git push origin --delete'
+    alias git-prune-local-branches='git branch --merged | grep -v develop | grep -v master | grep -v "$(git branch | grep \* | cut -d " " -f2)" | grep -v ">" | xargs -L1 | xargs -n1 git branch -d'
+fi
 
 # timestamp for use in file names
 alias ts="date +%F_%H-%M-%S"

@@ -1,5 +1,5 @@
 # install and configure git
 set -e
 
-yum install -y -q git
+yum install -y git
 git config --global core.excludesfile /etc/.gitignore_global

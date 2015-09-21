@@ -1,0 +1,2 @@
+/httpd/sites.d/*.conf
+!/httpd/sites.d/__localhost.conf

@@ -12,7 +12,7 @@ for site in $(find $sitesdir -maxdepth 1 -type d); do
     hostname="$(basename $site)"
     conffile="$confdir/$hostname.conf"
     
-    if [[ "$hostname" == "00_localhost" ]]; then
+    if [[ "$hostname" == "__localhost" ]]; then
         continue
     fi
     
@@ -55,7 +55,7 @@ echo "==> found all local pubs"
 echo "==> policing old pubs"
 for conffile in $(ls -1 $confdir/*.conf); do
     confname="$(echo "$(basename "$conffile")" | sed 's/\.conf$//')"
-    if [[ "$confname" == "00_localhost" ]]; then
+    if [[ "$confname" == "__localhost" ]]; then
         continue
     fi
     if [[ ! -d "$sitesdir/$confname" ]]; then

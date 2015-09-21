@@ -18,5 +18,5 @@ function install_rpm {
         rpm -K "$rpm_path"
     fi
     
-    yum install -y -q "$rpm_path" || true
+    yum install -y "$rpm_path" || true
 }
