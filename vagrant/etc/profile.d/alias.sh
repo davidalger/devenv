@@ -52,6 +52,8 @@ if [ -x "$(which git 2> /dev/null)" ]; then
     fi
 
     # TODO convert these to git aliases
+    alias git-log-pretty='git log --pretty=format:"%h %ad %an %s" --date=short'
+    alias git-log-graph='git log --all --decorate --graph --color=always'
     alias git-prune-remote-branches='git branch -r --merged | grep -v develop | grep -v master | grep origin | grep -v "$(git branch | grep \* | cut -d " " -f2)" | grep -v ">" | xargs -L1 | cut -d "/" -f2-5 | xargs git push origin --delete'
     alias git-prune-local-branches='git branch --merged | grep -v develop | grep -v master | grep -v "$(git branch | grep \* | cut -d " " -f2)" | grep -v ">" | xargs -L1 | xargs -n1 git branch -d'
 fi
