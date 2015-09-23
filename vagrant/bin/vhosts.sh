@@ -7,14 +7,15 @@ template=$confdir/__vhost.conf.template
 confcust=.vhost.conf
 sitesdir=/server/sites
 
-echo "==> scouting for new pub locations in $sitesdir/"
+if [[ "$1" == "--reset" ]]; then
+    echo "==> scrubbing all open pubs"
+    rm -vf $confdir/*.conf | sed "s#$confdir/#    closed #g" | cut -d . -f1
+fi
+
+echo "==> scouting for new pubs"
 for site in $(find $sitesdir -maxdepth 1 -type d); do
     hostname="$(basename $site)"
     conffile="$confdir/$hostname.conf"
-    
-    if [[ "$hostname" == "__localhost" ]]; then
-        continue
-    fi
     
     if [[ -f "$site/$confcust" ]]; then
         # if the file exists and is identical, don't bother replacing it
@@ -23,9 +24,9 @@ for site in $(find $sitesdir -maxdepth 1 -type d); do
         fi
         
         if [[ -f "$conffile" ]]; then
-            echo "    added: $hostname (custom vhost was updated)"
+            echo "    opened $hostname (custom vhost was updated)"
         else
-            echo "    added: $hostname (custom vhost)"
+            echo "    opened $hostname (custom vhost)"
         fi
         
         cp "$site/$confcust" "$conffile"

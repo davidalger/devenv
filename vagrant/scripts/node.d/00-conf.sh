@@ -17,3 +17,13 @@ fi
 if [[ -d ./etc/profile.d/ ]]; then
     cp ./etc/profile.d/*.sh /etc/profile.d/
 fi
+
+# set zone info to match host if possible
+if [[ -f "$HOST_ZONEINFO" ]]; then
+    if [[ -f /etc/localtime ]]; then
+        mv /etc/localtime /etc/localtime.bak
+    elif [[ -L /etc/localtime ]]; then
+        rm /etc/localtime
+    fi
+    ln -s "$HOST_ZONEINFO" /etc/localtime
+fi

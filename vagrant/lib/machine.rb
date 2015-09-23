@@ -4,11 +4,11 @@ def configure_common (conf)
 
   # disable default /vagrant mount and mount at /server/vagrant
   conf.vm.synced_folder VAGRANT_DIR, '/vagrant', disabled: true
-  mount_vmfs(conf, 'host-vagrant', VAGRANT_DIR, VAGRANT_DIR)
+  Mount.vmfs('host-vagrant', VAGRANT_DIR, VAGRANT_DIR)
 
   # mount persistent shared cache storage on vm and bind sub-caches
-  mount_vmfs(conf, 'host-cache', SHARED_DIR, SHARED_DIR)
-  mount_bind(conf, SHARED_DIR + '/yum', '/var/cache/yum')
+  Mount.vmfs('host-cache', SHARED_DIR, SHARED_DIR)
+  Mount.bind(SHARED_DIR + '/yum', '/var/cache/yum')
   
   # configure default RAM and number of CPUs allocated to vm
   vm_set_ram(conf, 2048)
@@ -24,26 +24,25 @@ def configure_web_vm (node, host: nil, ip: nil, php_version: nil)
   assert_hosts_entry host, ip
 
   # verify exports and mount nfs sites location
-  assert_export(MOUNT_PATH + SITES_DIR)
-  mount_nfs(node, 'host-www-sites', MOUNT_PATH + SITES_DIR, SITES_MOUNT)
+  Mount.assert_export(MOUNT_PATH + SITES_DIR)
+  Mount.nfs('host-www-sites', MOUNT_PATH + SITES_DIR, SITES_MOUNT)
   
   # bind sites directory shortcuts
-  mount_bind(node, SITES_MOUNT, SITES_DIR)
-  mount_bind(node, SITES_MOUNT, BASE_DIR + SITES_DIR)
-  mount_bind(node, SITES_MOUNT, MOUNT_PATH + SITES_DIR)
+  Mount.bind(SITES_MOUNT, SITES_DIR)
+  Mount.bind(SITES_MOUNT, BASE_DIR + SITES_DIR)
+  Mount.bind(SITES_MOUNT, MOUNT_PATH + SITES_DIR)
   
   # bind localhost pub directory
-  mount_bind(node, SITES_MOUNT + '/__localhost/pub', '/var/www/html')
+  Mount.bind(SITES_MOUNT + '/__localhost/pub', '/var/www/html')
   
   # bind apache sites.d configuration directory
-  mount_bind(node, VAGRANT_DIR + '/etc/httpd/sites.d', '/etc/httpd/sites.d')
-
-  # setup guest provisioners
-  bootstrap_sh(node, ['node', 'web'], { php_version: php_version })
-  service(node, 'httpd', 'start')
-  service(node, 'nginx', 'start')
-  service(node, 'redis', 'start')
+  Mount.bind(VAGRANT_DIR + '/etc/httpd/sites.d', '/etc/httpd/sites.d')
   
+  # setup guest provisioners
+  Mount.provision(node)
+  bootstrap_sh(node, ['node', 'web'], { php_version: php_version })
+  service(node, { start: ['httpd', 'nginx', 'redis'] })
+
   # run vhosts.sh on every reload
   node.vm.provision :shell, run: 'always' do |conf|
     conf.name = "vhosts.sh"
@@ -67,12 +66,13 @@ def configure_db_vm (node, host: nil, ip: nil, mysql_version: nil)
   end
 
   # verify exports and mount nfs mysql data directory
-  assert_export(MOUNT_PATH + '/mysql')
-  mount_nfs(node, 'host-mysql-data', local_data_dir_name, '/var/lib/mysql/data')
-
+  Mount.assert_export(MOUNT_PATH + '/mysql')
+  Mount.nfs('host-mysql-data', local_data_dir_name, '/var/lib/mysql/data')
+  
   # setup guest provisioners
+  Mount.provision(node)
   bootstrap_sh(node, ['node', 'db'], { mysql_version: mysql_version })
-  service(node, 'mysqld', 'start')
+  service(node, { start: ['mysqld'] })
 end
 
 def configure_solr_vm (node, host: nil, ip: nil)
@@ -81,5 +81,6 @@ def configure_solr_vm (node, host: nil, ip: nil)
   assert_hosts_entry host, ip
 
   # setup guest provisioners
+  Mount.provision(node)
   bootstrap_sh(node, ['node', 'solr'])
 end

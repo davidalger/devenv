@@ -1,12 +1,25 @@
 # configure a pretty ps1
 
+## set git ps1 options one time so overriding in local profile is possible
+if [[ -x "$(which git 2> /dev/null)" ]]; then
+    GIT_PS1_SHOWDIRTYSTATE=1
+fi
+
+## custom __git_ps1 to add padding and prevent display when in server env repo
+function __git_ps1_devenv {
+    if [[ ! -x "$(which git 2> /dev/null)" ]]; then
+        return
+    fi
+    
+    server_path="$(readlink /server || echo /server)"
+    if [[ "$(git rev-parse --show-toplevel 2>/dev/null | grep -vE "^$server_path$")" ]]; then
+        gs=$(__git_ps1) && [ "$gs" ] && echo "$gs "
+    fi
+}
+
+## set PS1 with different colors / options on host vs guest machines
 if [[ -f "/etc/.vagranthost" ]]; then
-    export PS1='\[\033[0;34m\]\u\[\033[0m\]:\@:\[\033[0;37m\]\w\[\033[0m\]$(
-        (git rev-parse --show-toplevel 2>/dev/null | grep -vE "^$(readlink /server || echo /server)$" 1>/dev/null) && printf " $(
-            git status -sb 2>/dev/null | grep -v "## " | head -n 1 | wc -l | tr 01 " *" | tr -d "[:blank:]";
-            git status -sb 2>/dev/null | grep "## " | tr -d "#[:blank:]" | cut -d "." -f1;
-        ) " | tr -d "\n" | grep -v "  "
-    )$ '
+    export PS1='\[\033[0;34m\]\u\[\033[0m\]:\@:\[\033[0;37m\]\w\[\033[0m\]$(__git_ps1_devenv)$ '
 else
-    export PS1='\[\033[0;36m\]\u@\h\[\033[0m\]:\@:\[\033[0;37m\]\w\[\033[0m\]$ '
+    export PS1='\[\033[0;36m\]\u@\h\[\033[0m\]:\@:\[\033[0;37m\]\w\[\033[0m\]$(__git_ps1_devenv)$ '
 fi
