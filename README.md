@@ -45,14 +45,46 @@ It is setup with two primary machines: web and db. Together these two virtual ma
         vagrant ssh web -- /server/vagrant/bin/m2site.sh
         echo "10.19.89.10 m2.dev" | sudo tee -a /etc/hosts > /dev/null
 
+### Quick Reference
+
+| hostname      | ip           | role     | autostart | description                                  |
+| -----------   | ------------ | -------- | --------- | -------------------------------------------- |
+| dev-host      | 10.19.89.1   | host     | n/a       | this is the host machine for the evnironment |
+| **[dev-web]** | 10.19.89.10  | app      | yes       | web app node running PHP 5.6                 |
+| [dev-web55]   | 10.19.89.11  | app      | no        | web app node running PHP 5.5                 |
+| [dev-web54]   | 10.19.89.12  | app      | no        | web app node running PHP 5.4                 |
+| [dev-web53]   | 10.19.89.13  | app      | no        | web app node running PHP 5.3 (no xdebug)     |
+| **[dev-db]**  | 10.19.89.20  | database | yes       | database node running MySql 5.6              |
+| [dev-db51]    | 10.19.89.21  | database | no        | database node running MySql 5.1              |
+| [dev-solr]    | 10.19.89.30  | solr     | no        | currently un-provisioned                     |
+
 ## Virtual Machines
 
-### dev-web
+### Web Application
 This node is setup to run services required to run web applications. Nginx is setup to deliver static assets directly and act as a proxy for anything else. Apache is setup with mod_php to delivery the web application and sits behind Nginx on an internal port. Redis has been setup for a cache data store such that it never writes information to disk.
 
 Run `vhosts.sh` to generate vhosts for all sites and reload apache. This will be automatically run once when the machine is provisioned, and may be subsequently run from `/server/vagrant/bin/vhosts.sh` on either the host or guest environment.
 
 The IP address of this node is fixed at `10.19.89.10`. This IP should be used in `/etc/hosts` on the host machine to facilitate loading applications running within the vm from a browser on the host.
+
+#### Virtual Host Configuration
+Virtual hosts are created automatically for each site by running the `vhosts.sh` script. These .conf files are based on a template, or may manually be configured on a per-site basis by placing a `.vhost.conf` file in the root site directory. To configure the virtual host configuraion and reload apache:
+
+    /server/vagrant/bin/vhosts.sh
+    
+If the master template is updated, neccesitating re-creating all the templated virutal host files, use the `--reset` flag:
+
+    /server/vagrant/bin/vhosts.sh --reset
+    
+When run from the host machine, this script will update the configuration files and attempt to reload apache on the `dev-web` machine. If alternate web app nodes are in use, the script may be run from within the target virtual machine and/or `service httpd reload` may be run manually from the virtual machine's shell prompt.
+
+The `vhosts.sh` script looks for the precense of three locations within each directory contained by `/sites` to determine if a given directory found in `/sites` is in fact in need of a virtual host. These locations are as follows:
+
+* /sites/example.dev/pub
+* /sites/example.dev/html
+* /sites/example.dev/htdocs
+
+If any of these three paths exist, a virtual host will be created based on the template found in `/server/vagrant/etc/httpd/sites.d/__vhost.conf.template`. The `DocumentRoot` will be configured using the first of the above three paths found for a given site directory. The `ServerName` will match the name of the sites directory (example.dev above) and a wildcard `ServerAlias` is included to support relevant sub-domains. When a file is found at `/sites/example.dev/.vhost.conf` it will be used in leu of the template file. Any updates to this file will be applied to the host configuration on subsequent runs of the `vhosts.sh` script.
 
 #### PHP Versions
 
@@ -67,7 +99,8 @@ To access this site, you'll need to add an entry to your local /etc/hosts file (
 * user: admin
 * pass: A123456
 
-### dev-db
+### Database Server
+
 This node has MySql 5.6.x installed. Since this is a development environment, the root mysql password has been left blank.
 
 To allow for custom database settings without modifying the default my.cnf file directly, files found at `vagrant/etc/my.cnf.d/*.cnf` will be copied onto this node and are applied via the `!includedir` directive in the `/etc/my.cnf` defaults file. Example use case: create the file `vagrant/etc/my.cnf.d/lower_case_table_names.cnf` with the following contents and then re-provision the vm:
@@ -81,7 +114,8 @@ To allow for custom database settings without modifying the default my.cnf file 
 
 This node has MySql 5.6 from the community MySql RPM installed. Should MySql 5.1 be required, there is a pre-configured machine available, but it will not start by default. Start this machine via `vagrant up db51`. The data directory of this will be kept separate from the MySql 5.6 data in order to preserve data integrity. These machines may be run simultaneously. Configure sites to connect to `dev-db` or `dev-db51` as needed.
 
-## dev-solr
+## Solr Server
+
 This node does not boot by default and currently does nothing. It is here as a placeholder for running Solr once the provisioning scripts for it are created.
 
 ## Development Notes
@@ -113,3 +147,12 @@ For NFS mounts to function, run the following to add the necessary exports to yo
             "$MOUNT_DIR/mysql/ -alldirs -network 192.168.235.0 -mask 255.255.255.0 $MAPALL" \
             | sudo tee -a /etc/exports > /dev/null
         sudo nfsd restart
+
+
+[dev-web]: #web-application
+[dev-web55]: #web-application
+[dev-web54]: #web-application
+[dev-web53]: #web-application
+[dev-db]: #database-server
+[dev-db51]: #database-server
+[dev-solr]: #solr-server

@@ -8,5 +8,6 @@ if [[ -d ./etc/nginx/conf.d/ ]]; then
 fi
 
 if [[ -d ./etc/nginx/default.d/ ]]; then
+    mkdir -p /etc/nginx/default.d
     cp ./etc/nginx/default.d/*.conf /etc/nginx/default.d/
 fi
