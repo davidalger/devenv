@@ -1,0 +1,3 @@
+^npm http GET
+^npm http 304
+^npm http 200
