@@ -21,5 +21,5 @@ function __git_ps1_devenv {
 if [[ -f "/etc/.vagranthost" ]]; then
     export PS1='\[\033[0;34m\]\u\[\033[0m\]:\@:\[\033[0;37m\]\w\[\033[0m\]$(__git_ps1_devenv)$ '
 else
-    export PS1='\[\033[0;36m\]\u@\h\[\033[0m\]:\@:\[\033[0;37m\]\w\[\033[0m\]$(__git_ps1_devenv)$ '
+    export PS1='\[\033[0;36m\]\u@\h\[\033[0m\]:\@:\[\033[0;37m\]\w\[\033[0m\]$ '
 fi
