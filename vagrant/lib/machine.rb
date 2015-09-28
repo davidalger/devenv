@@ -9,6 +9,7 @@ def configure_common (conf)
   # mount persistent shared cache storage on vm and bind sub-caches
   Mount.vmfs('host-cache', SHARED_DIR, SHARED_DIR)
   Mount.bind(SHARED_DIR + '/yum', '/var/cache/yum')
+  Mount.bind(SHARED_DIR + '/npm', '/var/cache/npm')
   
   # configure default RAM and number of CPUs allocated to vm
   vm_set_ram(conf, 2048)
