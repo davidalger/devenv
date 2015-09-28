@@ -115,6 +115,7 @@ function install_sample_data {
     bin/magento setup:upgrade -q
     bin/magento sampledata:install admin
     touch $SAMPLEDATA_INSTALLED
+    bin/magento module:disable Magento_SampleData
     php -f $tools_dir/build-sample-data.php -- --ce-source=$SITES_DIR/$HOSTNAME --command unlink
 
     if [[ ! -L $SITES_DIR/$HOSTNAME/pub/pub/media/styles.css ]]; then
