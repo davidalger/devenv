@@ -15,6 +15,9 @@ export COMPOSER_HOME=/server/.shared/composer
 # configure PATH to use local and user scripts
 export PATH=~/bin:/usr/local/bin:$PATH:/usr/local/sbin
 
+# enbale color-ls emulation
+export CLICOLOR=1
+
 # use textmate as editor if mate cli tool is present
 [ -x /usr/local/bin/mate ] && export EDITOR="/usr/local/bin/mate -w"
 
