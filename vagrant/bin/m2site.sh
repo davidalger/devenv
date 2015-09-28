@@ -110,18 +110,18 @@ function install_sample_data {
     mirror_repo https://github.com/magento/magento2-sample-data.git $SHARED_DIR/m2-data.repo
     clone_or_update $SHARED_DIR/m2-data.repo $SITES_DIR/$HOSTNAME/var/tmp/m2-data
     php -f $tools_dir/build-sample-data.php -- --ce-source=$SITES_DIR/$HOSTNAME
-    
-    if [[ ! -L $SITES_DIR/$HOSTNAME/pub/pub/media/styles.css ]]; then
-        echo "==> Fixing sample data stylesheet location bug... (see issue #2)"
-        mkdir -p $SITES_DIR/$HOSTNAME/pub/pub/media
-        ln -s ../../media/styles.css $SITES_DIR/$HOSTNAME/pub/pub/media/styles.css
-    fi
 
     echo "==> Installing sample data"
     bin/magento setup:upgrade -q
     bin/magento sampledata:install admin
     touch $SAMPLEDATA_INSTALLED
     php -f $tools_dir/build-sample-data.php -- --ce-source=$SITES_DIR/$HOSTNAME --command unlink
+
+    if [[ ! -L $SITES_DIR/$HOSTNAME/pub/pub/media/styles.css ]]; then
+        echo "==> Fixing sample data stylesheet location bug... (see issue #2)"
+        mkdir -p $SITES_DIR/$HOSTNAME/pub/pub/media
+        ln -s ../../media/styles.css $SITES_DIR/$HOSTNAME/pub/pub/media/styles.css
+    fi
 }
 
 ## begin execution
