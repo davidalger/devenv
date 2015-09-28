@@ -47,7 +47,19 @@ It is setup with two primary machines: web and db. Together these two virtual ma
 
 ## Virtual Machines
 
-### dev-web
+### Quick Reference
+
+| hostname    | ip           | role     | autostart | description                               |
+| ----------- | ------------ | -------- | --------- | ----------------------------------------- |
+| [dev-web]   | 10.19.89.10  | app      | yes       | web app node running PHP 5.6              |
+| [dev-db]    | 10.19.89.20  | database | yes       | database node running MySql 5.6           |
+| [dev-web55] | 10.19.89.11  | app      | no        | web app node running PHP 5.5              |
+| [dev-web54] | 10.19.89.12  | app      | no        | web app node running PHP 5.4              |
+| [dev-web53] | 10.19.89.13  | app      | no        | web app node running PHP 5.3 (no debug)   |
+| [dev-db51]  | 10.19.89.21  | database | no        | database node running MySql 5.1           |
+| [dev-solr]  | 10.19.89.30  | solr     | no        | currently un-provisioned                  |
+
+### Web Application
 This node is setup to run services required to run web applications. Nginx is setup to deliver static assets directly and act as a proxy for anything else. Apache is setup with mod_php to delivery the web application and sits behind Nginx on an internal port. Redis has been setup for a cache data store such that it never writes information to disk.
 
 Run `vhosts.sh` to generate vhosts for all sites and reload apache. This will be automatically run once when the machine is provisioned, and may be subsequently run from `/server/vagrant/bin/vhosts.sh` on either the host or guest environment.
@@ -67,7 +79,8 @@ To access this site, you'll need to add an entry to your local /etc/hosts file (
 * user: admin
 * pass: A123456
 
-### dev-db
+### Database Server
+
 This node has MySql 5.6.x installed. Since this is a development environment, the root mysql password has been left blank.
 
 To allow for custom database settings without modifying the default my.cnf file directly, files found at `vagrant/etc/my.cnf.d/*.cnf` will be copied onto this node and are applied via the `!includedir` directive in the `/etc/my.cnf` defaults file. Example use case: create the file `vagrant/etc/my.cnf.d/lower_case_table_names.cnf` with the following contents and then re-provision the vm:
@@ -81,7 +94,8 @@ To allow for custom database settings without modifying the default my.cnf file 
 
 This node has MySql 5.6 from the community MySql RPM installed. Should MySql 5.1 be required, there is a pre-configured machine available, but it will not start by default. Start this machine via `vagrant up db51`. The data directory of this will be kept separate from the MySql 5.6 data in order to preserve data integrity. These machines may be run simultaneously. Configure sites to connect to `dev-db` or `dev-db51` as needed.
 
-## dev-solr
+## Solr Server
+
 This node does not boot by default and currently does nothing. It is here as a placeholder for running Solr once the provisioning scripts for it are created.
 
 ## Development Notes
@@ -113,3 +127,12 @@ For NFS mounts to function, run the following to add the necessary exports to yo
             "$MOUNT_DIR/mysql/ -alldirs -network 192.168.235.0 -mask 255.255.255.0 $MAPALL" \
             | sudo tee -a /etc/exports > /dev/null
         sudo nfsd restart
+
+
+[dev-web]: #web-application
+[dev-web55]: #web-application
+[dev-web54]: #web-application
+[dev-web53]: #web-application
+[dev-db]: #database-server
+[dev-db51]: #database-server
+[dev-solr]: #solr-server
