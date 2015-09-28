@@ -29,14 +29,14 @@ yum $extra_repos install -y php php-cli \
 
 # remi repo provides these extra packages for 5.4 and newer, so skip them on 5.3 setup
 if [[ "$PHP_VERSION" > 53 ]]; then
-    yum install $extra_repos install -y php-ioncube-loader php-mysqlnd php-xdebug php-mhash
+    yum $extra_repos install -y php-ioncube-loader php-mysqlnd php-xdebug php-mhash
     
     if [[ "$PHP_VERSION" < 56 ]]; then
         mv /etc/php.d/xdebug.ini /etc/php.d/15-xdebug.ini
         mv /etc/php.d/ioncube_loader.ini /etc/php.d/05-ioncube_loader.ini
     fi
 else
-    yum install $extra_repos install -y php-mysql
+    yum $extra_repos install -y php-mysql
 fi
 
 # copy in our custom configuration files
