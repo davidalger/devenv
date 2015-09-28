@@ -16,8 +16,6 @@ if [[ $php_version < 5 ]]; then
     exit
 fi
 
-var_dirs=cache,page_cache,session,log,generation,composer_home,view_preprocessed
-
 # use a bare clone to keep up-to-date local mirror of master
 if [[ ! -d "$SHARED_DIR/m2.repo" ]]; then
     echo "Cloning remote repository to local mirror. This could take a while..."
@@ -39,18 +37,11 @@ if [[ ! -d "$SITES_DIR/m2.dev" ]]; then
     git clone -q "$SHARED_DIR/m2.repo" "$SITES_DIR/m2.dev"
 
     cd "$SITES_DIR/m2.dev"
-    bash -c "ln -s /server/var/m2.dev/{$var_dirs} var/"
 else
     echo "Updating site from mirror"
     cd "$SITES_DIR/m2.dev"
     git pull -q
 fi
-
-# make sure linked var_dirs targets exist and owned properly
-bash -c "sudo mkdir -p /server/var/m2.dev/{$var_dirs}"
-sudo chown -R vagrant:vagrant "/server/var/"
-sudo chmod -R 777 "/server/var/"
-bash -c "sudo rm -rf var/{$var_dirs}/*" # flush all var_dirs just in case they already existed
 
 # install all dependencies in prep for setup / upgrade
 echo "Installing composer dependencies"
@@ -78,10 +69,11 @@ else
     bin/magento setup:upgrade -q
 fi
 
-echo "Flushing all file caches"
-bash -c "sudo rm -rf var/{$var_dirs}/*"
+echo "Flushing file caches and redis service"
+rm -rf var/{cache,page_cache,session,log,generation,composer_home,view_preprocessed}/*
+redis-cli flushall > /dev/null
 
-echo "Running vhosts.sh and reloading apache"
+echo "Running virtual host configuration"
 /server/vagrant/bin/vhosts.sh > /dev/null
 
 cd "$wd"
