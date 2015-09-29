@@ -32,6 +32,7 @@ for arg in "$@"; do
             ;;
         *)
             >&2 echo "Error: Unrecognized argument $arg"
+            exit -1
             ;;
     esac
 done
