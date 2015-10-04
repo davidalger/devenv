@@ -26,17 +26,21 @@ if [ -d "/Applications/TextMate.app/Contents/SharedSupport/Support" ]; then
     export TM_SUPPORT_PATH='/Applications/TextMate.app/Contents/SharedSupport/Support'
 fi
 
-# brew completion if present
-if [ -x "$(which brew 2> /dev/null)" ] && [ -f $(brew --prefix)/etc/bash_completion ]; then
-  . $(brew --prefix)/etc/bash_completion
-fi
+# bash completion and key bindings
+if test $BASH; then
+    # brew completion if present
+    if [ -x "$(which brew 2> /dev/null)" ] && [ -f $(brew --prefix)/etc/bash_completion ]; then
+      . $(brew --prefix)/etc/bash_completion
+    fi
 
-# git completion
-[ -f ~/.git-completion.bash ] && . ~/.git-completion.bash
+    # git completion
+    [ -f ~/.git-completion.bash ] && . ~/.git-completion.bash
+
+    # bash specific env
+    bind '"\e[A":history-search-backward'
+    bind '"\e[B":history-search-forward'
+fi
 
 # setup rvm if present
 [ -s "$HOME/.rvm/scripts/rvm" ] && source "$HOME/.rvm/scripts/rvm" # Load RVM into a shell session *as a function*
 
-# bash specific env
-bind '"\e[A":history-search-backward'
-bind '"\e[B":history-search-forward'
