@@ -36,7 +36,7 @@ for role in $roles; do
             
             ./$script   \
                 >> $BOOTSTRAP_LOG   \
-                2> >(tee -a $BOOTSTRAP_LOG | grep -v -f $VAGRANT_DIR/etc/filters/bootstrap >&2) \
+                2> >(tee -a $BOOTSTRAP_LOG | grep -vE -f $VAGRANT_DIR/etc/filters/bootstrap >&2) \
                 || code="$?"
             
             if [[ $code ]]; then
