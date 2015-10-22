@@ -110,6 +110,42 @@ To allow for custom database settings without modifying the default my.cnf file 
 
 ***WARNING:*** Because this node is running the mysqld service and persisting data, attempts to forcefully shutdown (aka run `vagrant destroy`) on the db node will cause data corruption and fail subsequent mysqld start operations unless the vm has first been halted and/or the mysqld service stopped gracefully prior to vm destruction. The recommended sequence to wipe the vm and create from scratch is halt, destroy, then up.
 
+#### Common Problems
+##### mysqld fails to start
+When this happens you'll see something like the following when attempting to boot the vm:
+
+    ==> db: MySQL Daemon failed to start.
+    ==> db: Starting mysqld:  
+    ==> db: [FAILED]
+    The SSH command responded with a non-zero exit status. Vagrant
+    assumes that this means the command failed. The output for this command
+    should be in the log above. Please read the output to determine what
+    went wrong.
+
+This happens (per above warning) when the mysqld service fails to shutdown cleanly. To solve this issue, proceed through the following steps:
+
+***WARNING:*** If this is done and there is a running mysqld instance using these ib* files, irreversible data corruption could occur. Be very careful.
+
+1. Verify that Virtual Box reports NO instances of the db machine is still running before proceeding
+
+        VBoxManage list runningvms | grep "Server_db"
+
+2. Restart the rpc.lockd service on the host
+
+        sudo launchctl unload /System/Library/LaunchDaemons/com.apple.lockd.plist
+        sudo launchctl load /System/Library/LaunchDaemons/com.apple.lockd.plist
+
+3. Verify no locks exist on your `ib*` files (command should return nothing)
+
+        sudo lsof /server/mysql/data/ib*
+
+4. Destroy and restart your db node
+
+        vagrant destroy -f db
+        vagrant up db
+
+If the above does not succeed in bringing it back online, try rebooting the host machine. If that still does not solve the issue, it is likely you will have to help mysqld out a bit with recovery. Check `/var/log/mysqld.log` for more info.
+
 #### MySql Versions
 
 This node has MySql 5.6 from the community MySql RPM installed. Should MySql 5.1 be required, there is a pre-configured machine available, but it will not start by default. Start this machine via `vagrant up db51`. The data directory of this will be kept separate from the MySql 5.6 data in order to preserve data integrity. These machines may be run simultaneously. Configure sites to connect to `dev-db` or `dev-db51` as needed.
