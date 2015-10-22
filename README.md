@@ -110,6 +110,10 @@ To allow for custom database settings without modifying the default my.cnf file 
 
 ***WARNING:*** Because this node is running the mysqld service and persisting data, attempts to forcefully shutdown (aka run `vagrant destroy`) on the db node will cause data corruption and fail subsequent mysqld start operations unless the vm has first been halted and/or the mysqld service stopped gracefully prior to vm destruction. The recommended sequence to wipe the vm and create from scratch is halt, destroy, then up.
 
+#### MySql Versions
+
+This node has MySql 5.6 from the community MySql RPM installed. Should MySql 5.1 be required, there is a pre-configured machine available, but it will not start by default. Start this machine via `vagrant up db51`. The data directory of this will be kept separate from the MySql 5.6 data in order to preserve data integrity. These machines may be run simultaneously. Configure sites to connect to `dev-db` or `dev-db51` as needed.
+
 #### Common Problems
 ##### mysqld fails to start
 When this happens you'll see something like the following when attempting to boot the vm:
@@ -145,10 +149,6 @@ This happens (per above warning) when the mysqld service fails to shutdown clean
         vagrant up db
 
 If the above does not succeed in bringing it back online, try rebooting the host machine. If that still does not solve the issue, it is likely you will have to help mysqld out a bit with recovery. Check `/var/log/mysqld.log` for more info.
-
-#### MySql Versions
-
-This node has MySql 5.6 from the community MySql RPM installed. Should MySql 5.1 be required, there is a pre-configured machine available, but it will not start by default. Start this machine via `vagrant up db51`. The data directory of this will be kept separate from the MySql 5.6 data in order to preserve data integrity. These machines may be run simultaneously. Configure sites to connect to `dev-db` or `dev-db51` as needed.
 
 ## Solr Server
 
