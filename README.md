@@ -157,18 +157,14 @@ This node does not boot by default and currently does nothing. It is here as a p
 ## Development Notes
 
 ### Session Storage
-It is well recognized that PHP cannot store sessions on an NFS mount. Since /var/www/sites/ is mounted in the vm via an NFS mount, this causes trouble with applications which attempt using a session directory inside the document root. Magento 2 seems to handle this just fine and stores it's sessions in the configured session location. Magento 1 requires one of three workarounds to function:
+It is well recognized that PHP cannot store sessions on an NFS mount. Since `/var/www/sites/` is mounted in the vm via an NFS mount, this causes trouble with storing session files inside the document root. Magento 2 seems to handle this just fine and stores it's sessions in the configured session location. Magento 1 requires a workaround to function.
 
-1. add the following to the `app/etc/local.xml` configuration file inside the `global` node:
+To workaround this issue, replace the `var/session` directory with a soft-link pointing at the default php session store:
 
-        <session_save><![CDATA[files]]></session_save>
-        <session_save_path><![CDATA[/var/lib/php/session]]]]></session_save_path>
+    rm -rf var/session
+    ln -s /var/lib/php/session var/session
 
-2. create a soft-link pointing the `var/session` directory to the default php session location
-
-        ln -s /var/lib/php/session var/session
-
-3. use an alternative session storage mechanism such as redis or memcached
+Alternately, you may use an alternative session storage mechanism such as redis or memcached to store sessions and avoid the problem altogether.
 
 ## VMWare Provider
 
