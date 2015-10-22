@@ -1,6 +1,15 @@
 #!/usr/bin/env bash
-# 
-# Runs each of the specified role-based scripts on a node
+##
+ # Copyright © 2015 by David Alger. All rights reserved
+ # 
+ # Licensed under the Open Software License 3.0 (OSL-3.0)
+ # See included LICENSE file for full text of OSL-3.0
+ # 
+ # http://davidalger.com/contact/
+ ##
+
+########################################
+# Run specified role scripts on a node
 # 
 # Options:
 # 
@@ -9,6 +18,7 @@
 #
 
 set -e
+
 cd $VAGRANT_DIR
 PATH="/usr/local/bin:$PATH"
 source ./scripts/lib/utils.sh

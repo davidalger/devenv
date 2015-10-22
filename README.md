@@ -156,3 +156,6 @@ For NFS mounts to function, run the following to add the necessary exports to yo
 [dev-db]: #database-server
 [dev-db51]: #database-server
 [dev-solr]: #solr-server
+
+# License
+This project is licensed under the Open Software License 3.0 (OSL-3.0). See included LICENSE file for full text of OSL-3.0

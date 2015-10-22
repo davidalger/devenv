@@ -1,3 +1,12 @@
+##
+ # Copyright © 2015 by David Alger. All rights reserved
+ # 
+ # Licensed under the Open Software License 3.0 (OSL-3.0)
+ # See included LICENSE file for full text of OSL-3.0
+ # 
+ # http://davidalger.com/contact/
+ ##
+
 # Validates path as a valid symlink pointing to our env or the containing directory of our env. Returns path
 # Params:
 # +base_dir+:: +String+ path to base directory or symlink to environment root

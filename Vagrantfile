@@ -1,5 +1,11 @@
-# -*- mode: ruby -*-
-# vi: set ft=ruby :
+##
+ # Copyright © 2015 by David Alger. All rights reserved
+ # 
+ # Licensed under the Open Software License 3.0 (OSL-3.0)
+ # See included LICENSE file for full text of OSL-3.0
+ # 
+ # http://davidalger.com/contact/
+ ##
 
 # only set if undefined (due to obscure cases where vagrant execs itself)
 if not defined? VAGRANT_FILE
