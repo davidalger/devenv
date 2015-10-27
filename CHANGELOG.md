@@ -1,3 +1,14 @@
+1.0.0-beta11
+===============
+
+* Add flag to specify branch on m2 install
+* Update nginx sites config to allow any TLD
+* Update session storage workaround documentation
+* Documented resolution for most common issue causing mysqld start failure (issue #43)
+* Add copyright/license info to source files
+* Quiet the rpm mirror host resolution failure / retry messages on provisioning
+* Add compatibility with non-bash shells (kudos @colnpanic)
+* Fixed exit bug in m2dev.sh when run with invalid arguments
 
 1.0.0-beta10
 ===============
