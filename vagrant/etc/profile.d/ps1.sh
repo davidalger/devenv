@@ -11,6 +11,11 @@
 ########################################
 # configure a pretty ps1
 
+## don't customize ps1 for non-bash shell
+if [[ -z $BASH_VERSION ]]; then
+    return;
+fi
+
 ## set git ps1 options one time so overriding in local profile is possible
 if [[ -x "$(which git 2> /dev/null)" ]]; then
     GIT_PS1_SHOWDIRTYSTATE=1
