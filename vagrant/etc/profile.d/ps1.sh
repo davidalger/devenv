@@ -1,7 +1,7 @@
 # configure a pretty ps1
 
 ## don't customize ps1 for non-bash shell
-if test -z $BASH; then
+if [[ -z $BASH_VERSION ]]; then
     return;
 fi
 
