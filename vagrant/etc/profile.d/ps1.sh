@@ -1,4 +1,20 @@
+#!/usr/bin/env bash
+##
+ # Copyright © 2015 by David Alger. All rights reserved
+ # 
+ # Licensed under the Open Software License 3.0 (OSL-3.0)
+ # See included LICENSE file for full text of OSL-3.0
+ # 
+ # http://davidalger.com/contact/
+ ##
+
+########################################
 # configure a pretty ps1
+
+## don't customize ps1 for non-bash shell
+if [[ -z $BASH_VERSION ]]; then
+    return;
+fi
 
 ## set git ps1 options one time so overriding in local profile is possible
 if [[ -x "$(which git 2> /dev/null)" ]]; then

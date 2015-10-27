@@ -1,10 +1,20 @@
 # install a magento 2 site
+##
+ # Copyright © 2015 by David Alger. All rights reserved
+ # 
+ # Licensed under the Open Software License 3.0 (OSL-3.0)
+ # See included LICENSE file for full text of OSL-3.0
+ # 
+ # http://davidalger.com/contact/
+ ##
+
 set -e
 wd="$(pwd)"
 
 SHARED_DIR=/server/.shared
 SITES_DIR=/server/sites
 
+BRANCH=develop
 HOSTNAME=m2.dev
 SAMPLEDATA=
 
@@ -22,16 +32,25 @@ for arg in "$@"; do
         -d|--sampledata)
             SAMPLEDATA=1
             ;;
+        --branch=*)
+            BRANCH="${arg#*=}"
+            if [[ ! "$BRANCH" =~ ^(master|develop|merchant_beta)$ ]]; then
+                >&2 echo "Error: Invalid value given --branch=$BRANCH (must be master, develop, or merchant_beta)"
+                exit -1
+            fi
+            ;;
         --help)
             echo "Usage: $(basename $0) [-d] [--sampledata] [--hostname=example.dev]"
             echo ""
             echo "  -d : --sampledata             triggers installation of sample data"
             echo "       --hostname=<hostname>    domain of the site (defaults to m2.dev)"
+            echo "       --branch=<branch>        branch to build the site from (defaults to develop)"
             echo ""
             exit -1
             ;;
         *)
             >&2 echo "Error: Unrecognized argument $arg"
+            exit -1
             ;;
     esac
 done
@@ -69,10 +88,12 @@ function mirror_repo {
         git clone --bare -q "$repo_url" "$mirror_path"
         cd "$mirror_path"
         git remote add origin "$repo_url"
+        git config remote.origin.fetch 'refs/heads/*:refs/heads/*'
         git fetch -q
     else
         echo "==> Updating mirror $mirror_path"
         cd "$mirror_path"
+        git config remote.origin.fetch 'refs/heads/*:refs/heads/*'  # in case it's not previously been set
         git fetch -q || true
     fi
     
@@ -85,6 +106,7 @@ function clone_or_update {
     
     repo_url="$1"
     dest_path="$2"
+    branch_name="$3"
     
     if [[ ! -d "$dest_path" ]]; then
         echo "==> Cloning $repo_url -> $dest_path"
@@ -93,9 +115,11 @@ function clone_or_update {
         git clone -q "$repo_url" "$dest_path"
 
         cd "$dest_path"
+        git checkout -q "$branch_name"
     else
         echo "Updating $dest_path from mirror"
         cd "$dest_path"
+        git checkout -q "$branch_name"
         git pull -q
     fi
     
@@ -108,7 +132,7 @@ function install_sample_data {
     
     # grab sample data assets
     mirror_repo https://github.com/magento/magento2-sample-data.git $SHARED_DIR/m2-data.repo
-    clone_or_update $SHARED_DIR/m2-data.repo $SITES_DIR/$HOSTNAME/var/tmp/m2-data
+    clone_or_update $SHARED_DIR/m2-data.repo $SITES_DIR/$HOSTNAME/var/tmp/m2-data $BRANCH
     php -f $tools_dir/build-sample-data.php -- --ce-source=$SITES_DIR/$HOSTNAME
 
     echo "==> Installing sample data"
@@ -129,7 +153,7 @@ function install_sample_data {
 
 # grab magento 2 codebase
 mirror_repo https://github.com/magento/magento2.git $SHARED_DIR/m2.repo
-clone_or_update $SHARED_DIR/m2.repo $SITES_DIR/$HOSTNAME
+clone_or_update $SHARED_DIR/m2.repo $SITES_DIR/$HOSTNAME $BRANCH
 
 # install all dependencies in prep for setup / upgrade
 echo "==> Installing composer dependencies"

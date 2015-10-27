@@ -114,6 +114,42 @@ To allow for custom database settings without modifying the default my.cnf file 
 
 This node has MySql 5.6 from the community MySql RPM installed. Should MySql 5.1 be required, there is a pre-configured machine available, but it will not start by default. Start this machine via `vagrant up db51`. The data directory of this will be kept separate from the MySql 5.6 data in order to preserve data integrity. These machines may be run simultaneously. Configure sites to connect to `dev-db` or `dev-db51` as needed.
 
+#### Common Problems
+##### mysqld fails to start
+When this happens you'll see something like the following when attempting to boot the vm:
+
+    ==> db: MySQL Daemon failed to start.
+    ==> db: Starting mysqld:  
+    ==> db: [FAILED]
+    The SSH command responded with a non-zero exit status. Vagrant
+    assumes that this means the command failed. The output for this command
+    should be in the log above. Please read the output to determine what
+    went wrong.
+
+This happens (per above warning) when the mysqld service fails to shutdown cleanly. To solve this issue, proceed through the following steps:
+
+***WARNING:*** If this is done and there is a running mysqld instance using these ib* files, irreversible data corruption could occur. Be very careful.
+
+1. Verify that Virtual Box reports NO instances of the db machine is still running before proceeding
+
+        VBoxManage list runningvms | grep "Server_db"
+
+2. Restart the rpc.lockd service on the host
+
+        sudo launchctl unload /System/Library/LaunchDaemons/com.apple.lockd.plist
+        sudo launchctl load /System/Library/LaunchDaemons/com.apple.lockd.plist
+
+3. Verify no locks exist on your `ib*` files (command should return nothing)
+
+        sudo lsof /server/mysql/data/ib*
+
+4. Destroy and restart your db node
+
+        vagrant destroy -f db
+        vagrant up db
+
+If the above does not succeed in bringing it back online, try rebooting the host machine. If that still does not solve the issue, it is likely you will have to help mysqld out a bit with recovery. Check `/var/log/mysqld.log` for more info.
+
 ## Solr Server
 
 This node does not boot by default and currently does nothing. It is here as a placeholder for running Solr once the provisioning scripts for it are created.
@@ -121,18 +157,14 @@ This node does not boot by default and currently does nothing. It is here as a p
 ## Development Notes
 
 ### Session Storage
-It is well recognized that PHP cannot store sessions on an NFS mount. Since /var/www/sites/ is mounted in the vm via an NFS mount, this causes trouble with applications which attempt using a session directory inside the document root. Magento 2 seems to handle this just fine and stores it's sessions in the configured session location. Magento 1 requires one of three workarounds to function:
+It is well recognized that PHP cannot store sessions on an NFS mount. Since `/var/www/sites/` is mounted in the vm via an NFS mount, this causes trouble with storing session files inside the document root. Magento 2 seems to handle this just fine and stores it's sessions in the configured session location. Magento 1 requires a workaround to function.
 
-1. add the following to the `app/etc/local.xml` configuration file inside the `global` node:
+To workaround this issue, replace the `var/session` directory with a soft-link pointing at the default php session store:
 
-        <session_save><![CDATA[files]]></session_save>
-        <session_save_path><![CDATA[/var/lib/php/session]]]]></session_save_path>
+    rm -rf var/session
+    ln -s /var/lib/php/session var/session
 
-2. create a soft-link pointing the `var/session` directory to the default php session location
-
-        ln -s /var/lib/php/session var/session
-
-3. use an alternative session storage mechanism such as redis or memcached
+Alternately, you may use an alternative session storage mechanism such as redis or memcached to store sessions and avoid the problem altogether.
 
 ## VMWare Provider
 
@@ -156,3 +188,6 @@ For NFS mounts to function, run the following to add the necessary exports to yo
 [dev-db]: #database-server
 [dev-db51]: #database-server
 [dev-solr]: #solr-server
+
+# License
+This project is licensed under the Open Software License 3.0 (OSL-3.0). See included LICENSE file for full text of OSL-3.0
