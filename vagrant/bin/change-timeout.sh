@@ -5,13 +5,13 @@ set -e
 RESET=
 TIMEOUT_LENGTH=7200
 
-## verify pre-requisites
+## Verify pre-requisites
 if [[ -f /etc/.vagranthost ]]; then
-    >&2 echo "Error: This script should be run from within the vagrant machine. Please vagrant ssh, then retry"
+    >&2 echo "Error: This script should be run from within the vagrant machine. Please vagrant ssh, then retry."
     exit 1
 fi
 
-## argument parsing
+## Argument parsing
 for arg in "$@"; do
     case $arg in
         --length=*)
@@ -48,8 +48,8 @@ if [[ $RESET ]]; then
         sudo rm -f /etc/nginx/default.d/proxy.conf.bak
     fi
     sudo rm -f /etc/php.d/60-customtimeout.ini
-    sudo service httpd restart
-    sudo service nginx restart
+    sudo service httpd restart > /dev/null
+    sudo service nginx restart > /dev/null
     echo "Succesfully reset timeouts to system defaults."
     exit 1
 fi
@@ -63,7 +63,7 @@ fi
 sudo perl -ibak -pe "s/proxy_read_timeout [0-9]*/proxy_read_timeout $TIMEOUT_LENGTH/g" /etc/nginx/default.d/proxy.conf
 
 # Restart for settings to take effect
-sudo service httpd restart
-sudo service nginx restart
+sudo service httpd restart > /dev/null
+sudo service nginx restart > /dev/null
 
 echo "Succesfully changed timeout to $TIMEOUT_LENGTH seconds."
