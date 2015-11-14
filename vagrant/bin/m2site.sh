@@ -14,7 +14,7 @@ wd="$(pwd)"
 SHARED_DIR=/server/.shared
 SITES_DIR=/server/sites
 
-BRANCH=develop
+BRANCH=master
 HOSTNAME=m2.dev
 SAMPLEDATA=
 
@@ -34,8 +34,8 @@ for arg in "$@"; do
             ;;
         --branch=*)
             BRANCH="${arg#*=}"
-            if [[ ! "$BRANCH" =~ ^(master|develop|merchant_beta)$ ]]; then
-                >&2 echo "Error: Invalid value given --branch=$BRANCH (must be master, develop, or merchant_beta)"
+            if [[ ! "$BRANCH" =~ ^(master|develop)$ ]]; then
+                >&2 echo "Error: Invalid value given --branch=$BRANCH (must be master or develop)"
                 exit -1
             fi
             ;;
@@ -44,7 +44,7 @@ for arg in "$@"; do
             echo ""
             echo "  -d : --sampledata             triggers installation of sample data"
             echo "       --hostname=<hostname>    domain of the site (defaults to m2.dev)"
-            echo "       --branch=<branch>        branch to build the site from (defaults to develop)"
+            echo "       --branch=<branch>        branch to build the site from (defaults to master)"
             echo ""
             exit -1
             ;;
@@ -128,19 +128,16 @@ function clone_or_update {
 
 # runs the install routine for sample data if enabled
 function install_sample_data {
-    tools_dir=$SITES_DIR/$HOSTNAME/var/tmp/m2-data/dev/tools
+    tools_dir=$SITES_DIR/$HOSTNAME/var/.m2-data/dev/tools
     
     # grab sample data assets
     mirror_repo https://github.com/magento/magento2-sample-data.git $SHARED_DIR/m2-data.repo
-    clone_or_update $SHARED_DIR/m2-data.repo $SITES_DIR/$HOSTNAME/var/tmp/m2-data $BRANCH
+    clone_or_update $SHARED_DIR/m2-data.repo $SITES_DIR/$HOSTNAME/var/.m2-data $BRANCH
     php -f $tools_dir/build-sample-data.php -- --ce-source=$SITES_DIR/$HOSTNAME
 
     echo "==> Installing sample data"
     bin/magento setup:upgrade -q
-    bin/magento sampledata:install admin
     touch $SAMPLEDATA_INSTALLED
-    bin/magento module:disable Magento_SampleData
-    php -f $tools_dir/build-sample-data.php -- --ce-source=$SITES_DIR/$HOSTNAME --command unlink
 
     if [[ ! -L $SITES_DIR/$HOSTNAME/pub/pub/media/styles.css ]]; then
         echo "==> Fixing sample data stylesheet location bug... (see issue #2)"
