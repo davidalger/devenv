@@ -47,7 +47,7 @@ alias udiff="diff -urB \$1 \$2 | grep -v 'Only in' | grep -v 'diff ' | sed -E 's
 alias mdiff="diff -Bbwr -I ' \*.*'"
 
 # magento shortcuts
-alias mreports="grep -rE ^a: var/report/ | cut -d '#' -f 1 | cut -d ';' -f 2 | sort | uniq -c"
+alias mreports='grep -rE ^a: var/report/ | cut -d '\''#'\'' -f 1 | cut -d '\'';'\'' -f 2 | sort | uniq -c | sort -n'
 alias mexceptions='ack "^Exception" "$1" | sort | uniq -c | sort -nr | vi -c "set nowrap" -'
 # alias flush-cache-storage="php -r \"require_once 'app/Mage.php'; umask(0); Mage::app()->getCacheInstance()->flush();\""
 # alias flush-cache="php -r \"require_once 'app/Mage.php'; umask(0); Mage::app()->cleanCache();\""
