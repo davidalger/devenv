@@ -138,12 +138,6 @@ function install_sample_data {
     echo "==> Installing sample data"
     bin/magento setup:upgrade -q
     touch $SAMPLEDATA_INSTALLED
-
-    if [[ ! -L $SITES_DIR/$HOSTNAME/pub/pub/media/styles.css ]]; then
-        echo "==> Fixing sample data stylesheet location bug... (see issue #2)"
-        mkdir -p $SITES_DIR/$HOSTNAME/pub/pub/media
-        ln -s ../../media/styles.css $SITES_DIR/$HOSTNAME/pub/pub/media/styles.css
-    fi
 }
 
 ## begin execution
