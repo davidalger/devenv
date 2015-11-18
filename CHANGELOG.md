@@ -1,14 +1,27 @@
+1.0.0-beta12
+===============
+
+* Added magento CLI tool shortcut to custom bin dir
+* Added vagrant/bin to PATH for easy use of custom tooling
+* Changed default session lifetime in php config (issue #47)
+* Fixed bug where vhosts.sh failed restart httpd when run within virtual machine
+* Fixed issue with sample data install with RC and develop trunk
+* Removed temporary fix for issue with sample data running from pub doc root
+* Renamed m2site.sh to m2setup.sh
+* Updated m2setup.sh to support install from meta-packages
+* Updated mreports alias to sort reports by count
+
 1.0.0-beta11
 ===============
 
-* Add flag to specify branch on m2 install
-* Update nginx sites config to allow any TLD
-* Update session storage workaround documentation
+* Added compatibility with non-bash shells (kudos @colnpanic)
+* Added copyright/license info to source files
+* Added flag to specify branch on m2 install
 * Documented resolution for most common issue causing mysqld start failure (issue #43)
-* Add copyright/license info to source files
-* Quiet the rpm mirror host resolution failure / retry messages on provisioning
-* Add compatibility with non-bash shells (kudos @colnpanic)
 * Fixed exit bug in m2dev.sh when run with invalid arguments
+* Updated nginx sites config to allow any TLD
+* Updated session storage workaround documentation
+* Updated with quiter rpm mirror host resolution failure / retry messages on provisioning
 
 1.0.0-beta10
 ===============
