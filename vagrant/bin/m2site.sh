@@ -130,13 +130,11 @@ function clone_or_update {
 function install_sample_data {
     tools_dir=$SITES_DIR/$HOSTNAME/var/.m2-data/dev/tools
     
-    # grab sample data assets
+    echo "==> Linking in sample data"
     mirror_repo https://github.com/magento/magento2-sample-data.git $SHARED_DIR/m2-data.repo
     clone_or_update $SHARED_DIR/m2-data.repo $SITES_DIR/$HOSTNAME/var/.m2-data $BRANCH
     php -f $tools_dir/build-sample-data.php -- --ce-source=$SITES_DIR/$HOSTNAME
 
-    echo "==> Installing sample data"
-    bin/magento setup:upgrade -q
     touch $SAMPLEDATA_INSTALLED
 }
 
@@ -150,6 +148,10 @@ clone_or_update $SHARED_DIR/m2.repo $SITES_DIR/$HOSTNAME $BRANCH
 echo "==> Installing composer dependencies"
 cd $SITES_DIR/$HOSTNAME
 composer install -q --no-interaction --prefer-dist
+
+if [[ $SAMPLEDATA ]]; then
+    install_sample_data
+fi
 
 # either install or upgrade database
 code=
@@ -170,18 +172,10 @@ if [[ $code ]]; then
         --db-host=dev-db \
         --db-user=root \
         --db-name=$DB_NAME
-    
-    if [[ $SAMPLEDATA ]]; then
-        install_sample_data
-    fi
 else
     echo "==> Database $DB_NAME already exists"
     echo "==> Running bin/magento setup:upgrade"
     bin/magento setup:upgrade -q
-    
-    if [[ $SAMPLEDATA ]]; then
-        install_sample_data
-    fi
 fi
 
 echo "==> Removing var directories"
