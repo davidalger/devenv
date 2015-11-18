@@ -42,7 +42,7 @@ It is setup with two primary machines: web and db. Together these two virtual ma
 
 4. Create the m2.dev site:
 
-        vagrant ssh web -- /server/vagrant/bin/m2site.sh
+        vagrant ssh web -- /server/vagrant/bin/m2setup.sh --sampledata
         echo "10.19.89.10 m2.dev" | sudo tee -a /etc/hosts > /dev/null
 
 ### Quick Reference
