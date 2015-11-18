@@ -24,7 +24,7 @@ export VAGRANT_LOG=
 export COMPOSER_HOME=/server/.shared/composer
 
 # configure PATH to use local and user scripts
-export PATH=~/bin:/usr/local/bin:$PATH:/usr/local/sbin
+export PATH=~/bin:/usr/local/bin:/server/vagrant/bin:$PATH:/usr/local/sbin
 
 # enbale color-ls emulation
 export CLICOLOR=1
