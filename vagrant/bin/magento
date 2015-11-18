@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+dir="$(pwd)"
+while [[ "$dir" != "/" ]]; do
+    if [[ -x "$dir/bin/magento" ]]; then
+        "$dir/bin/magento" "$@"
+        exit $?
+    fi
+    dir="$(dirname "$dir")"
+done
+
+>&2 echo "Error: Failed to locate bin/magento (you probably are not inside a magento site root)"
