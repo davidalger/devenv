@@ -17,6 +17,7 @@ SITES_DIR=/server/sites
 BRANCH=master
 HOSTNAME=m2.dev
 SAMPLEDATA=
+GITHUB=
 
 ## argument parsing
 
@@ -32,6 +33,9 @@ for arg in "$@"; do
         -d|--sampledata)
             SAMPLEDATA=1
             ;;
+        -g|--github)
+            GITHUB=1
+            ;;
         --branch=*)
             BRANCH="${arg#*=}"
             if [[ ! "$BRANCH" =~ ^(master|develop)$ ]]; then
@@ -40,9 +44,10 @@ for arg in "$@"; do
             fi
             ;;
         --help)
-            echo "Usage: $(basename $0) [-d] [--sampledata] [--hostname=example.dev]"
+            echo "Usage: $(basename $0) [-d|--sampledata] [-g|--github] [--branch=<name>] [--hostname=<example.dev>]"
             echo ""
             echo "  -d : --sampledata             triggers installation of sample data"
+            echo "  -g : --github                 will install via github clone instead of from meta-packages"
             echo "       --hostname=<hostname>    domain of the site (defaults to m2.dev)"
             echo "       --branch=<branch>        branch to build the site from (defaults to master)"
             echo ""
@@ -108,7 +113,7 @@ function clone_or_update {
     dest_path="$2"
     branch_name="$3"
     
-    if [[ ! -d "$dest_path" ]]; then
+    if [[ ! -d "$dest_path/.git" ]]; then
         echo "==> Cloning $repo_url -> $dest_path"
 
         mkdir -p "$dest_path"
@@ -138,19 +143,53 @@ function install_sample_data {
     touch $SAMPLEDATA_INSTALLED
 }
 
+function install_from_github {
+
+    # grab magento 2 codebase
+    mirror_repo https://github.com/magento/magento2.git $SHARED_DIR/m2.repo
+    clone_or_update $SHARED_DIR/m2.repo $SITES_DIR/$HOSTNAME $BRANCH
+
+    # install all dependencies in prep for setup / upgrade
+    echo "==> Installing composer dependencies"
+    cd $SITES_DIR/$HOSTNAME
+    composer install -q --no-interaction --prefer-dist
+
+    if [[ $SAMPLEDATA ]]; then
+        install_sample_data
+    fi
+}
+
+function install_from_packages {
+
+    if [[ ! -d "$SITES_DIR/$HOSTNAME/vendor" ]]; then
+        echo "==> Installing magento meta-packages"
+        composer create-project --repository-url=https://repo.magento.com/ \
+            magento/project-community-edition $SITES_DIR/$HOSTNAME
+    else
+        composer update --prefer-dist
+    fi
+    
+    chmod +x bin/magento
+
+    if [[ $SAMPLEDATA ]]; then
+        echo "==> Deploying sample data meta-packages"
+        bin/magento sampledata:deploy
+        composer update --prefer-dist
+    fi
+}
+
 ## begin execution
 
-# grab magento 2 codebase
-mirror_repo https://github.com/magento/magento2.git $SHARED_DIR/m2.repo
-clone_or_update $SHARED_DIR/m2.repo $SITES_DIR/$HOSTNAME $BRANCH
-
-# install all dependencies in prep for setup / upgrade
-echo "==> Installing composer dependencies"
+if [[ ! -d "$SITES_DIR/$HOSTNAME" ]]; then
+    echo "==> Creating directory $SITES_DIR/$HOSTNAME"
+    mkdir $SITES_DIR/$HOSTNAME
+fi
 cd $SITES_DIR/$HOSTNAME
-composer install -q --no-interaction --prefer-dist
 
-if [[ $SAMPLEDATA ]]; then
-    install_sample_data
+if [[ $GITHUB ]]; then
+    install_from_github
+else
+    install_from_packages
 fi
 
 # either install or upgrade database
@@ -178,8 +217,8 @@ else
     bin/magento setup:upgrade -q
 fi
 
-echo "==> Removing var directories"
-rm -rf var/{cache,page_cache,session,log,generation,composer_home,view_preprocessed}/*
+echo "==> Flushing magento cache"
+bin/magento cache:flush -q
 
 echo "==> Flushing redis service"
 redis-cli flushall > /dev/null
