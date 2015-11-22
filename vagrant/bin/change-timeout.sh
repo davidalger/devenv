@@ -3,7 +3,7 @@ set -e
 
 ## Default values
 RESET=
-TIMEOUT_LENGTH=7200
+TIMEOUT_LENGTH=3600
 
 ## Verify pre-requisites
 if [[ -f /etc/.vagranthost ]]; then
