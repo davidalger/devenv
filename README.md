@@ -11,39 +11,58 @@ It is setup with two primary machines: web and db. Together these two virtual ma
 
 ## Environment Setup
 
-1. Install technical dependencies and setup the environment, entering your account password when prompted (this may happen a few times):
+1. The install process will install brew on the host machine for gathering dependencies where not already present. If you already have brew installed, however, it is recommended to run the following commands, then cleanup any major issues it reports:
 
-        curl -s https://raw.githubusercontent.com/davidalger/devenv/master/vagrant/bin/install.sh | bash
-        source /etc/profile
+    ```bash
+    brew update
+    brew doctor
+    ```
 
-2. Run the following to start up the virtual machines. This may take a while on first run
+2. Install technical dependencies and setup the environment, entering your account password when prompted (this may happen a few times):
 
-        cd /server
-        vagrant up
+    ```bash
+    curl -s https://raw.githubusercontent.com/davidalger/devenv/master/vagrant/bin/install.sh | bash
+    source /etc/profile
+    ```
 
-3. To SSH into the vm, you can use `vcd` or `vcd web` to connect and automatically mirror your working directory
+3. Run the following to start up the virtual machines. This may take a while on first run
+
+    ```bash
+    cd /server
+    vagrant up
+    ```
+
+4. To SSH into the vm, you can use `vcd` or `vcd web` to connect and automatically mirror your working directory
 
 ### Optional Steps
 
 1. Install the compass tools used for scss compilation
 
-        sudo gem update --system
-        sudo gem install compass
+    ```bash
+    sudo gem update --system
+    sudo gem install compass
+    ```
 
 2. Generate an RSA key pair. The generated public key will be used to authenticate remote SSH connections
 
-        ssh-keygen -f ~/.ssh/id_rsa
+    ```bash
+    ssh-keygen -f ~/.ssh/id_rsa
+    ```
 
     *Note: When prompted, enter a memorable passphrase (you’ll need to use it later)*
 
 3. Because of GitHub's rate limits on their API it can happen that Composer will silently fail on the m2.dev provisioning step of the dev-web machine. To prevent this from happening, create an OAuth token via the [GitHub Settings](https://github.com/settings/tokens) area in your GitHub account. You can read more about these tokens [here](https://github.com/blog/1509-personal-api-tokens). Add this token to the composer configuration by running:
 
-        composer config -g github-oauth.github.com <oauthtoken>
+    ```bash
+    composer config -g github-oauth.github.com "<oauthtoken>"
+    ```
 
 4. Create the m2.dev site:
 
-        vagrant ssh web -- /server/vagrant/bin/m2setup.sh --sampledata
-        echo "10.19.89.10 m2.dev" | sudo tee -a /etc/hosts > /dev/null
+    ```bash
+    vagrant ssh web -- /server/vagrant/bin/m2setup.sh --sampledata
+    echo "10.19.89.10 m2.dev" | sudo tee -a /etc/hosts > /dev/null
+    ```
 
 ### Quick Reference
 
@@ -70,12 +89,16 @@ The IP address of this node is fixed at `10.19.89.10`. This IP should be used in
 #### Virtual Host Configuration
 Virtual hosts are created automatically for each site by running the `vhosts.sh` script. These .conf files are based on a template, or may manually be configured on a per-site basis by placing a `.vhost.conf` file in the root site directory. To configure the virtual host configuraion and reload apache:
 
-    /server/vagrant/bin/vhosts.sh
-    
+```bash
+/server/vagrant/bin/vhosts.sh
+```
+
 If the master template is updated, neccesitating re-creating all the templated virutal host files, use the `--reset` flag:
 
-    /server/vagrant/bin/vhosts.sh --reset
-    
+```bash
+/server/vagrant/bin/vhosts.sh --reset
+```
+
 When run from the host machine, this script will update the configuration files and attempt to reload apache on the `dev-web` machine. If alternate web app nodes are in use, the script may be run from within the target virtual machine and/or `service httpd reload` may be run manually from the virtual machine's shell prompt.
 
 The `vhosts.sh` script looks for the precense of three locations within each directory contained by `/sites` to determine if a given directory found in `/sites` is in fact in need of a virtual host. These locations are as follows:
@@ -132,21 +155,29 @@ This happens (per above warning) when the mysqld service fails to shutdown clean
 
 1. Verify that Virtual Box reports NO instances of the db machine is still running before proceeding
 
-        VBoxManage list runningvms | grep "Server_db"
+    ```bash
+    VBoxManage list runningvms | grep "Server_db"
+    ```
 
 2. Restart the rpc.lockd service on the host
 
-        sudo launchctl unload /System/Library/LaunchDaemons/com.apple.lockd.plist
-        sudo launchctl load /System/Library/LaunchDaemons/com.apple.lockd.plist
+    ```bash
+    sudo launchctl unload /System/Library/LaunchDaemons/com.apple.lockd.plist
+    sudo launchctl load /System/Library/LaunchDaemons/com.apple.lockd.plist
+    ```
 
 3. Verify no locks exist on your `ib*` files (command should return nothing)
 
-        sudo lsof /server/mysql/data/ib*
+    ```bash
+    sudo lsof /server/mysql/data/ib*
+    ```
 
 4. Destroy and restart your db node
 
-        vagrant destroy -f db
-        vagrant up db
+    ```bash
+    vagrant destroy -f db
+    vagrant up db
+    ```
 
 If the above does not succeed in bringing it back online, try rebooting the host machine. If that still does not solve the issue, it is likely you will have to help mysqld out a bit with recovery. Check `/var/log/mysqld.log` for more info.
 
@@ -161,8 +192,10 @@ It is well recognized that PHP cannot store sessions on an NFS mount. Since `/va
 
 To workaround this issue, replace the `var/session` directory with a soft-link pointing at the default php session store:
 
-    rm -rf var/session
-    ln -s /var/lib/php/session var/session
+```bash
+rm -rf var/session
+ln -s /var/lib/php/session var/session
+```
 
 Alternately, you may use an alternative session storage mechanism such as redis or memcached to store sessions and avoid the problem altogether.
 
@@ -172,14 +205,15 @@ Using VMWare Fusion is a supported (but non-default) setup. There are additional
 
 For NFS mounts to function, run the following to add the necessary exports to your `/etc/exports` file on the host machine and restart nfsd:
 
-        MAPALL="-mapall=$(id -u):$(grep ^admin: /etc/group | cut -d : -f 3)"
-        MOUNT_DIR="$(readlink /server || echo /server)"
-        printf "%s\n%s\n" \
-            "$MOUNT_DIR/sites/ -alldirs -network 192.168.235.0 -mask 255.255.255.0 $MAPALL" \
-            "$MOUNT_DIR/mysql/ -alldirs -network 192.168.235.0 -mask 255.255.255.0 $MAPALL" \
-            | sudo tee -a /etc/exports > /dev/null
-        sudo nfsd restart
-
+```bash
+MAPALL="-mapall=$(id -u):$(grep ^admin: /etc/group | cut -d : -f 3)"
+MOUNT_DIR="$(readlink /server || echo /server)"
+printf "%s\n%s\n" \
+    "$MOUNT_DIR/sites/ -alldirs -network 192.168.235.0 -mask 255.255.255.0 $MAPALL" \
+    "$MOUNT_DIR/mysql/ -alldirs -network 192.168.235.0 -mask 255.255.255.0 $MAPALL" \
+    | sudo tee -a /etc/exports > /dev/null
+sudo nfsd restart
+```
 
 [dev-web]: #web-application
 [dev-web55]: #web-application
