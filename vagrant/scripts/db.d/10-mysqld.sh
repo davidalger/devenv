@@ -44,17 +44,18 @@ if [[ ! -f /var/lib/mysql/data/ibdata1 ]]; then
     chown -R $(stat -c '%u:%g' /var/lib/mysql/data/) /var/lib/mysql/data.new/
     mv /var/lib/mysql/data.new/* /var/lib/mysql/data/
     rmdir /var/lib/mysql/data.new
-    
-    # grant root mysql user privileges to connect for other vms and host machine
-    service mysqld start >> $BOOTSTRAP_LOG 2>&1
-    mysql -uroot -e "
-        GRANT ALL PRIVILEGES ON *.* TO 'root'@'localhost' WITH GRANT OPTION;
-        GRANT ALL PRIVILEGES ON *.* TO 'root'@'dev-host' WITH GRANT OPTION;
-        GRANT ALL PRIVILEGES ON *.* TO 'root'@'dev-web' WITH GRANT OPTION;
-        GRANT ALL PRIVILEGES ON *.* TO 'root'@'dev-web55' WITH GRANT OPTION;
-        GRANT ALL PRIVILEGES ON *.* TO 'root'@'dev-web54' WITH GRANT OPTION;
-        GRANT ALL PRIVILEGES ON *.* TO 'root'@'dev-web53' WITH GRANT OPTION;
-        FLUSH PRIVILEGES;
-    "
-    service mysqld stop >> $BOOTSTRAP_LOG 2>&1 # leave it in stopped state
 fi
+
+# grant root mysql user privileges to connect for other vms and host machine
+service mysqld start >> $BOOTSTRAP_LOG 2>&1
+mysql -uroot -e "
+    GRANT ALL PRIVILEGES ON *.* TO 'root'@'localhost' WITH GRANT OPTION;
+    GRANT ALL PRIVILEGES ON *.* TO 'root'@'dev-host' WITH GRANT OPTION;
+    GRANT ALL PRIVILEGES ON *.* TO 'root'@'dev-web' WITH GRANT OPTION;
+    GRANT ALL PRIVILEGES ON *.* TO 'root'@'dev-web70' WITH GRANT OPTION;
+    GRANT ALL PRIVILEGES ON *.* TO 'root'@'dev-web55' WITH GRANT OPTION;
+    GRANT ALL PRIVILEGES ON *.* TO 'root'@'dev-web54' WITH GRANT OPTION;
+    GRANT ALL PRIVILEGES ON *.* TO 'root'@'dev-web53' WITH GRANT OPTION;
+    FLUSH PRIVILEGES;
+"
+service mysqld stop >> $BOOTSTRAP_LOG 2>&1 # leave mysqld in stopped state

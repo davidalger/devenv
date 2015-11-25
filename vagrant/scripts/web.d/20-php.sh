@@ -19,7 +19,7 @@ case "$PHP_VERSION" in
     "" ) # set default of PHP 5.6 if none was specified
         PHP_VERSION="56"
         ;&  ## fallthrough to below case, we know it matches
-    55 | 56 )
+    55 | 56 | 70 )
         extra_repos="--enablerepo=remi --enablerepo=remi-php${PHP_VERSION}"
         ;;
     54 )
@@ -37,11 +37,21 @@ esac
 
 # install php and cross-version dependencies
 yum $extra_repos install -y php php-cli \
-    php-curl php-gd php-intl php-mcrypt php-pecl-redis php-xsl php-mbstring php-soap php-bcmath
+    php-curl php-gd php-intl php-mcrypt php-xsl php-mbstring php-soap php-bcmath
+
+# phpredis does not yet have php7 support
+if [[ "$PHP_VERSION" < 70 ]]; then
+    yum $extra_repos install -y php-pecl-redis
+fi
 
 # remi repo provides these extra packages for 5.4 and newer, so skip them on 5.3 setup
 if [[ "$PHP_VERSION" > 53 ]]; then
-    yum $extra_repos install -y php-ioncube-loader php-mysqlnd php-xdebug php-mhash
+    yum $extra_repos install -y php-mysqlnd php-xdebug php-mhash
+    
+    # the ioncube-loader package for php7 does not exist yet
+    if [[ "$PHP_VERSION" < 70 ]]; then
+        yum $extra_repos install -y php-ioncube-loader
+    fi
     
     if [[ "$PHP_VERSION" < 56 ]]; then
         mv /etc/php.d/xdebug.ini /etc/php.d/15-xdebug.ini

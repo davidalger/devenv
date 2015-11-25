@@ -66,16 +66,17 @@ It is setup with two primary machines: web and db. Together these two virtual ma
 
 ### Quick Reference
 
-| hostname      | ip           | role     | autostart | description                                  |
-| -----------   | ------------ | -------- | --------- | -------------------------------------------- |
-| dev-host      | 10.19.89.1   | host     | n/a       | this is the host machine for the evnironment |
-| **[dev-web]** | 10.19.89.10  | app      | yes       | web app node running PHP 5.6                 |
-| [dev-web55]   | 10.19.89.11  | app      | no        | web app node running PHP 5.5                 |
-| [dev-web54]   | 10.19.89.12  | app      | no        | web app node running PHP 5.4                 |
-| [dev-web53]   | 10.19.89.13  | app      | no        | web app node running PHP 5.3 (no xdebug)     |
-| **[dev-db]**  | 10.19.89.20  | database | yes       | database node running MySql 5.6              |
-| [dev-db51]    | 10.19.89.21  | database | no        | database node running MySql 5.1              |
-| [dev-solr]    | 10.19.89.30  | solr     | no        | currently un-provisioned                     |
+| hostname      | ip           | role     | autostart | description                                        |
+| -----------   | ------------ | -------- | --------- | -------------------------------------------------- |
+| dev-host      | 10.19.89.1   | host     | n/a       | this is the host machine for the evnironment       |
+| **[dev-web]** | 10.19.89.10  | app      | yes       | web app node running PHP 5.6                       |
+| [dev-web55]   | 10.19.89.11  | app      | no        | web app node running PHP 5.5                       |
+| [dev-web54]   | 10.19.89.12  | app      | no        | web app node running PHP 5.4                       |
+| [dev-web53]   | 10.19.89.13  | app      | no        | web app node running PHP 5.3 (no xdebug)           |
+| [dev-web70]   | 10.19.89.14  | app      | no        | web app node running PHP 7.0 (no redis or ioncube) |
+| **[dev-db]**  | 10.19.89.20  | database | yes       | database node running MySql 5.6                    |
+| [dev-db51]    | 10.19.89.21  | database | no        | database node running MySql 5.1                    |
+| [dev-solr]    | 10.19.89.30  | solr     | no        | currently un-provisioned                           |
 
 ## Virtual Machines
 
@@ -216,6 +217,7 @@ sudo nfsd restart
 ```
 
 [dev-web]: #web-application
+[dev-web70]: #web-application
 [dev-web55]: #web-application
 [dev-web54]: #web-application
 [dev-web53]: #web-application
