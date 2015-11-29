@@ -11,7 +11,9 @@
 set -e
 
 confdir=/server/vagrant/etc/httpd/sites.d
-template=$confdir/__vhost.conf.template
+sslconfdir=/etc/nginx/conf.d/sites.d
+vhosttemplate=$confdir/__vhost.conf.template
+ssltemplate=/server/vagrant/etc/nginx/sites.d/__vhost-ssl.conf.template
 confcust=.vhost.conf
 sitesdir=/server/sites
 ssldir=/server/.shared/ssl
@@ -21,7 +23,6 @@ function generate_ssl_cert {
     openssl req -new -sha256 -key $ssldir/local.key.pem -out $ssldir/$host.csr.pem \
         -subj "/C=US/CN=$host"
 
-    #@todo: config path?
     yes | openssl ca -config /server/vagrant/etc/openssl/openssl.conf \
         -extensions server_cert -days 375 -notext -md sha256 \
         -in $ssldir/$host.csr.pem \
@@ -37,6 +38,7 @@ echo "==> scouting for new pubs"
 for site in $(find $sitesdir -maxdepth 1 -type d); do
     hostname="$(basename $site)"
     conffile="$confdir/$hostname.conf"
+    sslconffile="$sslconfdir/$hostname.conf"
     
     if [[ -f "$site/$confcust" ]]; then
         # if the file exists and is identical, don't bother replacing it
@@ -62,10 +64,16 @@ for site in $(find $sitesdir -maxdepth 1 -type d); do
             if [[ -f "$conffile" ]]; then
                 break
             fi
-            
-            cp "$template" "$conffile"
+
+            # generate apache vhost files
+            cp "$vhosttemplate" "$conffile"
             perl -pi -e "s/__HOSTNAME__/$hostname/g" "$conffile"
             perl -pi -e "s/__PUBNAME__/$pubname/g" "$conffile"
+
+            # generate nginx ssl vhost files
+            cp "$ssltemplate" "$sslconffile"
+            perl -pi -e "s/__HOSTNAME__/$hostname/g" "$sslconffile"
+            perl -pi -e "s/__PUBNAME__/$pubname/g" "$sslconffile"
 
             generate_ssl_cert $hostname
 
@@ -84,6 +92,7 @@ for conffile in $(ls -1 $confdir/*.conf); do
     fi
     if [[ ! -d "$sitesdir/$confname" ]]; then
         rm -f "$conffile"
+        rm -f "$sslconfdir/$confname"
         echo "    closed $confname"
     fi
 done
