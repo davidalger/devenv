@@ -2,10 +2,10 @@ server {
     listen              443 ssl;
     ssl_certificate     /server/.shared/ssl/__HOSTNAME__.crt.pem;
     ssl_certificate_key /server/.shared/ssl/local.key.pem;
-    ssl_protocols       TLSv1 TLSv1.1 TLSv1.2; # @TODO: probably need to adjust
+    ssl_protocols       TLSv1 TLSv1.1 TLSv1.2;
     ssl_ciphers         HIGH:!aNULL:!MD5;
 
-    server_name __HOSTNAME__;
+    server_name ~^.*\.?__HOSTNAME__$;
 
     root   /server/sites/__HOSTNAME__/__PUBNAME__;
     index  index.php index.html;

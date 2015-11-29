@@ -11,19 +11,22 @@
 set -e
 
 confdir=/server/vagrant/etc/httpd/sites.d
-sslconfdir=/etc/nginx/conf.d/sites.d
+sslconfdir=/server/vagrant/etc/nginx/conf.d/sites.d
 vhosttemplate=$confdir/__vhost.conf.template
 ssltemplate=/server/vagrant/etc/nginx/sites.d/__vhost-ssl.conf.template
 confcust=.vhost.conf
+sslconfcust=.ssl.conf
 sitesdir=/server/sites
 ssldir=/server/.shared/ssl
+opensslconfig=/server/vagrant/etc/openssl
 
 function generate_ssl_cert {
     host=$1
-    openssl req -new -sha256 -key $ssldir/local.key.pem -out $ssldir/$host.csr.pem \
+    SAN="DNS.1:*.$host,DNS.2:$host" openssl req -new -sha256 -key $ssldir/local.key.pem -out $ssldir/$host.csr.pem \
+        -config $opensslconfig/vhost.conf \
         -subj "/C=US/CN=$host"
 
-    yes | openssl ca -config /server/vagrant/etc/openssl/openssl.conf \
+    yes | openssl ca -config $opensslconfig/rootca.conf \
         -extensions server_cert -days 375 -notext -md sha256 \
         -in $ssldir/$host.csr.pem \
         -out $ssldir/$host.crt.pem
@@ -32,14 +35,17 @@ function generate_ssl_cert {
 if [[ "$1" == "--reset" ]]; then
     echo "==> scrubbing all open pubs"
     rm -vf $confdir/*.conf | sed "s#$confdir/#    closed #g" | cut -d . -f1
+    rm -vf $sslconfdir/*.conf | sed "s#$sslconfdir/#    closed ssl config #g" | cut -d . -f1
+    rm -vf $ssldir/*.c??.pem | sed "s#$ssldir/#    removed ssl cert file #g" | cut -d . -f1
 fi
 
 echo "==> scouting for new pubs"
+
+# apache detection loop
 for site in $(find $sitesdir -maxdepth 1 -type d); do
     hostname="$(basename $site)"
     conffile="$confdir/$hostname.conf"
-    sslconffile="$sslconfdir/$hostname.conf"
-    
+
     if [[ -f "$site/$confcust" ]]; then
         # if the file exists and is identical, don't bother replacing it
         if [[ -f "$conffile" ]] && cmp "$conffile" "$site/$confcust" > /dev/null; then
@@ -65,19 +71,55 @@ for site in $(find $sitesdir -maxdepth 1 -type d); do
                 break
             fi
 
-            # generate apache vhost files
             cp "$vhosttemplate" "$conffile"
             perl -pi -e "s/__HOSTNAME__/$hostname/g" "$conffile"
             perl -pi -e "s/__PUBNAME__/$pubname/g" "$conffile"
 
-            # generate nginx ssl vhost files
+            echo "    opened $hostname"
+            break
+        fi
+    done
+done
+
+# ngnix ssl detection loop
+for site in $(find $sitesdir -maxdepth 1 -type d); do
+    hostname="$(basename $site)"
+    sslconffile="$sslconfdir/$hostname.conf"
+
+    # apache vhosts
+    if [[ -f "$site/$sslconfcust" ]]; then
+        # if the file exists and is identical, don't bother replacing it
+        if [[ -f "$sslconffile" ]] && cmp "$sslconffile" "$site/$sslconfcust" > /dev/null; then
+            continue
+        fi
+
+        if [[ -f "$sslconffile" ]]; then
+            echo "    configured $hostname for ssl (custom vhost was updated)"
+        else
+            echo "    configured $hostname for ssl (custom vhost)"
+        fi
+
+        cp "$site/$sslconfcust" "$sslconffile"
+        continue
+    fi
+
+    # nginx ssl vhosts
+    for try in $(echo "pub html htdocs"); do
+        pubdir="${site}/${try}"
+        if [[ -d "$pubdir" ]]; then
+            pubname=$(basename $pubdir)
+
+            if [[ -f "$sslconffile" ]]; then
+                break
+            fi
+
             cp "$ssltemplate" "$sslconffile"
             perl -pi -e "s/__HOSTNAME__/$hostname/g" "$sslconffile"
             perl -pi -e "s/__PUBNAME__/$pubname/g" "$sslconffile"
 
-            generate_ssl_cert $hostname
+            generate_ssl_cert $hostname 2> /dev/null
 
-            echo "    opened $hostname"
+            echo "    configured $hostname for ssl"
             break
         fi
     done
@@ -92,11 +134,12 @@ for conffile in $(ls -1 $confdir/*.conf); do
     fi
     if [[ ! -d "$sitesdir/$confname" ]]; then
         rm -f "$conffile"
-        rm -f "$sslconfdir/$confname"
+        rm -f "$sslconfdir/$confname.conf"
         echo "    closed $confname"
     fi
 done
 echo "==> all old pubs closed"
+
 echo "==> reloading apache"
 if [[ -x "$(which vagrant 2> /dev/null)" ]]; then
     vagrant ssh web -- 'sudo service httpd reload'
@@ -104,3 +147,11 @@ else
     sudo service httpd reload || true    # mask the LSB exit code (expected to be 4)
 fi
 echo "==> apache ready to run"
+
+echo "==> reloading nginx"
+if [[ -x "$(which vagrant 2> /dev/null)" ]]; then
+    vagrant ssh web -- 'sudo service nginx reload'
+else
+    sudo service nginx reload || true    # mask the LSB exit code (expected to be 4)
+fi
+echo "==> nginx ready to run"
