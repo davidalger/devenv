@@ -8,13 +8,13 @@
  # http://davidalger.com/contact/
  ##
 
-########################################
-# configure ssl root CA
-
 set -e
 
 ssldir=/server/.shared/ssl
 configpath=/server/vagrant/etc/openssl/openssl.conf
+
+########################################
+# configure ssl shared dir
 
 if ! [[ -d $ssldir ]]; then
     mkdir -p $ssldir/rootca
@@ -28,17 +28,36 @@ if ! [[ -d $ssldir ]]; then
     echo 1000 > $ssldir/rootca/serial
 fi
 
-echo "==> Creating root CA"
-openssl genrsa -out $ssldir/rootca/private/ca.key.pem 4096
+########################################
+# configure ssl root CA
 
-openssl req -config $configpath -new -x509 -days 7300 -sha256 -extensions v3_ca \
-    -key $ssldir/rootca/private/ca.key.pem \
-    -out $ssldir/rootca/certs/ca.cert.pem \
-    -subj "/C=US/O=Classy Llama Dev"
-echo "==> Root CA created. NOTE: you must add $ssldir/rootca/certs/ca.cert.pem to trusted certs on host"
+if [[ -f $ssldir/rootca/private/ca.key.pem ]]; then
+    echo "==> Existing root CA found"
+else
+    echo "==> Creating root CA"
 
-echo "==> Creating local SSL private key"
+    openssl genrsa -out $ssldir/rootca/private/ca.key.pem 4096
 
-openssl genrsa -out $ssldir/local.key.pem 2048
+    openssl req -config $configpath -new -x509 -days 7300 -sha256 -extensions v3_ca \
+        -key $ssldir/rootca/private/ca.key.pem \
+        -out $ssldir/rootca/certs/ca.cert.pem \
+        -subj "/C=US/O=Classy Llama Dev"
 
-echo "==> Local SSL private key created"
+    echo "==> Root CA created."
+
+    # alert user where to find root ca cert and what to do with it
+    >&2 echo "NOTE: you must add $ssldir/rootca/certs/ca.cert.pem to trusted certs on host."
+fi
+
+########################################
+# configure local ssl private key
+
+if [[ -f $ssldir/local.key.pem ]]; then
+    echo "==> Existing local ssl private key found"
+else
+    echo "==> Creating local SSL private key"
+
+    openssl genrsa -out $ssldir/local.key.pem 2048
+
+    echo "==> Local SSL private key created"
+fi
