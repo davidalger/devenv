@@ -14,6 +14,19 @@ confdir=/server/vagrant/etc/httpd/sites.d
 template=$confdir/__vhost.conf.template
 confcust=.vhost.conf
 sitesdir=/server/sites
+ssldir=/server/.shared/ssl
+
+function generate_ssl_cert {
+    host=$1
+    openssl req -new -sha256 -key $ssldir/local.key.pem -out $ssldir/$host.csr.pem \
+        -subj "/C=US/CN=$host"
+
+    #@todo: config path?
+    yes | openssl ca -config /server/vagrant/etc/openssl/openssl.conf \
+        -extensions server_cert -days 375 -notext -md sha256 \
+        -in $ssldir/$host.csr.pem \
+        -out $ssldir/$host.crt.pem
+}
 
 if [[ "$1" == "--reset" ]]; then
     echo "==> scrubbing all open pubs"
@@ -53,6 +66,8 @@ for site in $(find $sitesdir -maxdepth 1 -type d); do
             cp "$template" "$conffile"
             perl -pi -e "s/__HOSTNAME__/$hostname/g" "$conffile"
             perl -pi -e "s/__PUBNAME__/$pubname/g" "$conffile"
+
+            generate_ssl_cert $hostname
 
             echo "    opened $hostname"
             break
