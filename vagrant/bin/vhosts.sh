@@ -86,7 +86,7 @@ for site in $(find $sitesdir -maxdepth 1 -type d); do
     hostname="$(basename $site)"
     sslconffile="$sslconfdir/$hostname.conf"
 
-    # apache vhosts
+    # custom ssl config
     if [[ -f "$site/$sslconfcust" ]]; then
         # if the file exists and is identical, don't bother replacing it
         if [[ -f "$sslconffile" ]] && cmp "$sslconffile" "$site/$sslconfcust" > /dev/null; then
@@ -103,7 +103,6 @@ for site in $(find $sitesdir -maxdepth 1 -type d); do
         continue
     fi
 
-    # nginx ssl vhosts
     for try in $(echo "pub html htdocs"); do
         pubdir="${site}/${try}"
         if [[ -d "$pubdir" ]]; then
@@ -139,7 +138,6 @@ for conffile in $(ls -1 $confdir/*.conf); do
     fi
 done
 echo "==> all old pubs closed"
-
 echo "==> reloading apache"
 if [[ -x "$(which vagrant 2> /dev/null)" ]]; then
     vagrant ssh web -- 'sudo service httpd reload'
@@ -147,7 +145,6 @@ else
     sudo service httpd reload || true    # mask the LSB exit code (expected to be 4)
 fi
 echo "==> apache ready to run"
-
 echo "==> reloading nginx"
 if [[ -x "$(which vagrant 2> /dev/null)" ]]; then
     vagrant ssh web -- 'sudo service nginx reload'
