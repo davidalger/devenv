@@ -4,6 +4,7 @@
 * Added change-timeout.sh script for quickly increasing timeouts (issue #45, PR #49)
 * Added PHP 7.0 support via a new alternate web70 vagrant machine
 * Added support for SSL on web role (issue #34, PR #50)
+* Updated m2setup.sh to use SSL on frontend and backend by default
 * Changed xdebug.var_display_max_depth to default value of 3 (PR #48)
 
 1.0.0-beta12
