@@ -3,6 +3,7 @@
 .Spotlight-V100
 .TemporaryItems
 .fseventsd
+.idea
 /.vagrant/
 /.machines/
 /.shared/

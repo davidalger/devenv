@@ -46,6 +46,9 @@ def configure_web_vm (node, host: nil, ip: nil, php_version: nil)
   
   # bind apache sites.d configuration directory
   Mount.bind(VAGRANT_DIR + '/etc/httpd/sites.d', '/etc/httpd/sites.d')
+
+  # bind nginx sites.d configuration directory
+  Mount.bind(VAGRANT_DIR + '/etc/nginx/sites.d', '/etc/nginx/sites.d')
   
   # setup guest provisioners
   Mount.provision(node)

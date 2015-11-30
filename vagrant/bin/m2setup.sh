@@ -200,8 +200,11 @@ if [[ $code ]]; then
     mysql -e "create database $DB_NAME"
     
     echo "==> Running bin/magento setup:install"
-    bin/magento setup:install -q \
+    bin/magento setup:install \
         --base-url=http://$HOSTNAME \
+        --base-url-secure=https://$HOSTNAME \
+        --use-secure=1 \
+        --use-secure-admin=1 \
         --backend-frontname=backend \
         --admin-user=admin \
         --admin-firstname=Admin \
