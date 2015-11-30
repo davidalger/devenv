@@ -16,8 +16,8 @@ for arg in "$@"; do
     case $arg in
         --length=*)
             TIMEOUT_LENGTH="${arg#*=}"
-            if [[ ! "${TIMEOUT_LENGTH}" =~ ^[0-9]+$ ]]; then
-                >&2 echo "Error: Invalid length given --length=${TIMEOUT_LENGTH}"
+            if [[ ! "$TIMEOUT_LENGTH" =~ ^[0-9]+$ ]]; then
+                >&2 echo "Error: Invalid length given --length=$TIMEOUT_LENGTH"
                 exit -1
             fi
             ;;
@@ -26,10 +26,11 @@ for arg in "$@"; do
             ;;
         --help)
             echo "Usage: $(basename $0) [--length=<timeout in seconds>] [--reset]"
-            echo "Change MySQL wait_timeout, PHP mysql.connect_timeout and default_socket_timeout, and Nginx proxy_read_timeout values."
-            echo "Useful for long-running PHP debugging sessions."
             echo ""
-            echo "       --length       Timeout length in seconds (defaults to ${TIMEOUT_LENGTH})"
+            echo "    Change MySQL wait_timeout, PHP mysql.connect_timeout and default_socket_timeout, and Nginx"
+            echo "    proxy_read_timeout values. Useful for facilitating long-running PHP debugging sessions."
+            echo ""
+            echo "       --length       Timeout length in seconds (defaults to $TIMEOUT_LENGTH)"
             echo "  -r : --reset        Reset timeouts to system defaults"
             echo ""
             exit -1
@@ -43,7 +44,7 @@ done
 
 vagrant ssh web -- '
 ## If flag is set, reset settings to default
-if [[ "'${RESET}'" -ne 0 ]]; then
+if [[ "'$RESET'" -ne 0 ]]; then
     if [[ -f /etc/nginx/default.d/proxy.conf.bak ]]; then
         # Put original file back in place
         sudo cp /etc/nginx/default.d/proxy.conf.bak /etc/nginx/default.d/proxy.conf
@@ -52,38 +53,38 @@ if [[ "'${RESET}'" -ne 0 ]]; then
     sudo rm -f /etc/php.d/60-customtimeout.ini
     sudo service httpd restart > /dev/null
     sudo service nginx restart > /dev/null
-    echo "Reset PHP/Nginx timeouts to system defaults."
+    echo "==> reset PHP/Nginx timeouts to system defaults"
     exit
 fi
 
-printf "mysql.connect_timeout = '${TIMEOUT_LENGTH}'\ndefault_socket_timeout = '${TIMEOUT_LENGTH}'" | sudo tee /etc/php.d/60-customtimeout.ini > /dev/null
+printf "mysql.connect_timeout = '$TIMEOUT_LENGTH'\ndefault_socket_timeout = '$TIMEOUT_LENGTH'" | sudo tee /etc/php.d/60-customtimeout.ini > /dev/null
 
 # Create backup before editing in place
 if [[ ! -f /etc/nginx/default.d/proxy.conf.bak ]]; then
     sudo cp /etc/nginx/default.d/proxy.conf /etc/nginx/default.d/proxy.conf.bak
 fi
 
-sudo perl -ibak -pe "s/proxy_read_timeout [0-9]*/proxy_read_timeout '${TIMEOUT_LENGTH}'/g" /etc/nginx/default.d/proxy.conf
+sudo perl -ibak -pe "s/proxy_read_timeout [0-9]*/proxy_read_timeout '$TIMEOUT_LENGTH'/g" /etc/nginx/default.d/proxy.conf
 
 # Restart for settings to take effect
 sudo service httpd restart > /dev/null
 sudo service nginx restart > /dev/null
 
-echo "Changed PHP/Nginx timeouts to '${TIMEOUT_LENGTH}' seconds."
+echo "==> changed PHP/Nginx timeouts to '$TIMEOUT_LENGTH' seconds"
 ';
 
 vagrant ssh db -- '
 ## If flag is set, reset settings to default
-if [[ "'${RESET}'" -ne 0 ]]; then
+if [[ "'$RESET'" -ne 0 ]]; then
     sudo rm -f /etc/my.cnf.d/customtimeout.cnf
     sudo service mysqld restart &> /dev/null
-    echo "Reset MySQL wait_timeout to system defaults."
+    echo "==> reset MySQL wait_timeout to system defaults"
     exit
 fi
 
-printf "[mysqld]\nwait_timeout = '${TIMEOUT_LENGTH}'" | sudo tee /etc/my.cnf.d/customtimeout.cnf > /dev/null
+printf "[mysqld]\nwait_timeout = '$TIMEOUT_LENGTH'" | sudo tee /etc/my.cnf.d/customtimeout.cnf > /dev/null
 
 sudo service mysqld restart &> /dev/null
 
-echo "Changed MySQL wait_timeout to '${TIMEOUT_LENGTH}' seconds."
+echo "==> changed MySQL wait_timeout to '$TIMEOUT_LENGTH' seconds"
 ';
