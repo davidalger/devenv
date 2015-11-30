@@ -1,3 +1,11 @@
+1.0.0-beta13
+===============
+
+* Added change-timeout.sh script for quickly increasing timeouts (issue #45, PR #49)
+* Added PHP 7.0 support via a new alternate web70 vagrant machine
+* Added support for SSL on web role (issue #34, PR #50)
+* Changed xdebug.var_display_max_depth to default value of 3 (PR #48)
+
 1.0.0-beta12
 ===============
 
