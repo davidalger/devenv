@@ -123,6 +123,13 @@ To access this site, you'll need to add an entry to your local /etc/hosts file (
 * user: admin
 * pass: A123456
 
+#### SSL
+When the `web` VM is provisioned, a root CA is automatically generated and stored at `/server/.shared/ssl/rootca/certs/ca.cert.pem` if it does not already exist.
+During vhost discovery and configuration, a wildcard cert, signed by the root CA, is automatically generated for it. Nginx is configured accordingly.
+
+This means that all vhosts support SSL on both the naked domain and any immediate subdomain. 
+Since these certs are all signed by the persistent root CA, if the root CA is added to the host as a trusted cert, the SSL cert for any vhost will automatically be valid.
+
 ### Database Server
 
 This node has MySql 5.6.x installed. Since this is a development environment, the root mysql password has been left blank.
