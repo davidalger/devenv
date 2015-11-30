@@ -11,7 +11,7 @@
 set -e
 
 confdir=/server/vagrant/etc/httpd/sites.d
-sslconfdir=/server/vagrant/etc/nginx/conf.d/sites.d
+sslconfdir=/server/vagrant/etc/nginx/sites.d
 vhosttemplate=$confdir/__vhost.conf.template
 ssltemplate=/server/vagrant/etc/nginx/sites.d/__vhost-ssl.conf.template
 confcust=.vhost.conf
