@@ -41,9 +41,9 @@ else
     openssl req -config $configpath -new -x509 -days 7300 -sha256 -extensions v3_ca \
         -key $ssldir/rootca/private/ca.key.pem \
         -out $ssldir/rootca/certs/ca.cert.pem \
-        -subj "/C=US/O=Classy Llama Dev"
+        -subj "/C=US/O=Vagrant DevEnv"
 
-    echo "==> Root CA created."
+    echo "==> Root CA created"
 
     # alert user where to find root ca cert and what to do with it
     >&2 echo "NOTE: you must add $ssldir/rootca/certs/ca.cert.pem to trusted certs on host."

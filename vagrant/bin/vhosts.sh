@@ -21,7 +21,7 @@ ssldir=/server/.shared/ssl
 opensslconfig=/server/vagrant/etc/openssl
 
 function generate_ssl_cert {
-    host=$1
+    host="$1"
     SAN="DNS.1:*.$host,DNS.2:$host" openssl req -new -sha256 -key $ssldir/local.key.pem -out $ssldir/$host.csr.pem \
         -config $opensslconfig/vhost.conf \
         -subj "/C=US/CN=$host"
@@ -116,7 +116,7 @@ for site in $(find $sitesdir -maxdepth 1 -type d); do
             perl -pi -e "s/__HOSTNAME__/$hostname/g" "$sslconffile"
             perl -pi -e "s/__PUBNAME__/$pubname/g" "$sslconffile"
 
-            generate_ssl_cert $hostname 2> /dev/null
+            generate_ssl_cert "$hostname" 2> /dev/null
 
             echo "    configured $hostname for ssl"
             break
