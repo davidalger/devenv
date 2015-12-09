@@ -1,0 +1,13 @@
+{
+    "name": "davidalger/devenv",
+    "description": "Vagrant Development Environment for Mac OS X Hosts",
+    "license": "OSL-3.0",
+    "authors": [
+        {
+            "name": "David Alger",
+            "homepage": "http://davidalger.com"
+        }
+    ],
+    "minimum-stability": "beta",
+    "require": {}
+}
