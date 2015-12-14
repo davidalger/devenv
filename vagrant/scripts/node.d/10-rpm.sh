@@ -26,6 +26,7 @@ rpm --import ./etc/keys/RPM-GPG-KEY-remi.txt
 rpm --import ./etc/keys/RPM-GPG-KEY-nginx.txt
 
 yum install -y epel-release
+yum install -y wget
 
 install_rpm http://rpms.famillecollet.com/enterprise/remi-release-6.rpm \
     /var/cache/yum/rpms/remi-release-6.rpm
