@@ -37,6 +37,13 @@ else
     roles="$@"
 fi
 
+# allow caller to specify verbose mode where stdout is passed along vs only logged
+if [[ "$VERBOSE" == 'true' ]]; then
+    STDOUT='/dev/stdout'
+else
+    STDOUT='/dev/null'
+fi
+
 # execute role specific scripts
 for role in $roles; do
     if [[ -d "./scripts/$role.d/" ]]; then
@@ -45,7 +52,7 @@ for role in $roles; do
             log "Running: $role: $(basename $script)"
             
             ./$script   \
-                >> $BOOTSTRAP_LOG   \
+                >> >(tee -a $BOOTSTRAP_LOG > $STDOUT) / \
                 2> >(tee -a $BOOTSTRAP_LOG | grep -vE -f $VAGRANT_DIR/etc/filters/bootstrap >&2) \
                 || code="$?"
             
