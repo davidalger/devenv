@@ -46,7 +46,7 @@ fi
 
 # remi repo provides these extra packages for 5.4 and newer, so skip them on 5.3 setup
 if [[ "$PHP_VERSION" > 53 ]]; then
-    yum $extra_repos install -y php-mysqlnd php-xdebug php-mhash
+    yum $extra_repos install -y php-mysqlnd php-xdebug php-mhash php-opcache
     
     # the ioncube-loader package for php7 does not exist yet
     if [[ "$PHP_VERSION" < 70 ]]; then
