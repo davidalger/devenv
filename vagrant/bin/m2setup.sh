@@ -26,6 +26,7 @@ DB_HOST=dev-db
 DB_USER=root
 DB_NAME=            # default init'd post argument parsing
 SAMPLEDATA=
+ENTERPRISE=
 GITHUB=
 
 ## argument parsing
@@ -42,13 +43,16 @@ for arg in "$@"; do
         -d|--sampledata)
             SAMPLEDATA=1
             ;;
+        -e|--enterprise)
+            ENTERPRISE=1
+            ;;
         -g|--github)
             GITHUB=1
             ;;
         --branch=*)
             BRANCH="${arg#*=}"
-            if [[ ! "$BRANCH" =~ ^(master|develop)$ ]]; then
-                >&2 echo "Error: Invalid value given --branch=$BRANCH (must be master or develop)"
+            if [[ ! "$BRANCH" =~ ^(2\.0|develop)$ ]]; then
+                >&2 echo "Error: Invalid value given --branch=$BRANCH (must be '2.0' or develop)"
                 exit -1
             fi
             ;;
@@ -89,10 +93,12 @@ for arg in "$@"; do
             fi
             ;;
         --help)
-            echo "Usage: $(basename $0) [-d|--sampledata] [-g|--github] [--branch=<name>] [--hostname=<example.dev>]" \
-                    " [--admin-user=<admin>] [--admin-email=<email>] [--admin-first=<name>] [--admin-last=<name>]"
+            echo "Usage: $(basename $0) [-d|--sampledata] [-e|--enterprise] [-g|--github] [--branch=<name>] "
+            echo "     [--hostname=<example.dev>] [--admin-user=<admin>] [--admin-email=<email>]"
+            echo "     [--admin-first=<name>] [--admin-last=<name>]"
             echo ""
             echo "  -d : --sampledata                       triggers installation of sample data"
+            echo "  -e : --enterprise                       uses enterprise meta-packages vs community"
             echo "  -g : --github                           will install via github clone instead of from meta-packages"
             echo "       --hostname=<hostname>              domain of the site (defaults to m2.dev)"
             echo "       --backend-frontname=<frontname>    alphanumerical admin username (defaults to admin)"
@@ -219,8 +225,13 @@ function install_from_packages {
 
     if [[ ! -d "$SITES_DIR/$HOSTNAME/vendor" ]]; then
         echo "==> Installing magento meta-packages"
-        composer create-project --repository-url=https://repo.magento.com/ \
-            magento/project-community-edition $SITES_DIR/$HOSTNAME
+
+        package_name="magento/project-community-edition"
+        if [[ $ENTERPRISE ]]; then
+            package_name="magento/project-enterprise-edition"
+        fi
+
+        composer create-project --repository-url=https://repo.magento.com/ $package_name $SITES_DIR/$HOSTNAME
     else
         composer update --prefer-dist
     fi
