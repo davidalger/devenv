@@ -317,10 +317,11 @@ echo "==> Recompiling DI and static content"
 rm -rf var/di/ var/generation/
 bin/magento setup:di:compile-multi-tenant -q
 bin/magento setup:static-content:deploy
+bin/magento cache:flush
 
 echo "==> Flushing magento cache and reindexing"
-bin/magento cache:flush
 bin/magento indexer:reindex
+bin/magento cache:flush
 
 echo "==> Flushing redis service"
 redis-cli flushall > /dev/null
