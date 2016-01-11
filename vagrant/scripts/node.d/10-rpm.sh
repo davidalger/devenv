@@ -24,6 +24,7 @@ rpm --import ./etc/keys/RPM-GPG-KEY-EPEL-6.txt
 rpm --import ./etc/keys/RPM-GPG-KEY-MySql.txt
 rpm --import ./etc/keys/RPM-GPG-KEY-remi.txt
 rpm --import ./etc/keys/RPM-GPG-KEY-nginx.txt
+rpm --import ./etc/keys/RPM-GPG-KEY-Varnish.txt
 
 yum install -y epel-release
 yum install -y wget
@@ -33,5 +34,8 @@ install_rpm http://rpms.famillecollet.com/enterprise/remi-release-6.rpm \
 
 install_rpm http://nginx.org/packages/centos/6/noarch/RPMS/nginx-release-centos-6-0.el6.ngx.noarch.rpm \
     /var/cache/yum/rpms/nginx-release-6.rpm
+
+install_rpm https://repo.varnish-cache.org/redhat/varnish-4.1.el6.rpm \
+    /var/cache/yum/rpms/varnish-4.1el6.rpm
 
 yum update -y -q
