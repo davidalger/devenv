@@ -1,3 +1,18 @@
+1.0.0-beta14
+===============
+
+* Added composer.json for using this as a library (vagrant-cloud support)
+* Added install of varnish to web role in a (currently) inactive state
+* Added support for Xdebug reports to link to PhpStorm file:line URLs
+* Added support to m2setup.sh for generating / inputing administrator details for installs
+* Added support to m2setup.sh for installing from enterprise meta-packages
+* Added verbose flag to the bootstrap.sh script for use in calls to bootstrap_sh method (vagrant-cloud support)
+* Added wget to rpm init routine; digital ocean images don't have it pre-installed (vagrant-cloud support)
+* Added Zend OPCache to installed extension list
+* Fixed AllowOverride directive failing to apply to DocumentRoot
+* Moved npm setup to node role for global support of npm usage (vagrant-cloud support)
+* Removed unused sites_dir env var from default list of constants passed through to bootstrap_sh
+
 1.0.0-beta13
 ===============
 
