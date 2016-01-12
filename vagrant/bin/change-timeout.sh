@@ -1,4 +1,13 @@
-#!/usr/bin/env bash
+# change timeout values for services running in virtual machines for debug purposes
+##
+ # Copyright © 2015 by David Alger. All rights reserved
+ # 
+ # Licensed under the Open Software License 3.0 (OSL-3.0)
+ # See included LICENSE file for full text of OSL-3.0
+ # 
+ # http://davidalger.com/contact/
+ ##
+
 set -e
 
 ## Default values

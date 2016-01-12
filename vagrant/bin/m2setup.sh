@@ -16,7 +16,17 @@ SITES_DIR=/server/sites
 
 BRANCH=master
 HOSTNAME=m2.dev
+BACKEND_FRONTNAME=backend
+ADMIN_USER=admin
+ADMIN_EMAIL=demouser@example.com
+ADMIN_FIRST=Demo
+ADMIN_LAST=User
+ADMIN_PASS="$(openssl rand -base64 24)"
+DB_HOST=dev-db
+DB_USER=root
+DB_NAME=            # default init'd post argument parsing
 SAMPLEDATA=
+ENTERPRISE=
 GITHUB=
 
 ## argument parsing
@@ -33,23 +43,70 @@ for arg in "$@"; do
         -d|--sampledata)
             SAMPLEDATA=1
             ;;
+        -e|--enterprise)
+            ENTERPRISE=1
+            ;;
         -g|--github)
             GITHUB=1
             ;;
         --branch=*)
             BRANCH="${arg#*=}"
-            if [[ ! "$BRANCH" =~ ^(master|develop)$ ]]; then
-                >&2 echo "Error: Invalid value given --branch=$BRANCH (must be master or develop)"
+            if [[ ! "$BRANCH" =~ ^(2\.0|develop)$ ]]; then
+                >&2 echo "Error: Invalid value given --branch=$BRANCH (must be '2.0' or develop)"
+                exit -1
+            fi
+            ;;
+        --backend-frontname=*)
+            BACKEND_FRONTNAME="${arg#*=}"
+            if [[ ! "$BACKEND_FRONTNAME" =~ ^([a-zA-Z0-9]+)$ ]]; then
+                >&2 echo "Error: Invalid value given --backend-frontname=$BACKEND_FRONTNAME " \
+                    "(only alphanumerical values allowed)"
+                exit -1
+            fi
+            ;;
+        --admin-user=*)
+            ADMIN_USER="${arg#*=}"
+            if [[ ! "$ADMIN_USER" =~ ^([a-zA-Z0-9]+)$ ]]; then
+                >&2 echo "Error: Invalid value given --admin-user=$ADMIN_USER (only alphanumerical values allowed)"
+                exit -1
+            fi
+            ;;
+        --admin-first=*)
+            ADMIN_FIRST="${arg#*=}"
+            if [[ ! "$ADMIN_FIRST" =~ ^([a-zA-Z0-9]+)$ ]]; then
+                >&2 echo "Error: Invalid value given --admin-first=$ADMIN_FIRST (only alphanumerical values allowed)"
+                exit -1
+            fi
+            ;;
+        --admin-last=*)
+            ADMIN_LAST="${arg#*=}"
+            if [[ ! "$ADMIN_LAST" =~ ^([a-zA-Z0-9]+)$ ]]; then
+                >&2 echo "Error: Invalid value given --admin-last=$ADMIN_LAST (only alphanumerical values allowed)"
+                exit -1
+            fi
+            ;;
+        --admin-email=*)
+            ADMIN_EMAIL="${arg#*=}"
+            if [[ ! "$ADMIN_EMAIL" =~ ^(.+@.+\..+)$ ]]; then
+                >&2 echo "Error: Invalid value given --admin-email=$ADMIN_EMAIL (must be valid email address)"
                 exit -1
             fi
             ;;
         --help)
-            echo "Usage: $(basename $0) [-d|--sampledata] [-g|--github] [--branch=<name>] [--hostname=<example.dev>]"
+            echo "Usage: $(basename $0) [-d|--sampledata] [-e|--enterprise] [-g|--github] [--branch=<name>] "
+            echo "     [--hostname=<example.dev>] [--admin-user=<admin>] [--admin-email=<email>]"
+            echo "     [--admin-first=<name>] [--admin-last=<name>]"
             echo ""
-            echo "  -d : --sampledata             triggers installation of sample data"
-            echo "  -g : --github                 will install via github clone instead of from meta-packages"
-            echo "       --hostname=<hostname>    domain of the site (defaults to m2.dev)"
-            echo "       --branch=<branch>        branch to build the site from (defaults to master)"
+            echo "  -d : --sampledata                       triggers installation of sample data"
+            echo "  -e : --enterprise                       uses enterprise meta-packages vs community"
+            echo "  -g : --github                           will install via github clone instead of from meta-packages"
+            echo "       --hostname=<hostname>              domain of the site (defaults to m2.dev)"
+            echo "       --backend-frontname=<frontname>    alphanumerical admin username (defaults to admin)"
+            echo "       --admin-user=<admin>               alphanumerical admin username (defaults to admin)"
+            echo "       --admin-email=<email>              admin account email address (required input)"
+            echo "       --admin-first=<name>               admin user first name (required input)"
+            echo "       --admin-name=<name>                admin user last name (required input)"
+            echo "       --branch=<branch>                  branch to build the site from (defaults to master)"
             echo ""
             exit -1
             ;;
@@ -69,6 +126,11 @@ if [[ $SAMPLEDATA && -f $SAMPLEDATA_INSTALLED ]]; then
 fi
 
 ## verify pre-requisites
+
+if [[ ! "$ADMIN_EMAIL" ]] || [[ ! "$ADMIN_FIRST" ]] || [[ ! "$ADMIN_LAST" ]]; then
+    >&2 echo "Error: Required admin account information missing. Please use --help for proper usage"
+    exit -1
+fi
 
 if [[ -f /etc/.vagranthost ]]; then
     >&2 echo "Error: This script should be run from within the vagrant machine. Please vagrant ssh, then retry"
@@ -163,8 +225,13 @@ function install_from_packages {
 
     if [[ ! -d "$SITES_DIR/$HOSTNAME/vendor" ]]; then
         echo "==> Installing magento meta-packages"
-        composer create-project --repository-url=https://repo.magento.com/ \
-            magento/project-community-edition $SITES_DIR/$HOSTNAME
+
+        package_name="magento/project-community-edition"
+        if [[ $ENTERPRISE ]]; then
+            package_name="magento/project-enterprise-edition"
+        fi
+
+        composer create-project --repository-url=https://repo.magento.com/ $package_name $SITES_DIR/$HOSTNAME
     else
         composer update --prefer-dist
     fi
@@ -176,6 +243,26 @@ function install_from_packages {
         bin/magento sampledata:deploy
         composer update --prefer-dist
     fi
+}
+
+function print_install_info {
+    URL_FRONT="http://$HOSTNAME"
+    URL_ADMIN="https://$HOSTNAME/$BACKEND_FRONTNAME/admin"
+
+    FILL=$(printf "%0.s-" {1..128})
+    C1_LEN=8
+    let "C2_LEN=${#URL_ADMIN}>${#ADMIN_PASS}?${#URL_ADMIN}:${#ADMIN_PASS}"
+    
+    # note: in CentOS bash .* isn't supported (is on Darwin), but *.* is more cross-platform
+    printf "+ %*.*s + %*.*s + \n" 0 $C1_LEN $FILL 0 $C2_LEN $FILL
+    printf "+ %-*s + %-*s + \n" $C1_LEN FrontURL $C2_LEN "$URL_FRONT"
+    printf "+ %*.*s + %*.*s + \n" 0 $C1_LEN $FILL 0 $C2_LEN $FILL
+    printf "+ %-*s + %-*s + \n" $C1_LEN AdminURL $C2_LEN "$URL_ADMIN"
+    printf "+ %*.*s + %*.*s + \n" 0 $C1_LEN $FILL 0 $C2_LEN $FILL
+    printf "+ %-*s + %-*s + \n" $C1_LEN Username $C2_LEN "$ADMIN_USER"
+    printf "+ %*.*s + %*.*s + \n" 0 $C1_LEN $FILL 0 $C2_LEN $FILL
+    printf "+ %-*s + %-*s + \n" $C1_LEN Password $C2_LEN "$ADMIN_PASS"
+    printf "+ %*.*s + %*.*s + \n" 0 $C1_LEN $FILL 0 $C2_LEN $FILL
 }
 
 ## begin execution
@@ -193,6 +280,7 @@ else
 fi
 
 # either install or upgrade database
+print_info_flag=
 code=
 mysql -e "use $DB_NAME" 2> /dev/null || code="$?"
 if [[ $code ]]; then
@@ -200,33 +288,50 @@ if [[ $code ]]; then
     mysql -e "create database $DB_NAME"
     
     echo "==> Running bin/magento setup:install"
-    bin/magento setup:install \
-        --base-url=http://$HOSTNAME \
-        --base-url-secure=https://$HOSTNAME \
-        --use-secure=1 \
-        --use-secure-admin=1 \
-        --backend-frontname=backend \
-        --admin-user=admin \
-        --admin-firstname=Admin \
-        --admin-lastname=Admin \
-        --admin-email=user@example.com \
-        --admin-password=A123456 \
-        --db-host=dev-db \
-        --db-user=root \
-        --db-name=$DB_NAME
+    bin/magento setup:install                        \
+        --base-url="http://$HOSTNAME"                \
+        --base-url-secure="https://$HOSTNAME"        \
+        --backend-frontname="$BACKEND_FRONTNAME"     \
+        --use-secure=1                               \
+        --use-secure-admin=1                         \
+        --use-rewrites=1                             \
+        --admin-user="$ADMIN_USER"                   \
+        --admin-firstname="$ADMIN_FIRST"             \
+        --admin-lastname="$ADMIN_LAST"               \
+        --admin-email="$ADMIN_EMAIL"                 \
+        --admin-password="$ADMIN_PASS"               \
+        --db-host="$DB_HOST"                         \
+        --db-user="$DB_USER"                         \
+        --db-name="$DB_NAME"                         \
+        --magento-init-params 'MAGE_MODE=production' \
+    ;
+    
+    print_info_flag=1
 else
     echo "==> Database $DB_NAME already exists"
     echo "==> Running bin/magento setup:upgrade"
     bin/magento setup:upgrade -q
 fi
 
-echo "==> Flushing magento cache"
-bin/magento cache:flush -q
+echo "==> Recompiling DI and static content"
+rm -rf var/di/ var/generation/
+bin/magento setup:di:compile-multi-tenant -q
+bin/magento setup:static-content:deploy
+bin/magento cache:flush
+
+echo "==> Flushing magento cache and reindexing"
+bin/magento indexer:reindex
+bin/magento cache:flush
 
 echo "==> Flushing redis service"
 redis-cli flushall > /dev/null
 
-echo "==> Updating virtual hosts"
-/server/vagrant/bin/vhosts.sh > /dev/null
+if [[ $print_info_flag ]]; then
+    echo "==> New site information:"
+    print_install_info
+    echo ""
+fi
+
+echo "Please update any necessary virtual hosts and/or other server configuration!"
 
 cd "$wd"

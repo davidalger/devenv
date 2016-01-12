@@ -18,7 +18,10 @@ yum install -y httpd
 if [[ -d ./etc/httpd/conf.d/ ]]; then
     cp ./etc/httpd/conf.d/*.conf /etc/httpd/conf.d/
 fi
+
 perl -pi -e 's/Listen 80//' /etc/httpd/conf/httpd.conf
+perl -0777 -pi -e 's#(<Directory "/var/www/html">.*?)AllowOverride None(.*?</Directory>)#$1AllowOverride All$2#s' \
+        /etc/httpd/conf/httpd.conf
 
 if [[ -f "/var/www/error/noindex.html" ]]; then
     mv /var/www/error/noindex.html /var/www/error/noindex.html.disabled

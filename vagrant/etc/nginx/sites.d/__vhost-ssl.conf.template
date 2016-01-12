@@ -1,3 +1,4 @@
+
 server {
     listen              443 ssl;
     ssl_certificate     /server/.shared/ssl/__HOSTNAME__.crt.pem;

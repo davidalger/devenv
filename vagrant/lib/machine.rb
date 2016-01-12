@@ -53,7 +53,7 @@ def configure_web_vm (node, host: nil, ip: nil, php_version: nil)
   # setup guest provisioners
   Mount.provision(node)
   bootstrap_sh(node, ['node', 'web'], { php_version: php_version })
-  service(node, { start: ['httpd', 'nginx', 'redis'] })
+  service(node, { start: ['redis', 'httpd', 'nginx'] })
 
   # run vhosts.sh on every reload
   node.vm.provision :shell, run: 'always' do |conf|
