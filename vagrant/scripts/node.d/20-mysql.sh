@@ -12,8 +12,7 @@
 # install mysql client
 
 set -e
-
-source ./scripts/lib/rpm.sh
+wd="$(pwd)"
 
 # determine which version of MySql we are installing
 case "$MYSQL_VERSION" in
@@ -29,9 +28,7 @@ case "$MYSQL_VERSION" in
 esac
 
 if [ "$MYSQL_VERSION" == "56" ]; then
-    echo "Installing MySql Community RPM"
-    install_rpm http://repo.mysql.com/mysql-community-release-el6-5.noarch.rpm \
-        /var/cache/yum/rpms/mysql-community-release-el6-5.noarch.rpm
+    yum install -y /var/cache/yum/rpms/mysql-community-release-el6-5.noarch.rpm
 fi
 
 yum install -y mysql
