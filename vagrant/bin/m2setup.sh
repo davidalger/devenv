@@ -14,8 +14,9 @@ wd="$(pwd)"
 SHARED_DIR=/server/.shared
 SITES_DIR=/server/sites
 
-BRANCH=master
-HOSTNAME=m2.dev
+# init user configurable inputs
+BRANCH=develop
+HOSTNAME=m2.demo
 BACKEND_FRONTNAME=backend
 ADMIN_USER=admin
 ADMIN_EMAIL=demouser@example.com
@@ -106,7 +107,7 @@ for arg in "$@"; do
             echo "       --admin-email=<email>              admin account email address (required input)"
             echo "       --admin-first=<name>               admin user first name (required input)"
             echo "       --admin-name=<name>                admin user last name (required input)"
-            echo "       --branch=<branch>                  branch to build the site from (defaults to master)"
+            echo "       --branch=<branch>                  branch to build the site from (defaults to develop)"
             echo ""
             exit -1
             ;;
