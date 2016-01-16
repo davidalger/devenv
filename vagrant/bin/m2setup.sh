@@ -11,8 +11,22 @@
 set -e
 wd="$(pwd)"
 
-SHARED_DIR=/server/.shared
-SITES_DIR=/server/sites
+# init non-user configurable inputs allowing external override via exports
+if [[ -z $SHARED_DIR ]]; then
+    SHARED_DIR=/server/.shared
+fi
+if [[ -z $SITES_DIR ]]; then
+    SITES_DIR=/server/sites
+fi
+if [[ -z $DB_HOST ]]; then
+    DB_HOST=dev-db
+fi
+if [[ -z $DB_USER ]]; then
+    DB_USER=root
+fi
+if [[ -z $DB_NAME ]]; then
+    DB_NAME=            # default init'd post argument parsing
+fi
 
 # init user configurable inputs
 BRANCH=develop
@@ -23,9 +37,8 @@ ADMIN_EMAIL=demouser@example.com
 ADMIN_FIRST=Demo
 ADMIN_LAST=User
 ADMIN_PASS="$(openssl rand -base64 24)"
-DB_HOST=dev-db
-DB_USER=root
-DB_NAME=            # default init'd post argument parsing
+
+# user set flags
 SAMPLEDATA=
 ENTERPRISE=
 GITHUB=
@@ -118,7 +131,9 @@ for arg in "$@"; do
     esac
 done
 
-DB_NAME="$(printf "$HOSTNAME" | tr . _)"
+if [[ -z $DB_NAME ]]; then
+    DB_NAME="$(printf "$HOSTNAME" | tr . _)"
+fi
 
 # sampledata flag to prevent re-running the sampledata:install routine
 SAMPLEDATA_INSTALLED=$SITES_DIR/$HOSTNAME/var/.sampledata
