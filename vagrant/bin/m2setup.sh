@@ -18,6 +18,9 @@ fi
 if [[ -z $SITES_DIR ]]; then
     SITES_DIR=/server/sites
 fi
+if [[ -z $INSTALL_DIR ]]; then
+    INSTALL_DIR=        # default init'd post argument parsing
+fi
 if [[ -z $DB_HOST ]]; then
     DB_HOST=dev-db
 fi
@@ -31,6 +34,7 @@ fi
 # init user configurable inputs
 BRANCH=develop
 HOSTNAME=m2.demo
+URLPATH=
 BACKEND_FRONTNAME=backend
 ADMIN_USER=admin
 ADMIN_EMAIL=demouser@example.com
@@ -42,17 +46,14 @@ ADMIN_PASS="$(openssl rand -base64 24)"
 SAMPLEDATA=
 ENTERPRISE=
 GITHUB=
+VERBOSE=
 
 ## argument parsing
 
 for arg in "$@"; do
     case $arg in
-        --hostname=*)
-            HOSTNAME="${arg#*=}"
-            if [[ ! "$HOSTNAME" =~ ^[a-z0-9]+\.[a-z]{2,5}$ ]]; then
-                >&2 echo "Error: Invalid value given --hostname=$HOSTNAME"
-                exit -1
-            fi
+        -v|--verbose)
+            VERBOSE=1
             ;;
         -d|--sampledata)
             SAMPLEDATA=1
@@ -62,6 +63,20 @@ for arg in "$@"; do
             ;;
         -g|--github)
             GITHUB=1
+            ;;
+        --hostname=*)
+            HOSTNAME="${arg#*=}"
+            if [[ ! "$HOSTNAME" =~ ^[a-z0-9\.]+\.[a-z]{2,5}$ ]]; then
+                >&2 echo "Error: Invalid value given --hostname=$HOSTNAME"
+                exit -1
+            fi
+            ;;
+        --urlpath=*)
+            URLPATH="${arg#*=}"
+            if [[ ! "$URLPATH" =~ ^[a-z0-9][a-z0-9/]?[a-z0-9]+$ ]]; then
+                >&2 echo "Error: Invalid value given --urlpath=$URLPATH"
+                exit -1
+            fi
             ;;
         --branch=*)
             BRANCH="${arg#*=}"
@@ -107,20 +122,22 @@ for arg in "$@"; do
             fi
             ;;
         --help)
-            echo "Usage: $(basename $0) [-d|--sampledata] [-e|--enterprise] [-g|--github] [--branch=<name>] "
-            echo "     [--hostname=<example.dev>] [--admin-user=<admin>] [--admin-email=<email>]"
-            echo "     [--admin-first=<name>] [--admin-last=<name>]"
+            echo "Usage: $(basename $0) [-v|--verbose] [-d|--sampledata] [-e|--enterprise] [-g|--github] "
+            echo "     [--hostname=<example.dev>] [--urlpath=<name>] [--branch=<name>] [--admin-user=<admin>] "
+            echo "     [--admin-email=<email>] [--admin-first=<name>] [--admin-last=<name>]"
             echo ""
+            echo "  -v : --verbose                          disables the -q flags on sub-commands for verbose output"
             echo "  -d : --sampledata                       triggers installation of sample data"
             echo "  -e : --enterprise                       uses enterprise meta-packages vs community"
             echo "  -g : --github                           will install via github clone instead of from meta-packages"
             echo "       --hostname=<hostname>              domain of the site (defaults to m2.dev)"
+            echo "       --urlpath=<urlpath>                path component of base url and install sub-directyory"
+            echo "       --branch=<branch>                  branch to build the site from (defaults to develop)"
             echo "       --backend-frontname=<frontname>    alphanumerical admin username (defaults to admin)"
             echo "       --admin-user=<admin>               alphanumerical admin username (defaults to admin)"
             echo "       --admin-email=<email>              admin account email address (required input)"
             echo "       --admin-first=<name>               admin user first name (required input)"
             echo "       --admin-name=<name>                admin user last name (required input)"
-            echo "       --branch=<branch>                  branch to build the site from (defaults to develop)"
             echo ""
             exit -1
             ;;
@@ -135,10 +152,29 @@ if [[ -z $DB_NAME ]]; then
     DB_NAME="$(printf "$HOSTNAME" | tr . _)"
 fi
 
+if [[ -z $INSTALL_DIR ]]; then
+    INSTALL_DIR=$SITES_DIR/$HOSTNAME
+    if [[ -z $URLPATH ]]; then
+        INSTALL_DIR=$INSTALL_DIR/$URLPATH
+    fi
+fi
+
+# simply needs to be the hostname + urlpath (if given), the protocol is added later
+BASE_URL=$HOSTNAME
+if [[ ! -z $URLPATH ]]; then
+    BASE_URL=$BASE_URL/$URLPATH
+fi
+
 # sampledata flag to prevent re-running the sampledata:install routine
-SAMPLEDATA_INSTALLED=$SITES_DIR/$HOSTNAME/var/.sampledata
+SAMPLEDATA_INSTALLED=$INSTALL_DIR/var/.sampledata
 if [[ $SAMPLEDATA && -f $SAMPLEDATA_INSTALLED ]]; then
     SAMPLEDATA=
+fi
+
+# configure verbosity flags; currently we support queit and normal verbosity of sub-commands via a single flag
+NOISE_LEVEL=" "
+if [[ ! $VERBOSE ]]; then
+    NOISE_LEVEL=" -q "
 fi
 
 ## verify pre-requisites
@@ -168,16 +204,16 @@ function mirror_repo {
     
     if [[ ! -d "$mirror_path" ]]; then
         echo "==> Mirroring $repo_url -> $mirror_path"
-        git clone --bare -q "$repo_url" "$mirror_path"
+        git clone --bare $NOISE_LEVEL "$repo_url" "$mirror_path"
         cd "$mirror_path"
         git remote add origin "$repo_url"
         git config remote.origin.fetch 'refs/heads/*:refs/heads/*'
-        git fetch -q
+        git fetch $NOISE_LEVEL
     else
         echo "==> Updating mirror $mirror_path"
         cd "$mirror_path"
         git config remote.origin.fetch 'refs/heads/*:refs/heads/*'  # in case it's not previously been set
-        git fetch -q || true
+        git fetch|| true
     fi
     
     cd "$wd"
@@ -195,15 +231,15 @@ function clone_or_update {
         echo "==> Cloning $repo_url -> $dest_path"
 
         mkdir -p "$dest_path"
-        git clone -q "$repo_url" "$dest_path"
+        git clone $NOISE_LEVEL "$repo_url" "$dest_path"
 
         cd "$dest_path"
-        git checkout -q "$branch_name"
+        git checkout $NOISE_LEVEL "$branch_name"
     else
         echo "Updating $dest_path from mirror"
         cd "$dest_path"
-        git checkout -q "$branch_name"
-        git pull -q
+        git checkout $NOISE_LEVEL "$branch_name"
+        git pull $NOISE_LEVEL
     fi
     
     cd "$wd"
@@ -211,12 +247,12 @@ function clone_or_update {
 
 # runs the install routine for sample data if enabled
 function install_sample_data {
-    tools_dir=$SITES_DIR/$HOSTNAME/var/.m2-data/dev/tools
+    tools_dir=$INSTALL_DIR/var/.m2-data/dev/tools
     
     echo "==> Linking in sample data"
     mirror_repo https://github.com/magento/magento2-sample-data.git $SHARED_DIR/m2-data.repo
-    clone_or_update $SHARED_DIR/m2-data.repo $SITES_DIR/$HOSTNAME/var/.m2-data $BRANCH
-    php -f $tools_dir/build-sample-data.php -- --ce-source=$SITES_DIR/$HOSTNAME
+    clone_or_update $SHARED_DIR/m2-data.repo $INSTALL_DIR/var/.m2-data $BRANCH
+    php -f $tools_dir/build-sample-data.php -- --ce-source=$INSTALL_DIR
 
     touch $SAMPLEDATA_INSTALLED
 }
@@ -225,12 +261,12 @@ function install_from_github {
 
     # grab magento 2 codebase
     mirror_repo https://github.com/magento/magento2.git $SHARED_DIR/m2.repo
-    clone_or_update $SHARED_DIR/m2.repo $SITES_DIR/$HOSTNAME $BRANCH
+    clone_or_update $SHARED_DIR/m2.repo $INSTALL_DIR $BRANCH
 
     # install all dependencies in prep for setup / upgrade
     echo "==> Installing composer dependencies"
-    cd $SITES_DIR/$HOSTNAME
-    composer install -q --no-interaction --prefer-dist
+    cd $INSTALL_DIR
+    composer install $NOISE_LEVEL --no-interaction --prefer-dist
 
     if [[ $SAMPLEDATA ]]; then
         install_sample_data
@@ -239,7 +275,7 @@ function install_from_github {
 
 function install_from_packages {
 
-    if [[ ! -d "$SITES_DIR/$HOSTNAME/vendor" ]]; then
+    if [[ ! -d "$INSTALL_DIR/vendor" ]]; then
         echo "==> Installing magento meta-packages"
 
         package_name="magento/project-community-edition"
@@ -247,23 +283,23 @@ function install_from_packages {
             package_name="magento/project-enterprise-edition"
         fi
 
-        composer create-project --repository-url=https://repo.magento.com/ $package_name $SITES_DIR/$HOSTNAME
+        composer create-project $NOISE_LEVEL --repository-url=https://repo.magento.com/ $package_name $INSTALL_DIR
     else
-        composer update --prefer-dist
+        composer update $NOISE_LEVEL --prefer-dist
     fi
     
     chmod +x bin/magento
 
     if [[ $SAMPLEDATA ]]; then
         echo "==> Deploying sample data meta-packages"
-        bin/magento sampledata:deploy
-        composer update --prefer-dist
+        bin/magento sampledata:deploy $NOISE_LEVEL
+        composer update $NOISE_LEVEL --prefer-dist
     fi
 }
 
 function print_install_info {
-    URL_FRONT="http://$HOSTNAME"
-    URL_ADMIN="https://$HOSTNAME/$BACKEND_FRONTNAME/admin"
+    URL_FRONT="http://$BASE_URL"
+    URL_ADMIN="https://$BASE_URL/$BACKEND_FRONTNAME/admin"
 
     FILL=$(printf "%0.s-" {1..128})
     C1_LEN=8
@@ -283,11 +319,11 @@ function print_install_info {
 
 ## begin execution
 
-if [[ ! -d "$SITES_DIR/$HOSTNAME" ]]; then
-    echo "==> Creating directory $SITES_DIR/$HOSTNAME"
-    mkdir $SITES_DIR/$HOSTNAME
+if [[ ! -d "$INSTALL_DIR" ]]; then
+    echo "==> Creating directory $INSTALL_DIR"
+    mkdir -p $INSTALL_DIR
 fi
-cd $SITES_DIR/$HOSTNAME
+cd $INSTALL_DIR
 
 if [[ $GITHUB ]]; then
     install_from_github
@@ -304,9 +340,9 @@ if [[ $code ]]; then
     mysql -e "create database $DB_NAME"
     
     echo "==> Running bin/magento setup:install"
-    bin/magento setup:install                        \
-        --base-url="http://$HOSTNAME"                \
-        --base-url-secure="https://$HOSTNAME"        \
+    bin/magento $NOISE_LEVEL setup:install           \
+        --base-url="http://$BASE_URL"                \
+        --base-url-secure="https://$BASE_URL"        \
         --backend-frontname="$BACKEND_FRONTNAME"     \
         --use-secure=1                               \
         --use-secure-admin=1                         \
@@ -326,18 +362,18 @@ if [[ $code ]]; then
 else
     echo "==> Database $DB_NAME already exists"
     echo "==> Running bin/magento setup:upgrade"
-    bin/magento setup:upgrade -q
+    bin/magento setup:upgrade $NOISE_LEVEL
 fi
 
 echo "==> Recompiling DI and static content"
 rm -rf var/di/ var/generation/
-bin/magento setup:di:compile-multi-tenant -q
-bin/magento setup:static-content:deploy
-bin/magento cache:flush
+bin/magento setup:di:compile-multi-tenant $NOISE_LEVEL
+bin/magento setup:static-content:deploy $NOISE_LEVEL
+bin/magento cache:flush $NOISE_LEVEL
 
-echo "==> Flushing magento cache and reindexing"
-bin/magento indexer:reindex
-bin/magento cache:flush
+echo "==> Reindexing and flushing magento cache"
+bin/magento indexer:reindex $NOISE_LEVEL
+bin/magento cache:flush $NOISE_LEVEL
 
 echo "==> Flushing redis service"
 redis-cli flushall > /dev/null
