@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # install a magento 2 site
 ##
  # Copyright © 2015 by David Alger. All rights reserved
