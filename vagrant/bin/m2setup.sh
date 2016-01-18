@@ -286,6 +286,7 @@ function install_from_packages {
 
         composer create-project $NOISE_LEVEL --repository-url=https://repo.magento.com/ $package_name $INSTALL_DIR
     else
+        echo "==> Updating magento meta-packages"
         composer update $NOISE_LEVEL --prefer-dist
     fi
     
