@@ -74,7 +74,7 @@ for arg in "$@"; do
             ;;
         --urlpath=*)
             URLPATH="${arg#*=}"
-            if [[ ! "$URLPATH" =~ ^[a-z0-9][a-z0-9/]?[a-z0-9]+$ ]]; then
+            if [[ ! "$URLPATH" =~ ^[a-z0-9][a-z0-9/]*[a-z0-9]+$ ]]; then
                 >&2 echo "Error: Invalid value given --urlpath=$URLPATH"
                 exit -1
             fi
