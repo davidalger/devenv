@@ -14,3 +14,7 @@
 set -e
 
 yum install -y varnish
+
+if [[ -f ./etc/varnish/default.vcl ]]; then
+    cp ./etc/varnish/default.vcl /etc/varnish/default.vcl
+fi
