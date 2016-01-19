@@ -14,19 +14,28 @@
 wd="$(pwd)"
 set -e
 
-download_url="http://files.magerun.net/n98-magerun-latest.phar"
-magerun_path="/usr/local/bin/n98-magerun"
-mr_path="/usr/local/bin/mr"
+function install_mr {
+    download_url="$1"
+    install_path="$2"
+    shortcut_tla="$3"
 
-cd "$SHARED_DIR"
+    file_name="$(basename $download_url)"
+    cd "$SHARED_DIR"
 
-wget -qN "$download_url" || true
-if [[ ! -f "$SHARED_DIR/n98-magerun-latest.phar" ]]; then
-    >&2 echo "Error: failed to retrieve n98-magerun.phar and local cache is empty"
-    exit -1;
-fi
-cp "$SHARED_DIR/n98-magerun-latest.phar" "$magerun_path"
-chmod +x "$magerun_path"
-ln -s "$magerun_path" "$mr_path"
+    wget -qN "$download_url" || true
+    if [[ ! -f "$SHARED_DIR/$file_name" ]]; then
+        >&2 echo "Error: failed to retrieve $file_name and local cache is empty"
+    fi
+
+    cp "$SHARED_DIR/$file_name" "$install_path"
+    chmod +x "$install_path"
+
+    ln -s "$install_path" "$shortcut_tla"
+}
+
+install_mr http://files.magerun.net/n98-magerun-latest.phar /usr/local/bin/n98-magerun /usr/local/bin/mr1
+install_mr http://files.magerun.net/n98-magerun2-latest.phar /usr/local/bin/n98-magerun2 /usr/local/bin/mr2
+
+ln -s /usr/local/bin/mr1 /usr/local/bin/mr
 
 cd "$wd"
