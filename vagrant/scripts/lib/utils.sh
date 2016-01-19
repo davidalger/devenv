@@ -36,7 +36,7 @@ function display_run_time {
     end_time="$(capture_nanotime)"
     
     minutes="$(echo "($end_time - $start_time) / 60" | bc)"
-    seconds="$(echo "($end_time - $start_time) % 60" | bc)"
+    seconds="$(echo "scale(($end_time - $start_time) % 60)" | bc)"
     
     printf 'run time %02d:%02d' $minutes $seconds
 }
