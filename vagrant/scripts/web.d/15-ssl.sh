@@ -10,8 +10,8 @@
 
 set -e
 
-ssldir=/server/.shared/ssl
-configpath=/server/vagrant/etc/openssl/rootca.conf
+ssldir=$SHARED_DIR/ssl
+configpath=$VAGRANT_DIR/etc/openssl/rootca.conf
 
 ########################################
 # configure ssl shared dir
