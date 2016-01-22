@@ -1,3 +1,16 @@
+1.0.0-beta15
+===============
+
+* Updated method of rpm installation to:
+    * elimnate perpetual failure after a failed offline provisioning
+    * allow cached rpm definition files to update as needed
+* Updated default hostname used by m2setup.sh to m2.demo
+* Added --verbose and --urlpath options to m2setup.sh
+* Changed installed composer version to 1.0.0-alpha11 due to continued instability issues on latest snapshot
+* Updated n98-magerun installer to setup n98-magerun2 as mr2 in addition to existing version of tool
+* Misc updates to support davidalger/cloud project
+* Correct README info on m2.dev to match implementation
+
 1.0.0-beta14
 ===============
 
