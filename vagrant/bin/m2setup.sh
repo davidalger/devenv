@@ -13,24 +13,12 @@ set -e
 wd="$(pwd)"
 
 # init non-user configurable inputs allowing external override via exports
-if [[ -z $SHARED_DIR ]]; then
-    SHARED_DIR=/server/.shared
-fi
-if [[ -z $SITES_DIR ]]; then
-    SITES_DIR=/server/sites
-fi
-if [[ -z $INSTALL_DIR ]]; then
-    INSTALL_DIR=        # default init'd post argument parsing
-fi
-if [[ -z $DB_HOST ]]; then
-    DB_HOST=dev-db
-fi
-if [[ -z $DB_USER ]]; then
-    DB_USER=root
-fi
-if [[ -z $DB_NAME ]]; then
-    DB_NAME=            # default init'd post argument parsing
-fi
+test -z $SHARED_DIR && SHARED_DIR=/server/.shared
+test -z $SITES_DIR && SITES_DIR=/server/sites
+test -z $INSTALL_DIR && INSTALL_DIR=        # default init'd post argument parsing
+test -z $DB_HOST && DB_HOST=dev-db
+test -z $DB_USER && DB_USER=root
+test -z $DB_NAME && DB_NAME=            # default init'd post argument parsing
 
 # init user configurable inputs
 BRANCH=develop
@@ -41,7 +29,7 @@ ADMIN_USER=admin
 ADMIN_EMAIL=demouser@example.com
 ADMIN_FIRST=Demo
 ADMIN_LAST=User
-ADMIN_PASS="$(openssl rand -base64 24)"
+test -z $ADMIN_PASS && ADMIN_PASS="$(openssl rand -base64 24)"
 
 # user set flags
 SAMPLEDATA=
