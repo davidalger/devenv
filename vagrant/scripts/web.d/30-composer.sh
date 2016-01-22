@@ -14,7 +14,7 @@
 wd="$(pwd)"
 set -e
 
-composer_url="https://getcomposer.org/composer.phar"
+composer_url="https://getcomposer.org/download/1.0.0-alpha11/composer.phar"
 composer_home="$SHARED_DIR/composer"
 composer_path="/usr/local/bin/composer"
 

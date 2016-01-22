@@ -51,17 +51,17 @@ It is setup with two primary machines: web and db. Together these two virtual ma
 
     *Note: When prompted, enter a memorable passphrase (you’ll need to use it later)*
 
-3. Because of GitHub's rate limits on their API it can happen that Composer will silently fail on the m2.dev provisioning step of the dev-web machine. To prevent this from happening, create an OAuth token via the [GitHub Settings](https://github.com/settings/tokens) area in your GitHub account. You can read more about these tokens [here](https://github.com/blog/1509-personal-api-tokens). Add this token to the composer configuration by running:
+3. Because of GitHub's rate limits on their API it can happen that Composer will silently fail when running the m2setup.sh tool. To prevent this from happening, create an OAuth token via the [GitHub Settings](https://github.com/settings/tokens) area in your GitHub account. You can read more about these tokens [here](https://github.com/blog/1509-personal-api-tokens). Add this token to the composer configuration by running:
 
     ```bash
     composer config -g github-oauth.github.com "<oauthtoken>"
     ```
 
-4. Create the m2.dev site:
+4. Create a Magento 2 build available at m2.demo:
 
     ```bash
     vagrant ssh web -- /server/vagrant/bin/m2setup.sh --sampledata
-    echo "10.19.89.10 m2.dev" | sudo tee -a /etc/hosts > /dev/null
+    echo "10.19.89.10 m2.demo" | sudo tee -a /etc/hosts > /dev/null
     ```
 
 ### Quick Reference
@@ -113,15 +113,6 @@ If any of these three paths exist, a virtual host will be created based on the t
 #### PHP Versions
 
 This node has PHP 5.6 from Remi's repository installed. Older versions are available as pre-configured machines, but do not start automatically. To use them, start via `vagrant up web55` or similar. Then configure your local hosts file to point the site needing this specific version of PHP to the correct machine instance.
-
-#### m2.dev
-By default one site is automatically created upon machine initialization. It is m2.dev and will run off of the official magento/magento2 repositories develop branch.
-
-To access this site, you'll need to add an entry to your local /etc/hosts file (as with any other site running the vm) and use the following information to login to the admin:
-
-* [http://m2.dev/backend/admin/](http://m2.dev/backend/admin/)
-* user: admin
-* pass: A123456
 
 #### SSL
 When the `web` VM is provisioned, a root CA is automatically generated and stored at `/server/.shared/ssl/rootca/certs/ca.cert.pem` if it does not already exist.
