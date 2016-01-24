@@ -1,3 +1,13 @@
+server {
+    listen       80;
+    server_name ~^.*\.?__HOSTNAME__$;
+
+    root   /server/sites/__SITEDIR__/__SITEROOT__;
+    index  index.php index.html;
+
+    # Load configuration files for the default server block.
+    include /etc/nginx/default.d/*.conf;
+}
 
 server {
     listen              443 ssl;
@@ -8,7 +18,7 @@ server {
 
     server_name ~^.*\.?__HOSTNAME__$;
 
-    root   /server/sites/__HOSTNAME__/__PUBNAME__;
+    root   /server/sites/__SITEDIR__/__SITEROOT__;
     index  index.php index.html;
 
     # Load configuration files for the default server block.

@@ -1,4 +1,6 @@
 /httpd/sites.d/*.conf
-!/httpd/sites.d/__vhost.conf.template
+!/httpd/sites.d/__apache.conf.template
 /nginx/sites.d/*.conf
-!/nginx/sites.d/__vhost-ssl.conf.template
+!/nginx/sites.d/__nginx.conf.template
+/varnish/sites.d/*.vcl
+!/varnish/sites.d/__varnish.conf.template
