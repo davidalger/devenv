@@ -104,17 +104,14 @@ for site in $(find $sitesdir -maxdepth 1 -type d); do
             fi
         else
             apacheconffile="$apacheconfdir/$hostname.conf"
-            if [[ ! -z "$siteroot" ]]; then
-                    if [[ -f "$apacheconffile" ]]; then
-                        break
-                    fi
+            # if there is a site root and the config file doesn't already exist create one from the template
+            if [[ ! -z "$siteroot" ]] && [[ ! -f "$apacheconffile" ]]; then
+                cp "$apachetemplate" "$apacheconffile"
+                perl -pi -e "s/__HOSTNAME__/$hostname/g" "$apacheconffile"
+                perl -pi -e "s/__SITEDIR__/$sitedir/g" "$apacheconffile"
+                perl -pi -e "s/__SITEROOT__/$siteroot/g" "$apacheconffile"
 
-                    cp "$apachetemplate" "$apacheconffile"
-                    perl -pi -e "s/__HOSTNAME__/$hostname/g" "$apacheconffile"
-                    perl -pi -e "s/__SITEDIR__/$sitedir/g" "$apacheconffile"
-                    perl -pi -e "s/__SITEROOT__/$siteroot/g" "$apacheconffile"
-
-                    echo "    opened $hostname for apache"
+                echo "    opened $hostname for apache"
             fi
         fi
 
@@ -133,11 +130,8 @@ for site in $(find $sitesdir -maxdepth 1 -type d); do
             fi
         else
             nginxconffile="$nginxconfdir/$hostname.conf"
-            if [[ ! -z "$siteroot" ]]; then
-                if [[ -f "$nginxconffile" ]]; then
-                    break
-                fi
-
+            # if there is a site root and the config file doesn't already exist create one from the template
+            if [[ ! -z "$siteroot" ]] && [[ ! -f "$nginxconffile" ]]; then
                 cp "$nginxtemplate" "$nginxconffile"
                 perl -pi -e "s/__HOSTNAME__/$hostname/g" "$nginxconffile"
                     perl -pi -e "s/__SITEDIR__/$sitedir/g" "$nginxconffile"
@@ -162,11 +156,8 @@ for site in $(find $sitesdir -maxdepth 1 -type d); do
             fi
         else
             varnishconffile="$varnishconfdir/$hostname.vcl"
-            if [[ ! -z "$siteroot" ]]; then
-                if [[ -f "$varnishconffile" ]]; then
-                    break
-                fi
-
+            # if there is a site root and the config file doesn't already exist create one from the template
+            if [[ ! -z "$siteroot" ]] && [[ ! -f "$varnishconffile" ]]; then
                 cp "$varnishtemplate" "$varnishconffile"
                 perl -pi -e "s/__HOSTNAME__/$hostname/g" "$varnishconffile"
                 perl -pi -e "s/__PUBNAME__/$siteroot/g" "$varnishconffile"
@@ -177,12 +168,11 @@ for site in $(find $sitesdir -maxdepth 1 -type d); do
 
         # ssl certificates
         if [[ ! -z "$siteroot" ]]; then
-            if [[ -f "$ssldir/$hostname.csr.pem" ]] && [[ -f "$ssldir/$hostname.crt.pem" ]]; then
-                break
+            # if either certificate file are not already there, generate the ssl certificates
+            if [[ ! -f "$ssldir/$hostname.csr.pem" ]] || [[ ! -f "$ssldir/$hostname.crt.pem" ]]; then
+                echo "    generated $hostname ssl cert"
+                generate_ssl_cert "$hostname" 2> /dev/null
             fi
-
-            echo "    generated $hostname ssl cert"
-            generate_ssl_cert "$hostname" 2> /dev/null
         fi
     done
 done
