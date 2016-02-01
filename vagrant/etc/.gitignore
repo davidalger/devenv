@@ -3,4 +3,5 @@
 /nginx/sites.d/*.conf
 !/nginx/sites.d/__nginx.conf.template
 /varnish/sites.d/*.vcl
+/varnish/includes.vcl
 !/varnish/sites.d/__varnish.conf.template

@@ -26,6 +26,7 @@ nginxcust=.nginx.conf
 varnishconfdir=/server/vagrant/etc/varnish/sites.d
 varnishtemplate=$varnishconfdir/__varnish.vcl.template
 varnishcust=.varnish.vcl
+varnishinclude=/server/vagrant/etc/varnish/includes.vcl
 
 ssldir=/server/.shared/ssl
 opensslconfig=/server/vagrant/etc/openssl
@@ -233,6 +234,10 @@ for varnishconffile in $(ls -1 $varnishconfdir/*.vcl); do
     fi
 done
 echo "==> all old sites closed"
+
+echo "==> scouting for varnish configs to include"
+ls $varnishconfdir/*.vcl | awk '{printf "include \"%s\";\n", $1}' > $varnishinclude
+echo "==> built varnish include file"
 
 echo "==> reloading apache"
 if [[ -x "$(which vagrant 2> /dev/null)" ]]; then
