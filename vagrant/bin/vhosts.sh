@@ -21,6 +21,7 @@ allcusthostarray=
 
 nginxconfdir=/server/vagrant/etc/nginx/sites.d
 nginxtemplate=$nginxconfdir/__nginx.conf.template
+nginxtovarnishtemplate=$nginxconfdir/__nginx-varnish.conf.template
 nginxcust=.nginx.conf
 
 varnishconfdir=/server/vagrant/etc/varnish/sites.d
@@ -116,32 +117,6 @@ for site in $(find $sitesdir -maxdepth 1 -type d); do
             fi
         fi
 
-        # nginx use custom config or build using template
-        if [[ -f "$site/$nginxcust" ]]; then
-            nginxcustconffile="$nginxconfdir/$sitedir.conf"
-            # if the file doesn't exists or is not identical, replace it
-            if [[ ! -f "$nginxcustconffile" ]] || ! cmp "$nginxcustconffile" "$site/$nginxcust" > /dev/null; then
-                if [[ -f "$nginxcustconffile" ]]; then
-                    echo "    opened $hostname for nginx (custom config was updated)"
-                else
-                    echo "    opened $hostname for nginx (custom config)"
-                fi
-
-                cp "$site/$nginxcust" "$nginxcustconffile"
-            fi
-        else
-            nginxconffile="$nginxconfdir/$hostname.conf"
-            # if there is a site root and the config file doesn't already exist create one from the template
-            if [[ ! -z "$siteroot" ]] && [[ ! -f "$nginxconffile" ]]; then
-                cp "$nginxtemplate" "$nginxconffile"
-                perl -pi -e "s/__HOSTNAME__/$hostname/g" "$nginxconffile"
-                    perl -pi -e "s/__SITEDIR__/$sitedir/g" "$nginxconffile"
-                    perl -pi -e "s/__SITEROOT__/$siteroot/g" "$nginxconffile"
-
-                echo "    opened $hostname for nginx"
-            fi
-        fi
-
         # varnish use custom config or build using template
         if [[ -f "$site/$varnishcust" ]]; then
             varnishcustconffile="$varnishconfdir/$sitedir.vcl"
@@ -164,6 +139,36 @@ for site in $(find $sitesdir -maxdepth 1 -type d); do
                 perl -pi -e "s/__PUBNAME__/$siteroot/g" "$varnishconffile"
 
                 echo "    opened $hostname for varnish"
+            fi
+        fi
+
+        # nginx use custom config or build using template
+        if [[ -f "$site/$nginxcust" ]]; then
+            nginxcustconffile="$nginxconfdir/$sitedir.conf"
+            # if the file doesn't exists or is not identical, replace it
+            if [[ ! -f "$nginxcustconffile" ]] || ! cmp "$nginxcustconffile" "$site/$nginxcust" > /dev/null; then
+                if [[ -f "$nginxcustconffile" ]]; then
+                    echo "    opened $hostname for nginx (custom config was updated)"
+                else
+                    echo "    opened $hostname for nginx (custom config)"
+                fi
+
+                cp "$site/$nginxcust" "$nginxcustconffile"
+            fi
+        else
+            nginxconffile="$nginxconfdir/$hostname.conf"
+            # if there is a site root and the config file doesn't already exist create one from the template
+            if [[ ! -z "$siteroot" ]] && [[ ! -f "$nginxconffile" ]]; then
+                if [[ -f "$site/$varnishcust" ]]; then
+                    cp "$nginxtovarnishtemplate" "$nginxconffile"
+                else
+                    cp "$nginxtemplate" "$nginxconffile"
+                fi
+                perl -pi -e "s/__HOSTNAME__/$hostname/g" "$nginxconffile"
+                    perl -pi -e "s/__SITEDIR__/$sitedir/g" "$nginxconffile"
+                    perl -pi -e "s/__SITEROOT__/$siteroot/g" "$nginxconffile"
+
+                echo "    opened $hostname for nginx"
             fi
         fi
 
