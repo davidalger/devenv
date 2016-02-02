@@ -6,7 +6,7 @@ server {
     index  index.php index.html;
 
     # Load additional configuration files for the server block.
-    include /etc/nginx/optional.d/proxy_varnish.conf;
+    include /etc/nginx/available.d/proxy_varnish.conf;
 }
 
 server {
@@ -22,5 +22,5 @@ server {
     index  index.php index.html;
 
     # Load additional configuration files for the server block.
-    include /etc/nginx/optional.d/proxy_varnish.conf;
+    include /etc/nginx/available.d/proxy_varnish.conf;
 }
