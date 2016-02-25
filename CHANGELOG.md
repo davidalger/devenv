@@ -1,3 +1,9 @@
+1.0.0-beta16
+===============
+
+* Added FQDN to hosts file for each defined node (PR #57)
+* Changed pre-configured value of php's max_input_vars setting (PR #56)
+
 1.0.0-beta15
 ===============
 
