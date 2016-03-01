@@ -178,8 +178,8 @@ if [[ -f /etc/.vagranthost ]]; then
     exit 1
 fi
 
-php_version=$(php -r 'echo phpversion();' | cut -d . -f2)
-if [[ $php_version < 5 ]]; then
+php_vercheck=$(php -r 'echo version_compare(PHP_VERSION, "5.5.0", ">=") ? 1 : "";')
+if [[ -z $php_vercheck ]]; then
     >&2 echo "Error: Magento 2 requires PHP 5.5 or newer"
     exit
 fi
