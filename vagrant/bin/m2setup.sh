@@ -272,7 +272,8 @@ function install_from_packages {
             package_name="magento/project-enterprise-edition"
         fi
 
-        composer create-project $NOISE_LEVEL --repository-url=https://repo.magento.com/ $package_name $INSTALL_DIR
+        composer create-project $NOISE_LEVEL --no-interaction --prefer-dist \
+            --repository-url=https://repo.magento.com/ $package_name $INSTALL_DIR
     else
         echo "==> Updating magento meta-packages"
         composer update $NOISE_LEVEL --prefer-dist
