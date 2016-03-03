@@ -276,7 +276,7 @@ function install_from_packages {
             --repository-url=https://repo.magento.com/ $package_name $INSTALL_DIR
     else
         echo "==> Updating magento meta-packages"
-        composer update $NOISE_LEVEL --prefer-dist
+        composer update $NOISE_LEVEL --no-interaction --prefer-dist
     fi
     
     chmod +x bin/magento
@@ -284,7 +284,7 @@ function install_from_packages {
     if [[ $SAMPLEDATA ]]; then
         echo "==> Deploying sample data meta-packages"
         bin/magento sampledata:deploy $NOISE_LEVEL
-        composer update $NOISE_LEVEL --prefer-dist
+        composer update $NOISE_LEVEL --no-interaction --prefer-dist
     fi
 }
 
