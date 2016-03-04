@@ -49,6 +49,6 @@ yum install -y remi-release-6.rpm
 yum install -y nginx-release-centos-6-0.el6.ngx.noarch.rpm
 yum install -y varnish-4.1.el6.rpm
 
-yum update -y -q
+yum update -y
 
 cd "$wd"
