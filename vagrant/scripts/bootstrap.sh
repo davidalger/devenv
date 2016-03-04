@@ -52,7 +52,7 @@ for role in $roles; do
             log "Running: $role: $(basename $script)"
             
             ./$script   \
-                >> >(tee -a $BOOTSTRAP_LOG > $STDOUT) / \
+                 > >(tee -a $BOOTSTRAP_LOG > $STDOUT) \
                 2> >(tee -a $BOOTSTRAP_LOG | grep -vE -f $VAGRANT_DIR/etc/filters/bootstrap >&2) \
                 || code="$?"
             
