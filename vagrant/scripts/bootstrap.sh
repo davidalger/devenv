@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 ##
- # Copyright © 2015 by David Alger. All rights reserved
+ # Copyright © 2016 by David Alger. All rights reserved
  # 
  # Licensed under the Open Software License 3.0 (OSL-3.0)
  # See included LICENSE file for full text of OSL-3.0
@@ -61,6 +61,18 @@ for role in $roles; do
                 code=""
             fi
         done
+    elif [[ -f "./scripts/$role.sh" ]]; then
+        log_tee "Configuring for $role role"
+        
+        ./scripts/$role.sh   \
+             > >(tee -a $BOOTSTRAP_LOG > $STDOUT) \
+            2> >(tee -a $BOOTSTRAP_LOG | grep -vE -f $VAGRANT_DIR/etc/filters/bootstrap >&2) \
+            || code="$?"
+        
+        if [[ $code ]]; then
+            log_err "Error: $role.sh failed with return code $code"
+            code=""
+        fi
     else
         log_tee "Skipping invalid role: $role"
     fi
