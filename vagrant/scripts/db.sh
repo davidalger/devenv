@@ -13,7 +13,7 @@ set -e
 ########################################
 # install and configure mysqld service
 
-[ -f ./etc/my.cnf ] && cp ./etc/my.cnf /etc/my.cnf
+[ -f ./machine/etc/my.cnf ] && cp ./machine/etc/my.cnf /etc/my.cnf
 yum install -y mysql-server
 
 # test for presence of ibdata1 to determine if we have a new install or not

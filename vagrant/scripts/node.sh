@@ -46,7 +46,7 @@ rpm --import ./etc/keys/RPM-GPG-KEY-Varnish.txt
 yum install -y rsync wget
 
 # import all our custom conf files
-rsync -av ./etc/ /etc/
+rsync -av ./machine/etc/ /etc/
 
 ########################################
 # import / configure rpms
