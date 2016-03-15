@@ -44,12 +44,6 @@ def configure_web_vm (node, host: nil, ip: nil, php_version: nil)
   # bind localhost pub directory
   Mount.bind(SITES_MOUNT + '/__localhost/pub', '/var/www/html')
   
-  # bind apache sites.d configuration directory
-  Mount.bind(VAGRANT_DIR + '/etc/httpd/sites.d', '/etc/httpd/sites.d')
-
-  # bind nginx sites.d configuration directory
-  Mount.bind(VAGRANT_DIR + '/etc/nginx/sites.d', '/etc/nginx/sites.d')
-  
   # setup guest provisioners
   Mount.provision(node)
   bootstrap_sh(node, ['node', 'web'], { php_version: php_version })

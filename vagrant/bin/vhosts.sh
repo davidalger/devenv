@@ -10,10 +10,10 @@
 
 set -e
 
-confdir=/server/vagrant/etc/httpd/sites.d
-sslconfdir=/server/vagrant/etc/nginx/sites.d
+confdir=/etc/httpd/sites.d
+sslconfdir=/etc/nginx/sites.d
 vhosttemplate=$confdir/__vhost.conf.template
-ssltemplate=/server/vagrant/etc/nginx/sites.d/__vhost-ssl.conf.template
+ssltemplate=$sslconfdir/__vhost-ssl.conf.template
 confcust=.vhost.conf
 sslconfcust=.ssl.conf
 sitesdir=/server/sites
