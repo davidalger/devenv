@@ -24,7 +24,7 @@ export VAGRANT_LOG=
 export COMPOSER_HOME=/server/.shared/composer
 
 # configure PATH to use local and user scripts
-export PATH=~/bin:/usr/local/bin:/server/vagrant/bin:$PATH:/usr/local/sbin
+export PATH=~/bin:/usr/local/bin:/server/vagrant/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin
 
 # enbale color-ls emulation
 export CLICOLOR=1
@@ -33,9 +33,8 @@ export CLICOLOR=1
 [ -x /usr/local/bin/mate ] && export EDITOR="/usr/local/bin/mate -w"
 
 # textmate support path if present
-if [ -d "/Applications/TextMate.app/Contents/SharedSupport/Support" ]; then
-    export TM_SUPPORT_PATH='/Applications/TextMate.app/Contents/SharedSupport/Support'
-fi
+TM_SUPPORT_PATH='/Applications/TextMate.app/Contents/SharedSupport/Support'
+[ -d $TM_SUPPORT_PATH ] && export TM_SUPPORT_PATH
 
 # setup rvm if present
 [ -s "$HOME/.rvm/scripts/rvm" ] && source "$HOME/.rvm/scripts/rvm" # Load RVM into a shell session *as a function*
