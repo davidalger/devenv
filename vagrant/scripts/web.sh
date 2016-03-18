@@ -11,7 +11,6 @@
 set -e
 
 source ./scripts/lib/utils.sh
-source ./scripts/lib/vars.sh
 
 ########################################
 :: configuring ssl root for cert signing

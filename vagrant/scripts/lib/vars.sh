@@ -44,3 +44,5 @@ case "$MYSQL_VERSION" in
         >&2 echo "Error: Invalid or unsupported MySql version specified"
         exit -1;
 esac
+
+export PHP_VERSION MYSQL_VERSION extra_repos

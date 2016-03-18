@@ -22,6 +22,7 @@ set -e
 cd $VAGRANT_DIR
 PATH="/usr/local/bin:$PATH"
 source ./scripts/lib/utils.sh
+source ./scripts/lib/vars.sh
 
 echo "==> BEGIN bootstrap.sh at $(datetime) UTC" >> $BOOTSTRAP_LOG
 
