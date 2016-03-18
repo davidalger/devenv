@@ -38,7 +38,6 @@ end
 # +calls+:: Hash key/value pairs where key is the verb and value is an array of services the verb will act on
 def service (conf, calls)
   service_sh = ""
-  filters_file = "#{VAGRANT_DIR}/etc/filters/service"
 
   calls.each do | key, val |
     if not val.is_a?(Array)
@@ -46,7 +45,7 @@ def service (conf, calls)
     end
     
     val.each do | val |
-      service_sh = "#{service_sh}\nservice #{val} #{key} 2> >(stdbuf -oL grep -v -f #{filters_file} >&2)"
+      service_sh = "#{service_sh}\nservice #{val} #{key} 2> >(grep -v -f #{VAGRANT_DIR}/etc/filters/service >&2)"
     end
   end
 
