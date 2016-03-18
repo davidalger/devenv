@@ -9,6 +9,7 @@
  ##
 
 set -e
+source ./scripts/lib/utils.sh
 source ./scripts/lib/vars.sh
 
 ########################################
@@ -90,50 +91,11 @@ fi
 [ ! -f /usr/lib64/php/modules/xdebug.so ] && rm -f /etc/php.d/15-xdebug.ini
 
 ########################################
-# download and install composer into vm
+# install 3rd party tools
 
-composer_url="https://getcomposer.org/download/1.0.0-alpha11/composer.phar"
-composer_home="$SHARED_DIR/composer"
-composer_path="/usr/local/bin/composer"
+install_tool https://getcomposer.org/download/1.0.0-alpha11/composer.phar /usr/local/bin/composer
 
-mkdir -p "$composer_home"
-pushd "$composer_home"
-
-wget -qN "$composer_url" || true
-if [[ ! -f "$composer_home/composer.phar" ]]; then
-    >&2 echo "Error: failed to retrieve composer.phar and local cache is empty"
-    exit -1;
-fi
-cp "$composer_home/composer.phar" "$composer_path"
-chmod +x "$composer_path"
-
-popd
-
-########################################
-# download and install composer into vm
-
-function install_mr {
-    download_url="$1"
-    install_path="$2"
-    shortcut_tla="$3"
-
-    file_name="$(basename $download_url)"
-    pushd "$SHARED_DIR"
-
-    wget -qN "$download_url" || true
-    if [[ ! -f "$SHARED_DIR/$file_name" ]]; then
-        >&2 echo "Error: failed to retrieve $file_name and local cache is empty"
-    fi
-
-    cp "$SHARED_DIR/$file_name" "$install_path"
-    chmod +x "$install_path"
-
-    ln -s "$install_path" "$shortcut_tla"
-
-    popd
-}
-
-install_mr http://files.magerun.net/n98-magerun-latest.phar /usr/local/bin/n98-magerun /usr/local/bin/mr1
-install_mr http://files.magerun.net/n98-magerun2-latest.phar /usr/local/bin/n98-magerun2 /usr/local/bin/mr2
+install_tool http://files.magerun.net/n98-magerun-latest.phar /usr/local/bin/n98-magerun /usr/local/bin/mr1
+install_tool http://files.magerun.net/n98-magerun2-latest.phar /usr/local/bin/n98-magerun2 /usr/local/bin/mr2
 
 ln -s /usr/local/bin/mr1 /usr/local/bin/mr
