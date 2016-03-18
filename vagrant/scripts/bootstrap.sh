@@ -46,22 +46,7 @@ fi
 
 # execute role specific scripts
 for role in $roles; do
-    if [[ -d "./scripts/$role.d/" ]]; then
-        log_tee "Configuring for $role role"
-        for script in $(ls -1 ./scripts/$role.d/*.sh); do
-            log "Running: $role: $(basename $script)"
-            
-            ./$script   \
-                 > >(tee -a $BOOTSTRAP_LOG > $STDOUT) \
-                2> >(tee -a $BOOTSTRAP_LOG | grep -vE -f $VAGRANT_DIR/etc/filters/bootstrap >&2) \
-                || code="$?"
-            
-            if [[ $code ]]; then
-                log_err "Error: $script failed with return code $code"
-                code=""
-            fi
-        done
-    elif [[ -f "./scripts/$role.sh" ]]; then
+    if [[ -f "./scripts/$role.sh" ]]; then
         log_tee "Configuring for $role role"
         
         ./scripts/$role.sh   \
