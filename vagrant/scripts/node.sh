@@ -9,10 +9,13 @@
  ##
 
 set -e
+
+source ./scripts/lib/utils.sh
 source ./scripts/lib/vars.sh
 
 ########################################
-# generic machine configuration
+:: running generic machine configuration
+########################################
 
 # configure VM Ware tools to automatically rebuild missing VMX kernel modules upon boot
 # see: https://github.com/mitchellh/vagrant/issues/4362#issuecomment-52589577
@@ -32,7 +35,14 @@ if [[ -f "$HOST_ZONEINFO" ]]; then
 fi
 
 ########################################
-# configure rpms we need for installing current package versions
+:: configuring rpms needed for install
+########################################
+
+# enable rpm caching and set higher metadata cache
+sed -i 's/keepcache=0/keepcache=1\nmetadata_expire=12h/' /etc/yum.conf
+
+# append exclude rule to avoid updating the yum tool and kernel packages (causes issues with VM Ware tools on re-create)
+printf "\n\nexclude=yum kernel*\n" >> /etc/yum.conf
 
 # import gpg keys before installing anything
 rpm --import ./etc/keys/RPM-GPG-KEY-CentOS-6.txt
@@ -42,14 +52,8 @@ rpm --import ./etc/keys/RPM-GPG-KEY-remi.txt
 rpm --import ./etc/keys/RPM-GPG-KEY-nginx.txt
 rpm --import ./etc/keys/RPM-GPG-KEY-Varnish.txt
 
-# install tools we need to get started
-yum install -y rsync wget
-
-# import all our custom conf files
-rsync -av ./machine/etc/ /etc/
-
-########################################
-# import / configure rpms
+# install wget since it's not in Digital Ocean base image
+yum install -y wget
 
 if [[ ! -d /var/cache/yum/rpms ]]; then
     mkdir -p /var/cache/yum/rpms
@@ -57,7 +61,7 @@ fi
 pushd /var/cache/yum/rpms
 
 # redirect stderr -> stdin so info is logged
-# ignore error codes for offline cache (where file does not exist the following commands should fail the script instead)
+# ignore error codes for offline cache (where file does not exist the following commands should fail on rpm --checksig)
 wget --timestamp http://rpms.famillecollet.com/enterprise/remi-release-6.rpm 2>&1 || true
 wget --timestamp http://nginx.org/packages/centos/6/noarch/RPMS/nginx-release-centos-6-0.el6.ngx.noarch.rpm 2>&1 || true
 wget --timestamp https://repo.varnish-cache.org/redhat/varnish-4.1.el6.rpm 2>&1 || true
@@ -76,12 +80,17 @@ yum install -y varnish-4.1.el6.rpm
 ## only setup mysql community rpm if mysql 56 is requested
 [ "$MYSQL_VERSION" == "56" ] && yum install -y /var/cache/yum/rpms/mysql-community-release-el6-5.noarch.rpm
 
-yum update -y
-
 popd
 
 ########################################
-# configure npm
+:: updating currently installed packages
+########################################
+
+yum update -y
+
+########################################
+:: installing npm package manager
+########################################
 
 yum install -y npm --disableexcludes=all
 npm -g config set cache /var/cache/npm
@@ -94,7 +103,14 @@ if [[ -L /usr/lib/node_modules/inherits ]]; then
 fi
 
 ########################################
-# install and configure tooling
+:: installing generic vm tooling
+########################################
 
-yum install -y bash-completion bc man git mysql
+yum install -y bash-completion bc man git rsync mysql
+
+########################################
+:: installing configuration into /etc
+########################################
+
+rsync -av ./machine/etc/ /etc/
 git config --global core.excludesfile /etc/.gitignore_global

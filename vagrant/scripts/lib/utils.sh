@@ -27,6 +27,10 @@ function log_err {
     >&2 log_tee "$@"
 }
 
+function :: {
+    log_tee ":: $@"
+}
+
 function capture_nanotime {
     printf "$(date +%s.%N)"
 }

@@ -50,8 +50,8 @@ for role in $roles; do
         log_tee "Configuring for $role role"
         
         ./scripts/$role.sh   \
-             > >(tee -a $BOOTSTRAP_LOG > $STDOUT) \
-            2> >(tee -a $BOOTSTRAP_LOG | grep -vE -f $VAGRANT_DIR/etc/filters/bootstrap >&2) \
+             > >(tee -a $BOOTSTRAP_LOG >(stdbuf -oL grep -E '^:: ') > $STDOUT) \
+            2> >(tee -a $BOOTSTRAP_LOG | stdbuf -oL grep -vE -f $VAGRANT_DIR/etc/filters/bootstrap >&2) \
             || code="$?"
         
         if [[ $code ]]; then

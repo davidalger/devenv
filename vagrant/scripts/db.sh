@@ -10,14 +10,19 @@
 
 set -e
 
+source ./scripts/lib/utils.sh
+
 ########################################
-# install and configure mysqld service
+:: installing mysqld service
+########################################
 
 [ -f ./machine/etc/my.cnf ] && cp ./machine/etc/my.cnf /etc/my.cnf
 yum install -y mysql-server
 
 # test for presence of ibdata1 to determine if we have a new install or not
 if [[ ! -f /var/lib/mysql/data/ibdata1 ]]; then
+    
+    :: running mysqld db initialization
     
     # grab our mount parameters for later use and unmount the data directory
     _mount=$(grep " nfs " /etc/mtab | grep /var/lib/mysql/data | awk '{print "mount -t "$3" -o "$4" "$1" "$2}')
@@ -37,6 +42,10 @@ if [[ ! -f /var/lib/mysql/data/ibdata1 ]]; then
     mv /var/lib/mysql/data.new/* /var/lib/mysql/data/
     rmdir /var/lib/mysql/data.new
 fi
+
+########################################
+:: configuring mysqld access
+########################################
 
 # grant root mysql user privileges to connect for other vms and host machine
 service mysqld start >> $BOOTSTRAP_LOG 2>&1
