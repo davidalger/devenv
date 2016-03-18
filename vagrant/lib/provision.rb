@@ -17,7 +17,6 @@ def bootstrap_sh (conf, roles, env = {})
       base_dir: BASE_DIR,
       vagrant_dir: VAGRANT_DIR,
       shared_dir: SHARED_DIR,
-      allowable_roles: ENV['VAGRANT_ALLOWABLE_ROLES'],
       bootstrap_log: '/var/log/bootstrap.log',
       host_zoneinfo: File.readlink('/etc/localtime')
     }.merge(env)

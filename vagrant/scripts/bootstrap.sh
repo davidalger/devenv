@@ -8,45 +8,17 @@
  # http://davidalger.com/contact/
  ##
 
-########################################
-# Run specified role scripts on a node
-# 
-# Options:
-# 
-# Set the VAGRANT_ALLOWABLE_ROLES environment variable to filter roles during provisioning. Example usage:
-# `export VAGRANT_ALLOWABLE_ROLES="node sites"` will prevent any role other than 'node' or 'sites' from running.
-#
-
 set -e
-
 cd $VAGRANT_DIR
-PATH="/usr/local/bin:$PATH"
+
 source ./scripts/lib/utils.sh
 source ./scripts/lib/vars.sh
 
 echo "==> BEGIN bootstrap.sh at $(datetime) UTC" >> $BOOTSTRAP_LOG
 
-# filter roles by those specified in env var
-roles=""
-if [[ "$ALLOWABLE_ROLES" ]]; then
-    for role in $ALLOWABLE_ROLES; do
-        if [[ " $@ " =~ .*" $role ".* ]]; then
-            roles="$roles $role"
-        fi
-    done
-else
-    roles="$@"
-fi
+[[ "$VERBOSE" == 'true' ]] && STDOUT='/dev/stdout' || STDOUT='/dev/null'
 
-# allow caller to specify verbose mode where stdout is passed along vs only logged
-if [[ "$VERBOSE" == 'true' ]]; then
-    STDOUT='/dev/stdout'
-else
-    STDOUT='/dev/null'
-fi
-
-# execute role specific scripts
-for role in $roles; do
+for role in "$@"; do
     if [[ -f "./scripts/$role.sh" ]]; then
         log_tee "Configuring for $role role"
         
