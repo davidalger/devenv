@@ -1,269 +1,200 @@
 #!/usr/bin/env bash
 ##
- # Copyright © 2015 by David Alger. All rights reserved
- # 
+ # Copyright © 2016 by David Alger. All rights reserved
+ #
  # Licensed under the Open Software License 3.0 (OSL-3.0)
  # See included LICENSE file for full text of OSL-3.0
- # 
+ #
  # http://davidalger.com/contact/
  ##
 
-set -e
+set -eu
 
-sitesdir=/server/sites
-siteroots="pub html htdocs"
-hostcust=.hostnames
+########################################
+# Init default script vars
 
-apacheconfdir=/server/vagrant/etc/httpd/sites.d
-apachetemplate=$apacheconfdir/__apache.conf.template
-apachecust=.apache.conf
-allcusthostarray=
+sites_dir=/server/sites
+certs_dir=/server/.shared/ssl
+is_quiet=
+no_reload=
+reset_config=
+reset_certs=
 
-nginxconfdir=/server/vagrant/etc/nginx/sites.d
-nginxtemplate=$nginxconfdir/__nginx.conf.template
-nginxtovarnishtemplate=$nginxconfdir/__nginx-varnish.conf.template
-nginxcust=.nginx.conf
+########################################
+# re-execute with root priviledges
+if [[ "$(id -u)" != 0 ]]; then
+    sudo $0 "$@"
+    exit
+fi
 
-varnishconfdir=/server/vagrant/etc/varnish/sites.d
-varnishtemplate=$varnishconfdir/__varnish.vcl.template
-varnishcust=.varnish.vcl
-varnishinclude=/server/vagrant/etc/varnish/includes.vcl
+########################################
+# parse any arguments passed in
+for arg in "$@"; do
+    case $arg in
+        -q|--quiet)
+            is_quiet=1
+            ;;
+        --no-reload)
+            no_reload=1
+            ;;
+        --reset-config)
+            reset_config=1
+            ;;
+        --reset-certs)
+            reset_certs=1
+            ;;
+        -h|--help)
+            echo "Usage: $(basename $0) [-h|--help] [-q|--quiet] [--no-reload] [--reset-config] [--reset-certs]"
+            exit -1
+            ;;
+        *)
+            >&2 echo "Error: Unrecognized argument $arg"
+            exit -1
+            ;;
+    esac
+done
 
-ssldir=/server/.shared/ssl
-opensslconfig=/server/vagrant/etc/openssl
+########################################
+# Define all our routines
 
-function generate_ssl_cert {
-    host="$1"
-    SAN="DNS.1:*.$host,DNS.2:$host" openssl req -new -sha256 -key $ssldir/local.key.pem -out $ssldir/$host.csr.pem \
-        -config $opensslconfig/vhost.conf \
-        -subj "/C=US/CN=$host"
+function msg {
+    local output=
 
-    yes | openssl ca -config $opensslconfig/rootca.conf \
-        -extensions server_cert -days 375 -notext -md sha256 \
-        -in $ssldir/$host.csr.pem \
-        -out $ssldir/$host.crt.pem
+    [[ "$1" = "-n" ]] && output="${@:2}" || output="$@\n"
+    [[ -z $is_quiet ]] && printf "$output" || true
 }
 
-if [[ "$1" == "--reset" ]]; then
-    echo "==> scrubbing all open sites"
-    rm -vf $apacheconfdir/*.conf | sed "s#$apacheconfdir/#    closed apache config #g" | cut -d . -f1
-    rm -vf $nginxconfdir/*.conf | sed "s#$nginxconfdir/#    closed nginx config #g" | cut -d . -f1
-    rm -vf $varnishconfdir/*.vcl | sed "s#$varnishconfdir/#    closed varnish config #g" | cut -d . -f1
-    rm -vf $ssldir/*.c??.pem | sed "s#$ssldir/#    removed ssl cert file #g" | cut -d . -f1
-fi
+function generate_cert {
+    local hostname="$1"
 
-echo "==> scouting for new sites"
+    if [[ -f $certs_dir/$hostname.crt.pem ]]; then
+        return
+    fi
+    msg "   + signing cert $hostname.crt.pem"
 
-# site detection loop
-for site in $(find $sitesdir -maxdepth 1 -type d); do
+    SAN="DNS.1:*.$hostname,DNS.2:$hostname" openssl req -new -sha256 \
+        -key $certs_dir/local.key.pem \
+        -out $certs_dir/$hostname.csr.pem \
+        -config /etc/openssl/vhost.conf \
+        -subj "/C=US/CN=$hostname"
 
-    # skip the sites dir ./
-    if [[ "$site" == "$sitesdir" ]]; then
-        continue
+    yes | openssl ca -config /etc/openssl/rootca.conf -extensions server_cert -days 375 -notext -md sha256 \
+        -in $certs_dir/$hostname.csr.pem \
+        -out $certs_dir/$hostname.crt.pem
+}
+
+function generate_config {
+    local service="$1"
+    local site_name="$2"
+    local site_hosts="$3"
+    local site_path="$4"
+
+    local conf_dir="/etc/$service/sites.d"
+    local conf_file="$conf_dir/$site_name.conf"
+    local conf_src=
+
+    local template="$conf_dir/__vhost.conf.template"
+    local override="$site_path/.$service.conf"
+    local status=
+    
+    local site_pub=$(ls -1dU "$site_path"/{pub,html,htdocs} 2>/dev/null | head -n1)
+    [[ -n $site_pub ]] && site_pub=$(basename "$site_pub") || site_pub=pub
+
+    # figure out what to src the config from
+    if [[ -f "$override" ]]; then
+        # if override has not been copied or is different, we process it
+        if [[ ! -f "$conf_file" ]] || ! cmp "$override" "$conf_file" > /dev/null; then
+            status="(override)"
+            [[ -f "$conf_file" ]] && status="$status (updated)"
+            
+            # if pub dir does not exist, override verbatim without var replacement
+            if [[ ! -d "$site_path/$site_pub" ]]; then
+                msg "   + $service config $status"
+                cp "$override" "$conf_file"
+                return
+            fi
+            
+            # failing above check, use as template in below loop
+            conf_src="$override"
+        fi
+    elif [[ -d "$site_path/$site_pub" ]]; then
+        conf_src="$template"
     fi
 
-    sitedir="$(basename $site)"
+    # if we have something to copy and there is nothing there already, copy and replace in vars
+    if [[ -n "$conf_src" ]] && [[ ! -f "$conf_file" ]]; then
+        
+        # loop over list of hostnames and append template for each one
+        for hostname in $site_hosts; do
+            msg "   + $service config for $hostname $status"
+            cat "$conf_src" >> "$conf_file"
 
-    # determine site root
-    siteroot=
-    for try in $(echo "pub html htdocs"); do
-        siterootdir="${site}/${try}"
-        if [[ -d "$siterootdir" ]]; then
-            siteroot=$(basename $siterootdir)
-            break
-        fi
+            perl -pi -e "s/__SITE_NAME__/$site_name/g" "$conf_file"
+            perl -pi -e "s/__SITE_HOST__/$hostname/g" "$conf_file"
+            perl -pi -e "s/__SITE_PUB__/$site_pub/g" "$conf_file"
+        done
+    fi
+}
+
+function process_site {
+    local site_name="$1"
+    local site_path="$2"
+    local site_hosts[0]=
+
+    # parse in list of custom hostnames if present
+    if [[ -f $site_path/.hostnames ]] && [[ "$(wc -l $site_path/.hostnames | cut -d ' ' -f1)" != 0 ]]; then
+        readarray -t site_hosts < $site_path/.hostnames
+    fi
+    [[ -z ${site_hosts[@]} ]] && site_hosts=("$(basename $site_path)")      # default hostname is site name
+
+    # clear hostnames which do not contain a period
+    for (( i = 0, l = ${#site_hosts[@]}; i < l; i++ )); do
+        [[ ${site_hosts[i]} != *"."* ]] && [[ ${site_hosts[i]} != "localhost" ]] && site_hosts[i]=
+    done
+    
+    # if no hostnames are remaining, return to caller
+    [[ -z ${site_hosts[@]} ]] && return
+
+    # generate secure certificate for each hostname
+    for hostname in ${site_hosts[@]}; do
+        generate_cert $hostname 2> /dev/null
     done
 
-    # use custom list of hostnames or the directory name as a hostname
-    hostnamearray=()
-    if [[ -f "$site/$hostcust" ]]; then
-        readarray -t hostnamearray < "$site/$hostcust"
-        allcusthostarray=( ${allcusthostarray[@]} ${hostnamearray[@]} )
-    else
-        hostnamearray+=("$(basename $site)")
+    # call configuration generators for each service
+    generate_config httpd $site_name "${site_hosts[*]}" $site_path
+    generate_config nginx $site_name "${site_hosts[*]}" $site_path
+}
+
+function remove_files {
+    [[ $is_quiet ]] && verbosity= || verbosity=" -v "
+    rm $verbosity -f "$@" | sed -e "s#^[^/]*/# - /#g" | cut -d \' -f1
+}
+
+function main {
+    [[ $is_quiet ]] && stdout=/dev/null || stdout=/dev/stdout
+
+    if [[ -f /etc/.vagranthost ]]; then
+        >&2 echo "Error: This script should be run from within the vagrant machine. Please vagrant ssh, then retry"
+        exit 1
     fi
 
-    # loop through array of hostnames for this site directory
-    hostname=
-    for hostname in "${hostnamearray[@]}"; do
-        # skip any hostnames that are empty - like from empty lines in custom hostname files
-        if [[ "$hostname" == "" ]]; then
-            continue
-        fi
+    msg "==> Removing pre-existing configuration"
+    [[ $reset_config ]] && remove_files /etc/{httpd,nginx}/sites.d/*.conf
+    [[ $reset_certs ]] && remove_files $certs_dir/*.c??.pem
 
-        # apache use custom config or build using template
-        if [[ -f "$site/$apachecust" ]]; then
-            apachecustconffile="$apacheconfdir/$sitedir.conf"
-            # if the file doesn't exists or is not identical, replace it
-            if [[ ! -f "$apachecustconffile" ]] || ! cmp "$apachecustconffile" "$site/$apachecust" > /dev/null; then
-                if [[ -f "$apachecustconffile" ]]; then
-                    echo "    opened $hostname for apache (custom config was updated)"
-                else
-                    echo "    opened $hostname for apache (custom config)"
-                fi
+    sites_list=$(find $sites_dir -mindepth 1 -maxdepth 1 -type d)
 
-                cp "$site/$apachecust" "$apachecustconffile"
-            fi
-        else
-            apacheconffile="$apacheconfdir/$hostname.conf"
-            # if there is a site root and the config file doesn't already exist create one from the template
-            if [[ ! -z "$siteroot" ]] && [[ ! -f "$apacheconffile" ]]; then
-                cp "$apachetemplate" "$apacheconffile"
-                perl -pi -e "s/__HOSTNAME__/$hostname/g" "$apacheconffile"
-                perl -pi -e "s/__SITEDIR__/$sitedir/g" "$apacheconffile"
-                perl -pi -e "s/__SITEROOT__/$siteroot/g" "$apacheconffile"
-
-                echo "    opened $hostname for apache"
-            fi
-        fi
-
-        # varnish use custom config or build using template
-        if [[ -f "$site/$varnishcust" ]]; then
-            varnishcustconffile="$varnishconfdir/$sitedir.vcl"
-            # if the file doesn't exists or is not identical, replace it
-            if [[ ! -f "$varnishcustconffile" ]] || ! cmp "$varnishcustconffile" "$site/$varnishcust" > /dev/null; then
-                if [[ -f "$varnishcustconffile" ]]; then
-                    echo "    opened $hostname for varnish (custom config was updated)"
-                else
-                    echo "    opened $hostname for varnish (custom config)"
-                fi
-
-                cp "$site/$varnishcust" "$varnishcustconffile"
-            fi
-        else
-            varnishconffile="$varnishconfdir/$hostname.vcl"
-            # if there is a site root and the config file doesn't already exist create one from the template
-            if [[ ! -z "$siteroot" ]] && [[ ! -f "$varnishconffile" ]]; then
-                cp "$varnishtemplate" "$varnishconffile"
-                perl -pi -e "s/__HOSTNAME__/$hostname/g" "$varnishconffile"
-                perl -pi -e "s/__PUBNAME__/$siteroot/g" "$varnishconffile"
-
-                echo "    opened $hostname for varnish"
-            fi
-        fi
-
-        # nginx use custom config or build using template
-        if [[ -f "$site/$nginxcust" ]]; then
-            nginxcustconffile="$nginxconfdir/$sitedir.conf"
-            # if the file doesn't exists or is not identical, replace it
-            if [[ ! -f "$nginxcustconffile" ]] || ! cmp "$nginxcustconffile" "$site/$nginxcust" > /dev/null; then
-                if [[ -f "$nginxcustconffile" ]]; then
-                    echo "    opened $hostname for nginx (custom config was updated)"
-                else
-                    echo "    opened $hostname for nginx (custom config)"
-                fi
-
-                cp "$site/$nginxcust" "$nginxcustconffile"
-            fi
-        else
-            nginxconffile="$nginxconfdir/$hostname.conf"
-            # if there is a site root and the config file doesn't already exist create one from the template
-            if [[ ! -z "$siteroot" ]] && [[ ! -f "$nginxconffile" ]]; then
-                if [[ -f "$site/$varnishcust" ]]; then
-                    cp "$nginxtovarnishtemplate" "$nginxconffile"
-                else
-                    cp "$nginxtemplate" "$nginxconffile"
-                fi
-                perl -pi -e "s/__HOSTNAME__/$hostname/g" "$nginxconffile"
-                    perl -pi -e "s/__SITEDIR__/$sitedir/g" "$nginxconffile"
-                    perl -pi -e "s/__SITEROOT__/$siteroot/g" "$nginxconffile"
-
-                echo "    opened $hostname for nginx"
-            fi
-        fi
-
-        # ssl certificates
-        if [[ ! -z "$siteroot" ]]; then
-            # if either certificate file are not already there, generate the ssl certificates
-            if [[ ! -f "$ssldir/$hostname.csr.pem" ]] || [[ ! -f "$ssldir/$hostname.crt.pem" ]]; then
-                echo "    generated $hostname ssl cert"
-                generate_ssl_cert "$hostname" 2> /dev/null
-            fi
-        fi
+    msg "==> Generating site configuration"
+    for site_path in $sites_list; do
+        site_name="$(basename $site_path)"
+        
+        site_msg=$(process_site $site_name $site_path)
+        [[ -n $site_msg ]] && msg " + $site_name\n$site_msg"    # only list if process_site emitted output
     done
-done
-echo "==> found all local sites"
 
-echo "==> policing old sites"
-for apacheconffile in $(ls -1 $apacheconfdir/*.conf); do
-    confname="$(echo "$(basename "$apacheconffile")" | sed 's/\.conf$//')"
-    if [[ "$confname" == "__localhost" ]]; then
-        continue
+    if [[ ! $no_reload ]]; then
+        msg -n "==> " && service httpd reload > $stdout || true    # mask the LSB exit code (expected to be 4)
+        msg -n "==> " && service nginx reload > $stdout || true    # mask the LSB exit code (expected to be 4)
     fi
 
-    # skip any config files for custom hostnames
-    if [[ ${allcusthostarray[*]} =~ "$confname" ]]; then
-        continue
-    fi
-
-    # purge old files if the directory doesn't exist anymore
-    if [[ ! -d "$sitesdir/$confname" ]]; then
-        rm -f "$apacheconffile"
-        rm -f "$nginxconfdir/$confname.conf"
-        rm -f "$varnishconfdir/$confname.vcl"
-        echo "    closed apache $confname"
-    fi
-done
-for nginxconffile in $(ls -1 $nginxconfdir/*.conf); do
-    confname="$(echo "$(basename "$nginxconffile")" | sed 's/\.conf$//')"
-    if [[ "$confname" == "__localhost" ]]; then
-        continue
-    fi
-
-    # skip any config files for custom hostnames
-    if [[ ${allcusthostarray[*]} =~ "$confname" ]]; then
-        continue
-    fi
-
-    # purge old files if the directory doesn't exist anymore
-    if [[ ! -d "$sitesdir/$confname" ]]; then
-        rm -f "$nginxconffile"
-        echo "    closed nginx $confname"
-    fi
-done
-for varnishconffile in $(ls -1 $varnishconfdir/*.vcl); do
-    confname="$(echo "$(basename "$varnishconffile")" | sed 's/\.vcl//')"
-    if [[ "$confname" == "__localhost" ]]; then
-        continue
-    fi
-
-    # skip any config files for custom hostnames
-    if [[ ${allcusthostarray[*]} =~ "$confname" ]]; then
-        continue
-    fi
-
-    # purge old files if the directory doesn't exist anymore
-    if [[ ! -d "$sitesdir/$confname" ]]; then
-        rm -f "$varnishconffile"
-        echo "    closed varnish $confname"
-    fi
-done
-echo "==> all old sites closed"
-
-echo "==> scouting for varnish configs to include"
-ls $varnishconfdir/*.vcl | awk '{printf "include \"%s\";\n", $1}' > $varnishinclude
-echo "==> built varnish include file"
-
-echo "==> reloading apache"
-if [[ -x "$(which vagrant 2> /dev/null)" ]]; then
-    vagrant ssh web -- 'sudo service httpd reload'
-else
-    sudo service httpd reload || true    # mask the LSB exit code (expected to be 4)
-fi
-echo "==> apache ready to run"
-echo "==> reloading nginx"
-if [[ -x "$(which vagrant 2> /dev/null)" ]]; then
-    vagrant ssh web -- 'sudo service nginx reload'
-else
-    sudo service nginx reload || true    # mask the LSB exit code (expected to be 4)
-fi
-echo "==> nginx ready to run"
-
-# TODO: consider trying to reload varnish to preserve cache
-echo "==> restarting varnish"
-if [[ -x "$(which vagrant 2> /dev/null)" ]]; then
-    vagrant ssh web -- 'sudo service varnish restart'
-else
-    sudo service varnish restart || true    # mask the LSB exit code (expected to be 4)
-fi
-echo "==> varnish ready to run"
+}; main "$@"

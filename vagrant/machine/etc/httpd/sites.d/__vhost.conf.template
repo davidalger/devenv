@@ -1,0 +1,8 @@
+
+<VirtualHost 0.0.0.0:8080>
+    ServerName __SITE_HOST__
+    ServerAlias *.__SITE_HOST__
+    CustomLog logs/access_log vhost_combined
+
+    DocumentRoot /server/sites/__SITE_NAME__/__SITE_PUB__
+</VirtualHost>

@@ -1,8 +1,0 @@
-
-<VirtualHost 0.0.0.0:8080>
-    ServerName __HOSTNAME__
-    ServerAlias *.__HOSTNAME__
-    CustomLog logs/access_log vhost_combined
-
-    DocumentRoot /server/sites/__SITEDIR__/__SITEROOT__
-</VirtualHost>

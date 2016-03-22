@@ -1,3 +1,18 @@
+1.0.0-beta17
+===============
+
+* Fixed bug with sttdy input expectations in m2setup.sh
+* Fixed incorrect use of shell redirection in bootstrap.sh
+* Fixed issue with improper grep filter regex files (blank line matches anything)
+* Fixed verbosity issue in rpm installation script
+* Fixed version check in m2setup.sh to be compatible with PHP 7.0.x
+
+1.0.0-beta16
+===============
+
+* Added FQDN to hosts file for each defined node (PR #57)
+* Changed pre-configured value of php's max_input_vars setting (PR #56)
+
 1.0.0-beta15
 ===============
 

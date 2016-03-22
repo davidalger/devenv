@@ -178,8 +178,8 @@ if [[ -f /etc/.vagranthost ]]; then
     exit 1
 fi
 
-php_version=$(php -r 'echo phpversion();' | cut -d . -f2)
-if [[ $php_version < 5 ]]; then
+php_vercheck=$(php -r 'echo version_compare(PHP_VERSION, "5.5.0", ">=") ? 1 : "";')
+if [[ -z $php_vercheck ]]; then
     >&2 echo "Error: Magento 2 requires PHP 5.5 or newer"
     exit
 fi
@@ -272,10 +272,11 @@ function install_from_packages {
             package_name="magento/project-enterprise-edition"
         fi
 
-        composer create-project $NOISE_LEVEL --repository-url=https://repo.magento.com/ $package_name $INSTALL_DIR
+        composer create-project $NOISE_LEVEL --no-interaction --prefer-dist \
+            --repository-url=https://repo.magento.com/ $package_name $INSTALL_DIR
     else
         echo "==> Updating magento meta-packages"
-        composer update $NOISE_LEVEL --prefer-dist
+        composer update $NOISE_LEVEL --no-interaction --prefer-dist
     fi
     
     chmod +x bin/magento
@@ -283,7 +284,7 @@ function install_from_packages {
     if [[ $SAMPLEDATA ]]; then
         echo "==> Deploying sample data meta-packages"
         bin/magento sampledata:deploy $NOISE_LEVEL
-        composer update $NOISE_LEVEL --prefer-dist
+        composer update $NOISE_LEVEL --no-interaction --prefer-dist
     fi
 }
 
