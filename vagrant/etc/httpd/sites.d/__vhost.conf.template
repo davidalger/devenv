@@ -1,8 +1,0 @@
-
-<VirtualHost 127.0.0.1:8080>
-    ServerName __HOSTNAME__
-    ServerAlias *.__HOSTNAME__
-    CustomLog logs/access_log vhost_combined
-
-    DocumentRoot /server/sites/__HOSTNAME__/__PUBNAME__
-</VirtualHost>

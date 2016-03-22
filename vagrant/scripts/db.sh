@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 ##
- # Copyright © 2015 by David Alger. All rights reserved
+ # Copyright © 2016 by David Alger. All rights reserved
  # 
  # Licensed under the Open Software License 3.0 (OSL-3.0)
  # See included LICENSE file for full text of OSL-3.0
@@ -8,24 +8,21 @@
  # http://davidalger.com/contact/
  ##
 
-########################################
-# install and configure mysqld service
-
 set -e
 
-if [[ -f ./etc/my.cnf ]]; then
-    cp ./etc/my.cnf /etc/my.cnf
-fi
+source ./scripts/lib/utils.sh
 
-mkdir /etc/my.cnf.d/    # won't exist prior to install, and 5.1 doesn't automatically create it
-if [[ -d ./etc/my.cnf.d ]] && [[ ! -z "$(ls -1 ./etc/my.cnf.d/)" ]]; then
-    cp ./etc/my.cnf.d/*.cnf /etc/my.cnf.d/
-fi
+########################################
+:: installing mysqld service
+########################################
 
+[ -f ./machine/etc/my.cnf ] && cp ./machine/etc/my.cnf /etc/my.cnf
 yum install -y mysql-server
 
 # test for presence of ibdata1 to determine if we have a new install or not
 if [[ ! -f /var/lib/mysql/data/ibdata1 ]]; then
+    
+    :: running mysqld db initialization
     
     # grab our mount parameters for later use and unmount the data directory
     _mount=$(grep " nfs " /etc/mtab | grep /var/lib/mysql/data | awk '{print "mount -t "$3" -o "$4" "$1" "$2}')
@@ -45,6 +42,10 @@ if [[ ! -f /var/lib/mysql/data/ibdata1 ]]; then
     mv /var/lib/mysql/data.new/* /var/lib/mysql/data/
     rmdir /var/lib/mysql/data.new
 fi
+
+########################################
+:: configuring mysqld access
+########################################
 
 # grant root mysql user privileges to connect for other vms and host machine
 service mysqld start >> $BOOTSTRAP_LOG 2>&1
