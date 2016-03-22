@@ -58,12 +58,14 @@ done
 # Define all our routines
 
 function msg {
+    local output=
+
     [[ "$1" = "-n" ]] && output="${@:2}" || output="$@\n"
     [[ -z $is_quiet ]] && printf "$output" || true
 }
 
 function generate_cert {
-    hostname="$1"
+    local hostname="$1"
 
     if [[ -f $certs_dir/$hostname.crt.pem ]]; then
         return
@@ -82,20 +84,20 @@ function generate_cert {
 }
 
 function generate_config {
-    service="$1"
-    site_name="$2"
-    site_hosts="$3"
-    site_path="$4"
+    local service="$1"
+    local site_name="$2"
+    local site_hosts="$3"
+    local site_path="$4"
 
-    conf_dir="/etc/$service/sites.d"
-    conf_file="$conf_dir/$site_name.conf"
-    conf_src=
+    local conf_dir="/etc/$service/sites.d"
+    local conf_file="$conf_dir/$site_name.conf"
+    local conf_src=
 
-    template="$conf_dir/__vhost.conf.template"
-    override="$site_path/.$service.conf"
-    status=
+    local template="$conf_dir/__vhost.conf.template"
+    local override="$site_path/.$service.conf"
+    local status=
     
-    site_pub=$(ls -1dU "$site_path"/{pub,html,htdocs} 2>/dev/null | head -n1)
+    local site_pub=$(ls -1dU "$site_path"/{pub,html,htdocs} 2>/dev/null | head -n1)
     [[ -n $site_pub ]] && site_pub=$(basename "$site_pub") || site_pub=pub
 
     # figure out what to src the config from
@@ -135,9 +137,9 @@ function generate_config {
 }
 
 function process_site {
-    site_name="$1"
-    site_path="$2"
-    site_hosts[0]=
+    local site_name="$1"
+    local site_path="$2"
+    local site_hosts[0]=
 
     # parse in list of custom hostnames if present
     if [[ -f $site_path/.hostnames ]] && [[ "$(wc -l $site_path/.hostnames | cut -d ' ' -f1)" != 0 ]]; then
@@ -149,7 +151,7 @@ function process_site {
     for (( i = 0, l = ${#site_hosts[@]}; i < l; i++ )); do
         [[ ${site_hosts[i]} != *"."* ]] && [[ ${site_hosts[i]} != "localhost" ]] && site_hosts[i]=
     done
-
+    
     # if no hostnames are remaining, return to caller
     [[ -z ${site_hosts[@]} ]] && return
 
@@ -159,8 +161,8 @@ function process_site {
     done
 
     # call configuration generators for each service
-    generate_config httpd $site_name "${site_hosts[@]}" $site_path
-    generate_config nginx $site_name "${site_hosts[@]}" $site_path
+    generate_config httpd $site_name "${site_hosts[*]}" $site_path
+    generate_config nginx $site_name "${site_hosts[*]}" $site_path
 }
 
 function remove_files {
