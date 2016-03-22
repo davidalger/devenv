@@ -8,7 +8,7 @@
  # http://davidalger.com/contact/
  ##
 
-set -e
+set -eu
 
 ########################################
 # Init default script vars
@@ -102,12 +102,12 @@ function generate_config {
     if [[ -f "$override" ]]; then
         # if override has not been copied or is different, we process it
         if [[ ! -f "$conf_file" ]] || ! cmp "$override" "$conf_file" > /dev/null; then
-            status="$status (override)"
+            status="(override)"
             [[ -f "$conf_file" ]] && status="$status (updated)"
             
             # if pub dir does not exist, override verbatim without var replacement
             if [[ ! -d "$site_path/$site_pub" ]]; then
-                msg "   + $service config for $hostname$status"
+                msg "   + $service config $status"
                 cp "$override" "$conf_file"
                 return
             fi
@@ -123,8 +123,8 @@ function generate_config {
     if [[ -n "$conf_src" ]] && [[ ! -f "$conf_file" ]]; then
         
         # loop over list of hostnames and append template for each one
-        for hostname in "${site_hosts[@]}"; do
-            msg "   + $service config for $hostname$status"
+        for hostname in $site_hosts; do
+            msg "   + $service config for $hostname $status"
             cat "$conf_src" >> "$conf_file"
 
             perl -pi -e "s/__SITE_NAME__/$site_name/g" "$conf_file"
@@ -137,17 +137,30 @@ function generate_config {
 function process_site {
     site_name="$1"
     site_path="$2"
+    site_hosts[0]=
 
-    site_hosts=()
-    [[ -f $site_path/.hostnames ]] && readarray -t site_hosts < $site_path/.hostnames
-    [[ -z $site_hosts ]] && site_hosts=("$(basename $site_path)")
+    # parse in list of custom hostnames if present
+    if [[ -f $site_path/.hostnames ]] && [[ "$(wc -l $site_path/.hostnames | cut -d ' ' -f1)" != 0 ]]; then
+        readarray -t site_hosts < $site_path/.hostnames
+    fi
+    [[ -z ${site_hosts[@]} ]] && site_hosts=("$(basename $site_path)")      # default hostname is site name
 
-    for hostname in "${site_hosts[@]}"; do
+    # clear hostnames which do not contain a period
+    for (( i = 0, l = ${#site_hosts[@]}; i < l; i++ )); do
+        [[ ${site_hosts[i]} != *"."* ]] && site_hosts[i]=
+    done
+
+    # if no hostnames are remaining, return to caller
+    [[ -z ${site_hosts[@]} ]] && return
+
+    # generate secure certificate for each hostname
+    for hostname in ${site_hosts[@]}; do
         generate_cert $hostname 2> /dev/null
     done
 
-    generate_config httpd $site_name $site_hosts $site_path
-    generate_config nginx $site_name $site_hosts $site_path
+    # call configuration generators for each service
+    generate_config httpd $site_name "${site_hosts[@]}" $site_path
+    generate_config nginx $site_name "${site_hosts[@]}" $site_path
 }
 
 function remove_files {
