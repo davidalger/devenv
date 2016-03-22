@@ -147,7 +147,7 @@ function process_site {
 
     # clear hostnames which do not contain a period
     for (( i = 0, l = ${#site_hosts[@]}; i < l; i++ )); do
-        [[ ${site_hosts[i]} != *"."* ]] && site_hosts[i]=
+        [[ ${site_hosts[i]} != *"."* ]] && [[ ${site_hosts[i]} != "localhost" ]] && site_hosts[i]=
     done
 
     # if no hostnames are remaining, return to caller
