@@ -106,6 +106,7 @@ fi
 ########################################
 
 yum install -y bash-completion bc man git rsync mysql
+rsync -av ./machine/bin/ /usr/local/bin/
 
 ########################################
 :: installing configuration into /etc
