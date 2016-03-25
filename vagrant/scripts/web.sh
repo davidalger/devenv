@@ -16,31 +16,30 @@ source ./scripts/lib/utils.sh
 :: configuring ssl root for cert signing
 ########################################
 
-ssldir=$SHARED_DIR/ssl
-if ! [[ -d $ssldir ]]; then
-    mkdir -p $ssldir/rootca/{certs,crl,newcerts,private}
+if ! [[ -d $SSL_DIR ]]; then
+    mkdir -p $SSL_DIR/rootca/{certs,crl,newcerts,private}
 
-    touch $ssldir/rootca/index.txt
-    echo 1000 > $ssldir/rootca/serial
+    touch $SSL_DIR/rootca/index.txt
+    echo 1000 > $SSL_DIR/rootca/serial
 fi
 
 sslconfig=$VAGRANT_DIR/etc/openssl/rootca.conf
 
 # create a CA root certificate if none present
-if [[ ! -f $ssldir/rootca/private/ca.key.pem ]]; then
-    openssl genrsa -out $ssldir/rootca/private/ca.key.pem 4096
+if [[ ! -f $SSL_DIR/rootca/private/ca.key.pem ]]; then
+    openssl genrsa -out $SSL_DIR/rootca/private/ca.key.pem 4096
 
     openssl req -config $sslconfig -new -x509 -days 7300 -sha256 -extensions v3_ca \
-        -key $ssldir/rootca/private/ca.key.pem \
-        -out $ssldir/rootca/certs/ca.cert.pem \
+        -key $SSL_DIR/rootca/private/ca.key.pem \
+        -out $SSL_DIR/rootca/certs/ca.cert.pem \
         -subj "/C=US/O=Vagrant DevEnv"
 
     # alert user where to find root ca cert and what to do with it
-    >&2 echo "Note: You must add $ssldir/rootca/certs/ca.cert.pem to trusted certs on host."
+    >&2 echo "Note: You must add $SSL_DIR/rootca/certs/ca.cert.pem to trusted certs on host."
 fi
 
 # create local ssl private key
-[ ! -f $ssldir/local.key.pem ] && openssl genrsa -out $ssldir/local.key.pem 2048
+[ ! -f $SSL_DIR/local.key.pem ] && openssl genrsa -out $SSL_DIR/local.key.pem 2048
 
 ########################################
 :: installing vm tooling and services
