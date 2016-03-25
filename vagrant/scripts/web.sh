@@ -16,7 +16,7 @@ source ./scripts/lib/utils.sh
 :: configuring ssl root for cert signing
 ########################################
 
-if ! [[ -d $SSL_DIR ]]; then
+if ! [[ -d $SSL_DIR/rootca/ ]]; then
     mkdir -p $SSL_DIR/rootca/{certs,crl,newcerts,private}
 
     touch $SSL_DIR/rootca/index.txt
