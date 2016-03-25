@@ -1,1 +1,1 @@
-../machine/etc/profile.d
+../guest/etc/profile.d

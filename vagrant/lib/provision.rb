@@ -55,7 +55,7 @@ def service (conf, calls)
   end
 end
 
-# Configure the machines memory allocation
+# Configure the guest memory allocation
 # Params:
 # +conf+:: vagrant provisioning conf object
 # +ram+:: amount of memory specified in megabytes
@@ -64,7 +64,7 @@ def vm_set_ram (conf, ram)
   conf.vm.provider('vmware_fusion') { |vm| vm.vmx['memsize'] = ram; }
 end
 
-# Configure the machines CPU allocation
+# Configure the guest CPU allocation
 # Params:
 # +conf+:: vagrant provisioning conf object
 # +cpu+:: number of CPUs to allocate

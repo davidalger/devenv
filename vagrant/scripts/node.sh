@@ -106,11 +106,11 @@ fi
 ########################################
 
 yum install -y bash-completion bc man git rsync mysql
-rsync -av ./machine/bin/ /usr/local/bin/
+rsync -av ./guest/bin/ /usr/local/bin/
 
 ########################################
 :: installing configuration into /etc
 ########################################
 
-rsync -av ./machine/etc/ /etc/
+rsync -av ./guest/etc/ /etc/
 git config --global core.excludesfile /etc/.gitignore_global
