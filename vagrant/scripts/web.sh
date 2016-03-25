@@ -23,13 +23,11 @@ if ! [[ -d $SSL_DIR ]]; then
     echo 1000 > $SSL_DIR/rootca/serial
 fi
 
-sslconfig=$VAGRANT_DIR/etc/openssl/rootca.conf
-
 # create a CA root certificate if none present
 if [[ ! -f $SSL_DIR/rootca/private/ca.key.pem ]]; then
     openssl genrsa -out $SSL_DIR/rootca/private/ca.key.pem 4096
 
-    openssl req -config $sslconfig -new -x509 -days 7300 -sha256 -extensions v3_ca \
+    openssl req -config /etc/openssl/rootca.conf -new -x509 -days 7300 -sha256 -extensions v3_ca \
         -key $SSL_DIR/rootca/private/ca.key.pem \
         -out $SSL_DIR/rootca/certs/ca.cert.pem \
         -subj "/C=US/O=Vagrant DevEnv"
