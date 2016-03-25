@@ -13,7 +13,7 @@ set -e
 source ./scripts/lib/utils.sh
 
 ########################################
-:: running generic machine configuration
+:: configuring guest machine provider
 ########################################
 
 # configure VM Ware tools to automatically rebuild missing VMX kernel modules upon boot
@@ -21,16 +21,6 @@ source ./scripts/lib/utils.sh
 #
 if [[ -f /etc/vmware-tools/locations ]]; then
     sed -i -re 's/^answer (AUTO_KMODS_ENABLED|AUTO_KMODS_ENABLED_ANSWER) no$/answer \1 yes/' /etc/vmware-tools/locations
-fi
-
-# set zone info to match host if possible
-if [[ -f "$HOST_ZONEINFO" ]]; then
-    if [[ -f /etc/localtime ]]; then
-        mv /etc/localtime /etc/localtime.bak
-    elif [[ -L /etc/localtime ]]; then
-        rm /etc/localtime
-    fi
-    ln -s "$HOST_ZONEINFO" /etc/localtime
 fi
 
 ########################################
@@ -99,6 +89,19 @@ if [[ -L /usr/lib/node_modules/inherits ]]; then
     inherits="$(readlink -f /usr/lib/node_modules/inherits)"
     rm -f /usr/lib/node_modules/inherits
     cp -r "$inherits" /usr/lib/node_modules/inherits
+fi
+
+########################################
+:: setting zone info to match host zone
+########################################
+
+if [[ -f "$HOST_ZONEINFO" ]]; then
+    if [[ -f /etc/localtime ]]; then
+        mv /etc/localtime /etc/localtime.bak
+    elif [[ -L /etc/localtime ]]; then
+        rm /etc/localtime
+    fi
+    ln -s "$HOST_ZONEINFO" /etc/localtime
 fi
 
 ########################################
