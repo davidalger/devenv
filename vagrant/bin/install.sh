@@ -113,7 +113,7 @@ function assert_devenv {
     fi
 
     if [[ -d /server ]] && [[ ! -L /server ]]; then
-        >&2 echo "Warning: /server is a directory. This may cause case-insensitivity issues in virtual machines"
+        >&2 echo "Warning: /server is a directory. This may cause case-insensitivity issues in guest machines"
     fi
 
     # create /sites link if not exists

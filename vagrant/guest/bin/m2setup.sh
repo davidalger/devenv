@@ -22,7 +22,7 @@ test -z $DB_NAME && DB_NAME=            # default init'd post argument parsing
 
 # init user configurable inputs
 BRANCH=develop
-HOSTNAME=m2.demo
+HOSTNAME=
 URLPATH=
 BACKEND_FRONTNAME=backend
 ADMIN_USER=admin
@@ -112,17 +112,17 @@ for arg in "$@"; do
             ;;
         --help)
             echo "Usage: $(basename $0) [-v|--verbose] [-d|--sampledata] [-e|--enterprise] [-g|--github] "
-            echo "     [--hostname=<example.dev>] [--urlpath=<name>] [--branch=<name>] [--admin-user=<admin>] "
+            echo "     --hostname=<example.dev> [--urlpath=<name>] [--branch=<name>] [--admin-user=<admin>] "
             echo "     [--admin-email=<email>] [--admin-first=<name>] [--admin-last=<name>]"
             echo ""
             echo "  -v : --verbose                          disables the -q flags on sub-commands for verbose output"
             echo "  -d : --sampledata                       triggers installation of sample data"
             echo "  -e : --enterprise                       uses enterprise meta-packages vs community"
             echo "  -g : --github                           will install via github clone instead of from meta-packages"
-            echo "       --hostname=<hostname>              domain of the site (defaults to m2.dev)"
+            echo "       --hostname=<hostname>              domain of the site"
             echo "       --urlpath=<urlpath>                path component of base url and install sub-directyory"
             echo "       --branch=<branch>                  branch to build the site from (defaults to develop)"
-            echo "       --backend-frontname=<frontname>    alphanumerical admin username (defaults to admin)"
+            echo "       --backend-frontname=<frontname>    alphanumerical admin username (defaults to backend)"
             echo "       --admin-user=<admin>               alphanumerical admin username (defaults to admin)"
             echo "       --admin-email=<email>              admin account email address (required input)"
             echo "       --admin-first=<name>               admin user first name (required input)"

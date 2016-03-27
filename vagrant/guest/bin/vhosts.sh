@@ -174,7 +174,7 @@ function main {
     [[ $is_quiet ]] && stdout=/dev/null || stdout=/dev/stdout
 
     if [[ -f /etc/.vagranthost ]]; then
-        >&2 echo "Error: This script should be run from within the vagrant machine. Please vagrant ssh, then retry"
+        >&2 echo "Error: This script should be run from within the guest machine. Please vagrant ssh, then retry"
         exit 1
     fi
 

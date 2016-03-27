@@ -17,6 +17,7 @@ def bootstrap_sh (conf, roles, env = {})
       base_dir: BASE_DIR,
       vagrant_dir: VAGRANT_DIR,
       shared_dir: SHARED_DIR,
+      ssl_dir: SHARED_DIR + '/ssl',
       bootstrap_log: '/var/log/bootstrap.log',
       host_zoneinfo: File.readlink('/etc/localtime')
     }.merge(env)
@@ -55,7 +56,7 @@ def service (conf, calls)
   end
 end
 
-# Configure the machines memory allocation
+# Configure the guest memory allocation
 # Params:
 # +conf+:: vagrant provisioning conf object
 # +ram+:: amount of memory specified in megabytes
@@ -64,7 +65,7 @@ def vm_set_ram (conf, ram)
   conf.vm.provider('vmware_fusion') { |vm| vm.vmx['memsize'] = ram; }
 end
 
-# Configure the machines CPU allocation
+# Configure the guest CPU allocation
 # Params:
 # +conf+:: vagrant provisioning conf object
 # +cpu+:: number of CPUs to allocate
