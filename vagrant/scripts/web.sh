@@ -79,6 +79,22 @@ perl -0777 -pi -e 's#(<Directory "/var/www/html">.*?)AllowOverride None(.*?</Dir
 
 # disable error index file if installed
 [ -f "/var/www/error/noindex.html" ] && mv /var/www/error/noindex.html /var/www/error/noindex.html.disabled
+
+chkconfig redis on
+service redis start
+
+chkconfig httpd on
+service httpd start
+
+# chkconfig varnish on
+# service varnish start
+
+chkconfig nginx on
+service nginx start
+
+chkconfig php-fpm on
+service php-fpm start
+
 ########################################
 :: installing develop tools
 ########################################

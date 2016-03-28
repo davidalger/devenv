@@ -52,8 +52,6 @@ def configure_web_vm (node, host: nil, ip: nil, php_version: nil)
     conf.name = "vhosts.sh"
     conf.inline = "vhosts.sh --no-reload --quiet"
   end
-  
-  service(node, { start: ['redis', 'httpd', 'nginx'] })
 end
 
 def configure_db_vm (node, host: nil, ip: nil, mysql_version: nil)
@@ -78,7 +76,6 @@ def configure_db_vm (node, host: nil, ip: nil, mysql_version: nil)
   # setup guest provisioners
   Mount.provision(node)
   bootstrap_sh(node, ['node', 'db'], { mysql_version: mysql_version })
-  service(node, { start: ['mysqld'] })
 end
 
 def configure_solr_vm (node, host: nil, ip: nil)
@@ -88,5 +85,4 @@ def configure_solr_vm (node, host: nil, ip: nil)
 
   # setup guest provisioners
   Mount.provision(node)
-  bootstrap_sh(node, ['node', 'solr'])
 end
