@@ -33,7 +33,7 @@ sub vcl_recv {
      }
 }
 
-include "/server/vagrant/etc/varnish/includes.vcl";
+include "/etc/varnish/includes.vcl";
 
 sub vcl_backend_response {
     # Happens after we have read the response headers from the backend.
