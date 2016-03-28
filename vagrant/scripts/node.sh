@@ -105,7 +105,7 @@ if [[ -f "$HOST_ZONEINFO" ]]; then
 fi
 
 ########################################
-:: installing generic vm tooling
+:: installing generic guest tooling
 ########################################
 
 yum install -y bash-completion bc man git rsync mysql
