@@ -85,20 +85,25 @@ function generate_cert {
 
 function generate_config {
     local service="$1"
-    local site_name="$2"
-    local site_hosts="$3"
-    local site_path="$4"
+    local conf_ext="$2"
+    local site_name="$3"
+    local site_hosts="$4"
+    local site_path="$5"
 
     local conf_dir="/etc/$service/sites.d"
-    local conf_file="$conf_dir/$site_name.conf"
+    local conf_file="$conf_dir/$site_name.$conf_ext"
     local conf_src=
 
-    local template="$conf_dir/__vhost.conf.template"
-    local override="$site_path/.$service.conf"
+    local proxy_port=8080
+    local template="$conf_dir/__$service.$conf_ext.template"
+    local override="$site_path/.$service.$conf_ext"
     local status=
-    
+
     local site_pub=$(ls -1dU "$site_path"/{pub,html,htdocs} 2>/dev/null | head -n1)
     [[ -n $site_pub ]] && site_pub=$(basename "$site_pub") || site_pub=pub
+
+    # If a varnish config exists, use the varnish backend in generated config file
+    [[ -f "$site_path/.varnish.vcl" ]] && proxy_port=6081
 
     # figure out what to src the config from
     if [[ -f "$override" ]]; then
@@ -106,29 +111,31 @@ function generate_config {
         if [[ ! -f "$conf_file" ]] || ! cmp "$override" "$conf_file" > /dev/null; then
             status="(override)"
             [[ -f "$conf_file" ]] && status="$status (updated)"
-            
+
             # if pub dir does not exist, override verbatim without var replacement
             if [[ ! -d "$site_path/$site_pub" ]]; then
                 msg "   + $service config $status"
                 cp "$override" "$conf_file"
                 return
             fi
-            
+
             # failing above check, use as template in below loop
             conf_src="$override"
         fi
-    elif [[ -d "$site_path/$site_pub" ]]; then
+    elif [[ -d "$site_path/$site_pub" ]] && [[ "$service" != "varnish" ]]; then
+        # only use a template if the pub is there and we're not configuring varnish
         conf_src="$template"
     fi
 
     # if we have something to copy and there is nothing there already, copy and replace in vars
     if [[ -n "$conf_src" ]] && [[ ! -f "$conf_file" ]]; then
-        
+
         # loop over list of hostnames and append template for each one
         for hostname in $site_hosts; do
             msg "   + $service config for $hostname $status"
             cat "$conf_src" >> "$conf_file"
 
+            perl -pi -e "s/__PROXY_PORT__/$proxy_port/g" "$conf_file"
             perl -pi -e "s/__SITE_NAME__/$site_name/g" "$conf_file"
             perl -pi -e "s/__SITE_HOST__/$hostname/g" "$conf_file"
             perl -pi -e "s/__SITE_PUB__/$site_pub/g" "$conf_file"
@@ -142,16 +149,20 @@ function process_site {
     local site_hosts[0]=
 
     # parse in list of custom hostnames if present
-    if [[ -f $site_path/.hostnames ]] && [[ "$(wc -l $site_path/.hostnames | cut -d ' ' -f1)" != 0 ]]; then
+    if [[ -f $site_path/.hostnames ]]; then
         readarray -t site_hosts < $site_path/.hostnames
     fi
-    [[ -z ${site_hosts[@]} ]] && site_hosts=("$(basename $site_path)")      # default hostname is site name
+
+    # check the count of site_hosts even if undefined from parsing the .hostnames file
+    if [[ -z ${site_hosts[@]+"${site_hosts[@]}"} ]]; then
+        site_hosts=("$(basename $site_path)")      # default hostname is site name where .hostnames is empty
+    fi
 
     # clear hostnames which do not contain a period
     for (( i = 0, l = ${#site_hosts[@]}; i < l; i++ )); do
         [[ ${site_hosts[i]} != *"."* ]] && [[ ${site_hosts[i]} != "localhost" ]] && site_hosts[i]=
     done
-    
+
     # if no hostnames are remaining, return to caller
     [[ -z ${site_hosts[@]} ]] && return
 
@@ -161,8 +172,9 @@ function process_site {
     done
 
     # call configuration generators for each service
-    generate_config httpd $site_name "${site_hosts[*]}" $site_path
-    generate_config nginx $site_name "${site_hosts[*]}" $site_path
+    generate_config httpd conf $site_name "${site_hosts[*]}" $site_path
+    generate_config nginx conf $site_name "${site_hosts[*]}" $site_path
+    generate_config varnish vcl $site_name "${site_hosts[*]}" $site_path
 }
 
 function remove_files {
@@ -179,7 +191,7 @@ function main {
     fi
 
     msg "==> Removing pre-existing configuration"
-    [[ $reset_config ]] && remove_files /etc/{httpd,nginx}/sites.d/*.conf
+    [[ $reset_config ]] && remove_files /etc/{httpd,nginx,varnish}/sites.d/*.{conf,vcl} /etc/varnish/includes.vcl
     [[ $reset_certs ]] && remove_files $certs_dir/*.c??.pem
 
     sites_list=$(find $sites_dir -mindepth 1 -maxdepth 1 -type d)
@@ -187,14 +199,24 @@ function main {
     msg "==> Generating site configuration"
     for site_path in $sites_list; do
         site_name="$(basename $site_path)"
-        
+
         site_msg=$(process_site $site_name $site_path)
         [[ -n $site_msg ]] && msg " + $site_name\n$site_msg"    # only list if process_site emitted output
+    done
+
+    # TODO: add cleanup of config files for site directories which are no longer present
+    # msg "==> Clearing old site configuration"
+
+    msg "==> Writing varnish includes.vcl"
+    vcl_list=$(find /etc/varnish/sites.d/ -mindepth 1 -maxdepth 1 -name '*.vcl')
+    for vcl_file in $vcl_list; do
+        printf 'include "%s";\n' "$vcl_file" >> /etc/varnish/includes.vcl
     done
 
     if [[ ! $no_reload ]]; then
         msg -n "==> " && service httpd reload > $stdout
         msg -n "==> " && service nginx reload > $stdout
+        msg -n "==> " && service varnish reload > $stdout
     fi
 
 }; main "$@"

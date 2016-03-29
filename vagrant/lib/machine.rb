@@ -48,6 +48,7 @@ def configure_web_vm (node, host: nil, ip: nil, php_version: nil)
   Mount.provision(node)
   bootstrap_sh(node, ['node', 'web'], { php_version: php_version })
   
+  # run vhosts.sh on every reload
   node.vm.provision :shell, run: 'always' do |conf|
     conf.name = "vhosts.sh"
     conf.inline = "vhosts.sh --quiet"
