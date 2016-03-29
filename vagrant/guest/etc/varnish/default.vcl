@@ -12,9 +12,11 @@
 # new 4.0 format.
 vcl 4.0;
 
+import std;
+
 # Default backend definition. Set this to point to your content server.
 backend default {
-    .host = "127.0.0.1";
+    .host = "localhost";
     .port = "8080";
 
     .connect_timeout = 600s;        # Wait a maximum of 600s for response from web-server backend
@@ -22,11 +24,18 @@ backend default {
     .between_bytes_timeout = 600s;  # Wait a maximum of 600s between each bytes sent from web-server backend
 }
 
+acl purge {
+    "localhost";
+}
+
 sub vcl_recv {
     # Happens before we check if we have this in cache already.
     #
     # Typically you clean up the request here, removing cookies you don't need,
     # rewriting the request, etc.
+    
+    # This is here to avoid an "Unused acl purge" error on initial start (before other vcl files using it exist)
+    if (client.ip !~ purge) {}
     
     if (! req.http.Host) {
       return (synth(405, "Varnish needs a host header in the request for vhost processing rules."));
