@@ -215,7 +215,7 @@ function main {
     if [[ ! $no_reload ]]; then
         msg -n "==> " && service httpd reload > $stdout
         msg -n "==> " && service nginx reload > $stdout
-        msg -n "==> " && service varnish restart > $stdout  # TODO: consider trying to reload varnish to preserve cache
+        msg -n "==> " && service varnish reload > $stdout
     fi
 
 }; main "$@"
