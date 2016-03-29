@@ -122,7 +122,8 @@ function generate_config {
             # failing above check, use as template in below loop
             conf_src="$override"
         fi
-    elif [[ -d "$site_path/$site_pub" ]]; then
+    elif [[ -d "$site_path/$site_pub" ]] && [[ "$service" != "varnish" ]]; then
+        # only use a template if the pub is there and we're not configuring varnish
         conf_src="$template"
     fi
 
