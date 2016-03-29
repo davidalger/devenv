@@ -64,6 +64,18 @@ function msg {
     [[ -z $is_quiet ]] && printf "$output" || true
 }
 
+function assert_hosts_entry {
+    local hostname="$1"
+    local ip=127.0.0.1
+
+    [[ $hostname = "localhost" ]] && return
+
+    if ! grep -E "^$ip\\W+$hostname$" /etc/hosts > /dev/null; then
+        msg "   + hosts file entry ($hostname)"
+        echo "$ip $hostname" >> /etc/hosts
+    fi
+}
+
 function generate_cert {
     local hostname="$1"
 
@@ -169,6 +181,7 @@ function process_site {
     # generate secure certificate for each hostname
     for hostname in ${site_hosts[@]}; do
         generate_cert $hostname 2> /dev/null
+        assert_hosts_entry $hostname
     done
 
     # call configuration generators for each service
