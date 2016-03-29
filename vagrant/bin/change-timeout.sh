@@ -1,4 +1,4 @@
-# change timeout values for services running in virtual machines for debug purposes
+# change timeout values for services running in guest machines for debug purposes
 ##
  # Copyright © 2015 by David Alger. All rights reserved
  # 

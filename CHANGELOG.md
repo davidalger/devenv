@@ -1,3 +1,21 @@
+1.0.0-beta18
+===============
+
+* Added list of available sites to the index file available at dev-web - resolves #17
+* Added assertion for local /etc/hosts entry in vhosts.sh - resolves #36
+* Added root CA signing certificate to Shared System Certificate trust list - resolves #58
+* Refactored vhosts.sh. Highlights are as follows:
+    * requires root privileges to run (will self-escalate if necessary)
+    * removed the --reset flag and added --reset-config / --reset-certs
+    * no longer cleans up after old sites without performing a reset
+    * removed (now) unnecessary LSB code masking
+    * generated configuration files are no longer shared via mount
+* Moved bin scripts for use on guest into /usr/local/bin on guest
+* Changed m2setup.sh to require --hostname flag when run
+* Fixed for finalized ability to provision a vm completely offline - resolves #11
+* Refactored provisioners to be single-file per role shell scripts
+* Varnish is now running when the machine is provisioned with support for a .varnish.vcl file in site root (PR #59)
+
 1.0.0-beta17
 ===============
 

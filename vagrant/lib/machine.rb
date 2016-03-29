@@ -44,21 +44,14 @@ def configure_web_vm (node, host: nil, ip: nil, php_version: nil)
   # bind localhost pub directory
   Mount.bind(SITES_MOUNT + '/__localhost/pub', '/var/www/html')
   
-  # bind apache sites.d configuration directory
-  Mount.bind(VAGRANT_DIR + '/etc/httpd/sites.d', '/etc/httpd/sites.d')
-
-  # bind nginx sites.d configuration directory
-  Mount.bind(VAGRANT_DIR + '/etc/nginx/sites.d', '/etc/nginx/sites.d')
-  
   # setup guest provisioners
   Mount.provision(node)
   bootstrap_sh(node, ['node', 'web'], { php_version: php_version })
-  service(node, { start: ['redis', 'httpd', 'nginx'] })
-
+  
   # run vhosts.sh on every reload
   node.vm.provision :shell, run: 'always' do |conf|
     conf.name = "vhosts.sh"
-    conf.inline = "/server/vagrant/bin/vhosts.sh"
+    conf.inline = "vhosts.sh --quiet"
   end
 end
 
@@ -84,7 +77,6 @@ def configure_db_vm (node, host: nil, ip: nil, mysql_version: nil)
   # setup guest provisioners
   Mount.provision(node)
   bootstrap_sh(node, ['node', 'db'], { mysql_version: mysql_version })
-  service(node, { start: ['mysqld'] })
 end
 
 def configure_solr_vm (node, host: nil, ip: nil)
@@ -94,5 +86,4 @@ def configure_solr_vm (node, host: nil, ip: nil)
 
   # setup guest provisioners
   Mount.provision(node)
-  bootstrap_sh(node, ['node', 'solr'])
 end

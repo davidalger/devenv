@@ -13,7 +13,7 @@ class Mount
   # Mounts a directory from the host machine on the vm at the designated path using an NFS mount
   # Params:
   # +host_path+:: +String+ full path to directory on host machine
-  # +guest_path+:: +String+ mount location on virtual machine
+  # +guest_path+:: +String+ mount location on guest machine
   # +mount_options+:: +Array+ additional mount options
   def self.nfs (id, host_path, guest_path, mount_options: [])
     @@mounts += [{ type: 'nfs', id: id, host_path: host_path, guest_path: guest_path, mount_options: mount_options }]
@@ -22,7 +22,7 @@ class Mount
   # Mounts directory from the host machine on the vm at the designated path using default vmfs
   # Params:
   # +host_path+:: +String+ full path to directory on host machine
-  # +guest_path+:: +String+ mount location on virtual machine
+  # +guest_path+:: +String+ mount location on guest machine
   # +mount_options+:: +Array+ additional mount options
   def self.vmfs (id, host_path, guest_path, mount_options: [])
     @@mounts += [{ type: 'vmfs', id: id, host_path: host_path, guest_path: guest_path, mount_options: mount_options }]
@@ -31,7 +31,7 @@ class Mount
   # Binds location on guest machine from provided source to target
   # Params:
   # +source_path+:: +String+ full path to directory on host machine
-  # +target_path+:: +String+ mount location on virtual machine
+  # +target_path+:: +String+ mount location on guest machine
   def self.bind (source_path, target_path)
     @@mounts += [{ type: 'bind', source_path: source_path, target_path: target_path }]
   end

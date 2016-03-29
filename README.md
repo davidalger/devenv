@@ -1,13 +1,13 @@
 # Development Environment
 This setup relies on Vagrant and VirtualBox (or [VMWare Fusion](#vmware-provider) if that's what you prefer) running on Mac OS X to power the virtualized developer environment. These dependencies are installed as part of the setup process using [Homebrew](http://brew.sh) and [Homebrew Cask](http://caskroom.io).
 
-It is setup with two primary machines: web and db. Together these two virtual machines provide all the neccesary components to build on Magento 1 and Magento 2, including support for running multiple PHP / MySql versions side-by-side if neccesary ([see below for details](#virtual-machines)). The web node runs a traditional LAMP stack, with Nginx sitting in front of Apache as a proxy for static assets. It also includes [Xdebug](http://xdebug.org) pre-configured to connect to your IDE on the host machine.
+It is setup with two primary machines: web and db. Together these two virtual machines provide all the necessary components to build on Magento 1 and Magento 2, including support for running multiple PHP / MySql versions side-by-side if necessary ([see below for details](#virtual-machines)). The web node runs a traditional LAMP stack, with Nginx sitting in front of Apache as a proxy for static assets. It also includes [Xdebug](http://xdebug.org) pre-configured to connect to your IDE on the host machine.
 
 ## System Requirements
 * Mac OS X 10.9 or later
 * An HFS+ **Case-sensitive** partition mounted at `/Volumes/Server` or `/server`
 
-    *Note: The environment should install and run from a case-insensitive mount, but this is not reccomended for two reasons: a) the majority of deployments are done to case-sensitive file-systems, so development done on a case-sensitive mount is less error prone (ex: autoloaders may find a class in development, then fail on production); b) mysql will behave differently as it pertains to [identifier case sensitivity](https://dev.mysql.com/doc/refman/5.0/en/identifier-case-sensitivity.html) potentially causing unexpected behavior*
+    *Note: The environment should install and run from a case-insensitive mount, but this is not recommended for two reasons: a) the majority of deployments are done to case-sensitive file-systems, so development done on a case-sensitive mount is less error prone (ex: autoloaders may find a class in development, then fail on production); b) mysql will behave differently as it pertains to [identifier case sensitivity](https://dev.mysql.com/doc/refman/5.0/en/identifier-case-sensitivity.html) potentially causing unexpected behavior*
 
 ## Environment Setup
 
@@ -60,7 +60,7 @@ It is setup with two primary machines: web and db. Together these two virtual ma
 4. Create a Magento 2 build available at m2.demo:
 
     ```bash
-    vagrant ssh web -- /server/vagrant/bin/m2setup.sh --sampledata
+    vagrant ssh web -- /server/vagrant/bin/m2setup.sh --sampledata --hostname=m2.demo
     echo "10.19.89.10 m2.demo" | sudo tee -a /etc/hosts > /dev/null
     ```
 
@@ -68,7 +68,7 @@ It is setup with two primary machines: web and db. Together these two virtual ma
 
 | hostname      | ip           | role     | autostart | description                                        |
 | -----------   | ------------ | -------- | --------- | -------------------------------------------------- |
-| dev-host      | 10.19.89.1   | host     | n/a       | this is the host machine for the evnironment       |
+| dev-host      | 10.19.89.1   | host     | n/a       | this is the host machine for the environment       |
 | **[dev-web]** | 10.19.89.10  | app      | yes       | web app node running PHP 5.6                       |
 | [dev-web55]   | 10.19.89.11  | app      | no        | web app node running PHP 5.5                       |
 | [dev-web54]   | 10.19.89.12  | app      | no        | web app node running PHP 5.4                       |
@@ -83,26 +83,16 @@ It is setup with two primary machines: web and db. Together these two virtual ma
 ### Web Application
 This node is setup to run services required to run web applications. Nginx is setup to deliver static assets directly and act as a proxy for anything else. Apache is setup with mod_php to delivery the web application and sits behind Nginx on an internal port. Redis has been setup for a cache data store such that it never writes information to disk.
 
-Run `vhosts.sh` to generate vhosts for all sites and reload apache. This will be automatically run once when the machine is provisioned, and may be subsequently run from `/server/vagrant/bin/vhosts.sh` on either the host or guest environment.
+Run `vhosts.sh` to generate vhosts for all sites and reload apache. This will be automatically run once when the machine is provisioned, and may be subsequently run within the guest environment (use --help for available options).
 
 The IP address of this node is fixed at `10.19.89.10`. This IP should be used in `/etc/hosts` on the host machine to facilitate loading applications running within the vm from a browser on the host.
 
 #### Virtual Host Configuration
-Virtual hosts are created automatically for each site by running the `vhosts.sh` script. These .conf files are based on a template, or may manually be configured on a per-site basis by placing a `.vhost.conf` file in the root site directory. To configure the virtual host configuraion and reload apache:
+Virtual hosts are created automatically for each site by running the `vhosts.sh` script. These .conf files are based on a template, or may manually be configured on a per-site basis by placing a `.<service>.conf` file in the root site directory where `<service>` is the name of the service the file is to configure (such as nginx or httpd).
+    
+To configure the virtual host configuration and reload services, run `vhosts.sh` within the guest machine. Running `vhosts.sh --reset-config --reset-certs` will wipe out all generated certificates and service configuration, creating it from scratch.
 
-```bash
-/server/vagrant/bin/vhosts.sh
-```
-
-If the master template is updated, neccesitating re-creating all the templated virutal host files, use the `--reset` flag:
-
-```bash
-/server/vagrant/bin/vhosts.sh --reset
-```
-
-When run from the host machine, this script will update the configuration files and attempt to reload apache on the `dev-web` machine. If alternate web app nodes are in use, the script may be run from within the target virtual machine and/or `service httpd reload` may be run manually from the virtual machine's shell prompt.
-
-The `vhosts.sh` script looks for the precense of three locations within each directory contained by `/sites` to determine if a given directory found in `/sites` is in fact in need of a virtual host. These locations are as follows:
+The `vhosts.sh` script looks for the pretense of three locations within each directory contained by `/sites` to determine if a given directory found in `/sites` is in fact in need of a virtual host. These locations are as follows:
 
 * /sites/example.dev/pub
 * /sites/example.dev/html
