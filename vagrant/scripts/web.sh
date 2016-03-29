@@ -86,8 +86,8 @@ service redis start
 chkconfig httpd on
 service httpd start
 
-# chkconfig varnish on
-# service varnish start
+chkconfig varnish on
+service varnish start
 
 chkconfig nginx on
 service nginx start
