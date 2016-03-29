@@ -28,7 +28,7 @@ fi
 ########################################
 
 # enable rpm caching and set higher metadata cache
-sed -i 's/keepcache=0/keepcache=1\nmetadata_expire=12h/' /etc/yum.conf
+sed -i 's/keepcache=0/keepcache=1\nmetadata_expire=24h/' /etc/yum.conf
 
 # append exclude rule to avoid updating the yum tool and kernel packages (causes issues with VM Ware tools on re-create)
 printf "\n\nexclude=yum kernel*\n" >> /etc/yum.conf
@@ -83,6 +83,7 @@ yum update -y
 
 yum install -y npm --disableexcludes=all
 npm -g config set cache /var/cache/npm
+npm -g config set cache-min 86400
 
 # fix npm install problem by overwriting symlink with copy of linked version
 if [[ -L /usr/lib/node_modules/inherits ]]; then
