@@ -50,7 +50,7 @@ def configure_web_vm (node, host: nil, ip: nil, php_version: nil)
   
   node.vm.provision :shell, run: 'always' do |conf|
     conf.name = "vhosts.sh"
-    conf.inline = "vhosts.sh --no-reload --quiet"
+    conf.inline = "vhosts.sh --quiet"
   end
 end
 
