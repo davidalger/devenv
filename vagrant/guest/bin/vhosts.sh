@@ -103,7 +103,7 @@ function generate_config {
     [[ -n $site_pub ]] && site_pub=$(basename "$site_pub") || site_pub=pub
 
     # If a varnish config exists, use the varnish backend in generated config file
-    [[ "$service" == "nginx" ]] && [[ -f "$site_path/.varnish.vcl" ]] && proxy_port=6081
+    [[ -f "$site_path/.varnish.vcl" ]] && proxy_port=6081
 
     # figure out what to src the config from
     if [[ -f "$override" ]]; then
