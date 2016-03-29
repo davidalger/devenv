@@ -85,17 +85,18 @@ function generate_cert {
 
 function generate_config {
     local service="$1"
-    local site_name="$2"
-    local site_hosts="$3"
-    local site_path="$4"
+    local conf_ext="$2"
+    local site_name="$3"
+    local site_hosts="$4"
+    local site_path="$5"
 
     local conf_dir="/etc/$service/sites.d"
-    local conf_file="$conf_dir/$site_name.conf"
+    local conf_file="$conf_dir/$site_name.$conf_ext"
     local conf_src=
 
     local proxy_port=8080
-    local template="$conf_dir/__$service.conf.template"
-    local override="$site_path/.$service.conf"
+    local template="$conf_dir/__$service.$conf_ext.template"
+    local override="$site_path/.$service.$conf_ext"
     local status=
 
     local site_pub=$(ls -1dU "$site_path"/{pub,html,htdocs} 2>/dev/null | head -n1)
@@ -141,35 +142,6 @@ function generate_config {
     fi
 }
 
-function generate_varnish_config {
-    local service="varnish"
-    local site_name="$1"
-    local site_hosts="$2"
-    local site_path="$3"
-
-    local conf_dir="/etc/$service/sites.d"
-    local conf_file="$conf_dir/$site_name.vcl"
-    local conf_src=
-
-    local override="$site_path/.$service.vcl"
-    local status=
-
-    local site_pub=$(ls -1dU "$site_path"/{pub,html,htdocs} 2>/dev/null | head -n1)
-    [[ -n $site_pub ]] && site_pub=$(basename "$site_pub") || site_pub=pub
-
-    # figure out what to src the config from
-    if [[ -f "$override" ]]; then
-        # if override has not been copied or is different, we process it
-        if [[ ! -f "$conf_file" ]] || ! cmp "$override" "$conf_file" > /dev/null; then
-            status="(override)"
-            [[ -f "$conf_file" ]] && status="$status (updated)"
-
-            msg "   + $service config $status"
-            cp "$override" "$conf_file"
-        fi
-    fi
-}
-
 function process_site {
     local site_name="$1"
     local site_path="$2"
@@ -203,9 +175,9 @@ function process_site {
     done
 
     # call configuration generators for each service
-    generate_config httpd $site_name "${site_hosts[*]}" $site_path
-    generate_config nginx $site_name "${site_hosts[*]}" $site_path
-    generate_varnish_config $site_name "${site_hosts[*]}" $site_path
+    generate_config httpd conf $site_name "${site_hosts[*]}" $site_path
+    generate_config nginx conf $site_name "${site_hosts[*]}" $site_path
+    generate_config varnish vcl $site_name "${site_hosts[*]}" $site_path
 }
 
 function remove_files {
