@@ -36,6 +36,12 @@ if [[ ! -f $SSL_DIR/rootca/private/ca.key.pem ]]; then
     >&2 echo "Note: You must add $SSL_DIR/rootca/certs/ca.cert.pem to trusted certs on host."
 fi
 
+# add local CA root to the trusted key-store and enable Shared System Certificates
+cp $SSL_DIR/rootca/certs/ca.cert.pem /etc/pki/ca-trust/source/anchors/local-ca.key.pem
+
+update-ca-trust
+update-ca-trust enable
+
 # create local ssl private key
 [ ! -f $SSL_DIR/local.key.pem ] && openssl genrsa -out $SSL_DIR/local.key.pem 2048
 
