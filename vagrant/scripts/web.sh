@@ -92,9 +92,6 @@ service varnish start
 chkconfig nginx on
 service nginx start
 
-chkconfig php-fpm on
-service php-fpm start
-
 ########################################
 :: installing develop tools
 ########################################
