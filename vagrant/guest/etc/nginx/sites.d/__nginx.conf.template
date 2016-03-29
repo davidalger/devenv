@@ -1,3 +1,4 @@
+
 server {
     listen       80;
     server_name ~^.*\.?__SITE_HOST__;
@@ -5,8 +6,10 @@ server {
     root   /server/sites/__SITE_NAME__/__SITE_PUB__;
     index  index.php index.html;
 
-    # Load additional configuration files for the server block.
-    include /etc/nginx/available.d/proxy_httpd.conf;
+    set $PROXY_PORT __PROXY_PORT__;
+
+    # Load configuration files for the default server block.
+    include /etc/nginx/default.d/*.conf;
 }
 
 server {
@@ -21,6 +24,8 @@ server {
     root   /server/sites/__SITE_NAME__/__SITE_PUB__;
     index  index.php index.html;
 
-    # Load additional configuration files for the server block.
-    include /etc/nginx/available.d/proxy_httpd.conf;
+    set $PROXY_PORT __PROXY_PORT__;
+
+    # Load configuration files for the default server block.
+    include /etc/nginx/default.d/*.conf;
 }

@@ -93,17 +93,16 @@ function generate_config {
     local conf_file="$conf_dir/$site_name.conf"
     local conf_src=
 
+    local proxy_port=8080
     local template="$conf_dir/__$service.conf.template"
     local override="$site_path/.$service.conf"
     local status=
-    
+
     local site_pub=$(ls -1dU "$site_path"/{pub,html,htdocs} 2>/dev/null | head -n1)
     [[ -n $site_pub ]] && site_pub=$(basename "$site_pub") || site_pub=pub
 
-    # Use a special template for nginx if a varnish config exists
-    if [ "$service" == "nginx" ] && [[ -f "$site_path/.varnish.vcl" ]]; then
-        template="$conf_dir/__$service.to-varnish.conf.template"
-    fi
+    # If a varnish config exists, use the varnish backend in generated config file
+    [[ "$service" == "nginx" ]] && [[ -f "$site_path/.varnish.vcl" ]] && proxy_port=6081
 
     # figure out what to src the config from
     if [[ -f "$override" ]]; then
@@ -118,7 +117,7 @@ function generate_config {
                 cp "$override" "$conf_file"
                 return
             fi
-            
+
             # failing above check, use as template in below loop
             conf_src="$override"
         fi
@@ -128,12 +127,13 @@ function generate_config {
 
     # if we have something to copy and there is nothing there already, copy and replace in vars
     if [[ -n "$conf_src" ]] && [[ ! -f "$conf_file" ]]; then
-        
+
         # loop over list of hostnames and append template for each one
         for hostname in $site_hosts; do
             msg "   + $service config for $hostname $status"
             cat "$conf_src" >> "$conf_file"
 
+            perl -pi -e "s/__PROXY_PORT__/$proxy_port/g" "$conf_file"
             perl -pi -e "s/__SITE_NAME__/$site_name/g" "$conf_file"
             perl -pi -e "s/__SITE_HOST__/$hostname/g" "$conf_file"
             perl -pi -e "s/__SITE_PUB__/$site_pub/g" "$conf_file"
@@ -179,14 +179,17 @@ function process_site {
     if [[ -f $site_path/.hostnames ]]; then
         readarray -t site_hosts < $site_path/.hostnames
     fi
+
     # check the count of site_hosts even if undefined from parsing the .hostnames file
-    [[ -z ${site_hosts[@]+"${site_hosts[@]}"} ]] && site_hosts=("$(basename $site_path)")      # default hostname is site name
+    if [[ -z ${site_hosts[@]+"${site_hosts[@]}"} ]]; then
+        site_hosts=("$(basename $site_path)")      # default hostname is site name where .hostnames is empty
+    fi
 
     # clear hostnames which do not contain a period
     for (( i = 0, l = ${#site_hosts[@]}; i < l; i++ )); do
         [[ ${site_hosts[i]} != *"."* ]] && [[ ${site_hosts[i]} != "localhost" ]] && site_hosts[i]=
     done
-    
+
     # if no hostnames are remaining, return to caller
     [[ -z ${site_hosts[@]} ]] && return
 
