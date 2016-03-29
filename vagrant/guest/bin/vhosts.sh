@@ -236,8 +236,8 @@ function main {
     # msg "==> policing old sites"
 
     if [[ ! $no_reload ]]; then
-        msg -n "==> " && service httpd reload > $stdout || true    # mask the LSB exit code (expected to be 4)
-        msg -n "==> " && service nginx reload > $stdout || true    # mask the LSB exit code (expected to be 4)
+        msg -n "==> " && service httpd reload > $stdout
+        msg -n "==> " && service nginx reload > $stdout
         # TODO: consider trying to reload varnish to preserve cache
         msg -n "==> " && service varnish restart > $stdout || true # mask the LSB exit code (expected to be 4)
     fi

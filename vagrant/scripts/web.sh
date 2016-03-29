@@ -40,26 +40,10 @@ fi
 [ ! -f $SSL_DIR/local.key.pem ] && openssl genrsa -out $SSL_DIR/local.key.pem 2048
 
 ########################################
-:: installing vm tooling and services
+:: installing web services
 ########################################
 
 yum install -y redis sendmail varnish httpd nginx
-npm install -g grunt-cli
-
-########################################
-:: configuring httpd
-########################################
-
-perl -pi -e 's/Listen 80//' /etc/httpd/conf/httpd.conf
-perl -0777 -pi -e 's#(<Directory "/var/www/html">.*?)AllowOverride None(.*?</Directory>)#$1AllowOverride All$2#s' \
-        /etc/httpd/conf/httpd.conf
-
-# disable error index file if installed
-[ -f "/var/www/error/noindex.html" ] && mv /var/www/error/noindex.html /var/www/error/noindex.html.disabled
-
-########################################
-:: installing php and dependencies
-########################################
 
 # install php and cross-version dependencies
 yum $extra_repos install -y php php-cli php-curl php-gd php-intl php-mcrypt php-xsl php-mbstring php-soap php-bcmath
@@ -86,8 +70,36 @@ fi
 [ ! -f /usr/lib64/php/modules/xdebug.so ] && rm -f /etc/php.d/15-xdebug.ini
 
 ########################################
-:: installing 3rd party tools
+:: configuring web services
 ########################################
+
+perl -pi -e 's/Listen 80//' /etc/httpd/conf/httpd.conf
+perl -0777 -pi -e 's#(<Directory "/var/www/html">.*?)AllowOverride None(.*?</Directory>)#$1AllowOverride All$2#s' \
+        /etc/httpd/conf/httpd.conf
+
+# disable error index file if installed
+[ -f "/var/www/error/noindex.html" ] && mv /var/www/error/noindex.html /var/www/error/noindex.html.disabled
+
+chkconfig redis on
+service redis start
+
+chkconfig httpd on
+service httpd start
+
+# chkconfig varnish on
+# service varnish start
+
+chkconfig nginx on
+service nginx start
+
+chkconfig php-fpm on
+service php-fpm start
+
+########################################
+:: installing develop tools
+########################################
+
+npm install -g grunt-cli
 
 install_tool https://getcomposer.org/download/1.0.0-alpha11/composer.phar /usr/local/bin/composer
 

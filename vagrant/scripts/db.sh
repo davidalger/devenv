@@ -29,8 +29,8 @@ if [[ ! -f /var/lib/mysql/data/ibdata1 ]]; then
     umount /var/lib/mysql/data/
     
     # start servcie to initialize data directory and then stop for remount
-    service mysqld start >> $BOOTSTRAP_LOG 2>&1
-    service mysqld stop >> $BOOTSTRAP_LOG 2>&1
+    service mysqld start 2>&1   # quiet chatty data dir init output
+    service mysqld stop
     
     # move aside new data directory and remount persistent data storage
     mv /var/lib/mysql/data/ /var/lib/mysql/data.new
@@ -43,12 +43,14 @@ if [[ ! -f /var/lib/mysql/data/ibdata1 ]]; then
     rmdir /var/lib/mysql/data.new
 fi
 
+chkconfig mysqld on
+service mysqld start
+
 ########################################
 :: configuring mysqld access
 ########################################
 
 # grant root mysql user privileges to connect for other vms and host machine
-service mysqld start >> $BOOTSTRAP_LOG 2>&1
 mysql -uroot -e "
     GRANT ALL PRIVILEGES ON *.* TO 'root'@'localhost' WITH GRANT OPTION;
     GRANT ALL PRIVILEGES ON *.* TO 'root'@'dev-host' WITH GRANT OPTION;
@@ -59,4 +61,3 @@ mysql -uroot -e "
     GRANT ALL PRIVILEGES ON *.* TO 'root'@'dev-web53' WITH GRANT OPTION;
     FLUSH PRIVILEGES;
 "
-service mysqld stop >> $BOOTSTRAP_LOG 2>&1 # leave mysqld in stopped state
