@@ -190,7 +190,7 @@ function main {
     fi
 
     msg "==> Removing pre-existing configuration"
-    [[ $reset_config ]] && remove_files /etc/{httpd,nginx,varnish}/sites.d/*.conf /etc/varnish/includes.vcl
+    [[ $reset_config ]] && remove_files /etc/{httpd,nginx,varnish}/sites.d/*.{conf,vcl} /etc/varnish/includes.vcl
     [[ $reset_certs ]] && remove_files $certs_dir/*.c??.pem
 
     sites_list=$(find $sites_dir -mindepth 1 -maxdepth 1 -type d)
