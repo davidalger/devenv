@@ -1,5 +1,5 @@
-sub vcl_recv {
-    # Default pass to Apache without caching in Varnish
-    # when no site specific varnish configuration file is present
-    return (pass);
-}
+# sub vcl_recv {
+#     # Default to passing request through to web-server backend without caching
+#     # in Varnish when no site specific varnish configuration file is present
+#     return (pass);
+# }

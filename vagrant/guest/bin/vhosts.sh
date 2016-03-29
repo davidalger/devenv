@@ -222,7 +222,7 @@ function main {
     fi
 
     msg "==> Removing pre-existing configuration"
-    [[ $reset_config ]] && remove_files /etc/{httpd,nginx,varnish}/sites.d/*.conf
+    [[ $reset_config ]] && remove_files /etc/{httpd,nginx,varnish}/sites.d/*.conf /etc/varnish/includes.vcl
     [[ $reset_certs ]] && remove_files $certs_dir/*.c??.pem
 
     sites_list=$(find $sites_dir -mindepth 1 -maxdepth 1 -type d)
@@ -235,16 +235,19 @@ function main {
         [[ -n $site_msg ]] && msg " + $site_name\n$site_msg"    # only list if process_site emitted output
     done
 
-    # TODO: For when a directory that had configs generated for it gets removed
-    # msg "==> policing old sites"
+    # TODO: add cleanup of config files for site directories which are no longer present
+    # msg "==> Clearing old site configuration"
+
+    msg "==> Writing varnish includes.vcl"
+    vcl_list=$(find /etc/varnish/sites.d/ -mindepth 1 -maxdepth 1 -name '*.vcl')
+    for vcl_file in $vcl_list; do
+        printf 'include "%s";\n' "$vcl_file" >> /etc/varnish/includes.vcl
+    done
 
     if [[ ! $no_reload ]]; then
         msg -n "==> " && service httpd reload > $stdout
         msg -n "==> " && service nginx reload > $stdout
         msg -n "==> " && service varnish restart > $stdout  # TODO: consider trying to reload varnish to preserve cache
     fi
-
-    msg "==> Building Varnish include file"
-    find /etc/varnish/sites.d/ -maxdepth 1 -name '*.vcl' -print -quit | awk '{printf "include \"%s\";\n", $1}' > /etc/varnish/includes.vcl
 
 }; main "$@"

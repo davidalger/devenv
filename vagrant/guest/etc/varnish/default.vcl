@@ -16,9 +16,10 @@ vcl 4.0;
 backend default {
     .host = "127.0.0.1";
     .port = "8080";
-    .connect_timeout = 600s; # Wait a maximum of 600s for backend connection (with Apache)
-    .first_byte_timeout = 600s; # Wait a maximum of 600s for the first byte to come from your backend
-    .between_bytes_timeout = 600s; # Wait a maximum of 600s between each bytes sent
+
+    .connect_timeout = 600s;        # Wait a maximum of 600s for response from web-server backend
+    .first_byte_timeout = 600s;     # Wait a maximum of 600s TTFB from web-server backend
+    .between_bytes_timeout = 600s;  # Wait a maximum of 600s between each bytes sent from web-server backend
 }
 
 sub vcl_recv {
@@ -27,12 +28,12 @@ sub vcl_recv {
     # Typically you clean up the request here, removing cookies you don't need,
     # rewriting the request, etc.
     
-    if (! req.http.Host)
-     {
-         return (synth(405, "Varnish needs a host header in the request for vhost processing rules."));
-     }
+    if (! req.http.Host) {
+      return (synth(405, "Varnish needs a host header in the request for vhost processing rules."));
+    }
 }
 
+# load list of includes used to include site specific vcl files
 include "/etc/varnish/includes.vcl";
 
 sub vcl_backend_response {
