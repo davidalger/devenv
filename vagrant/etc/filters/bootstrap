@@ -4,3 +4,4 @@
 ^Trying other mirror
 ^(http|https)://.*/repomd.xml: \[Errno 14\] PYCURL ERROR 6 - "Couldn't resolve host '.*'"$
 ^chown: changing ownership of `/var/lib/mysql/data': Operation not permitted$
+^\[.*\] \[warn\] NameVirtualHost .* has no VirtualHosts$
