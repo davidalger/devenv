@@ -165,10 +165,6 @@ function process_site {
     # if no hostnames are remaining, return to caller
     [[ -z ${site_hosts[@]} ]] && return
 
-    # If no site root can be determined we should return before attempting to build certs and configs
-    local site_pub=$(ls -1dU "$site_path"/{pub,html,htdocs} 2>/dev/null | head -n1)
-    [[ -z $site_pub ]] && return
-
     # generate secure certificate for each hostname
     for hostname in ${site_hosts[@]}; do
         generate_cert $hostname 2> /dev/null
