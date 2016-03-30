@@ -64,6 +64,19 @@ function msg {
     [[ -z $is_quiet ]] && printf "$output" || true
 }
 
+function service_reload {
+    local service="$1"
+    local output=
+    
+    code=0
+    output="$(service $service reload 2>&1)" || code=$?
+    if [[ $code != 0 ]]; then
+        echo "==> $output" > /dev/stderr
+        exit $code
+    fi
+    msg "==> $output"
+}
+
 function assert_hosts_entry {
     local hostname="$1"
     local ip=127.0.0.1
@@ -196,7 +209,6 @@ function remove_files {
 }
 
 function main {
-    [[ $is_quiet ]] && stdout=/dev/null || stdout=/dev/stdout
 
     if [[ -f /etc/.vagranthost ]]; then
         >&2 echo "Error: This script should be run from within the guest machine. Please vagrant ssh, then retry"
@@ -227,9 +239,9 @@ function main {
     done
 
     if [[ ! $no_reload ]]; then
-        msg -n "==> " && service httpd reload > $stdout
-        msg -n "==> " && service nginx reload > $stdout
-        msg -n "==> " && service varnish reload > $stdout
+        service_reload httpd
+        service_reload nginx
+        service_reload varnish
     fi
 
 }; main "$@"
