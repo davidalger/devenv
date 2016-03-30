@@ -14,7 +14,6 @@
 if [ -f "/etc/.vagranthost" ]; then
     
     # general shortcuts
-    alias vcd='vagrant ssh -c "[ -d $(pwd) ] && cd $(pwd); bash"'
     alias st="open -a sourcetree"
     alias togglehidden='SET="com.apple.finder AppleShowAllFiles"; VAL=YES && [ "$(defaults read $SET)" == "YES" ] && VAL=NO; defaults write $SET $VAL; killall Finder'
     

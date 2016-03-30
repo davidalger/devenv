@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+set -e
+vagrant ssh -c "[ -d $(pwd) ] && cd $(pwd); bash" -- "$@"
