@@ -1,3 +1,9 @@
+1.0.0-beta19
+===============
+
+* Added wrappers for magento, vhosts.sh and vcd to run inside default vagrant guest
+* Fixed error reporting of vhosts.sh when it fails
+
 1.0.0-beta18
 ===============
 
