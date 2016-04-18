@@ -1,3 +1,11 @@
+1.0.0-beta20
+===============
+
+* Added trap to m2setup.sh to report sub-command errors verbosely (related #62)
+* Fixed issue causing m2setup.sh to hang installing sample data meta-packages (closes #62)
+* Fixed bug where m2setup.sh failed to error on missing input (resolves #63)
+* Fixed bug causing vhosts.sh to fail when no custom .vcl exists (resolves #65)
+
 1.0.0-beta19
 ===============
 
