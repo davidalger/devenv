@@ -12,6 +12,8 @@
 set -e
 wd="$(pwd)"
 
+trap '>&2 echo Error: Command \`$BASH_COMMAND\` on line $LINENO failed with exit code $?' ERR
+
 # init non-user configurable inputs allowing external override via exports
 test -z $SHARED_DIR && SHARED_DIR=/server/.shared
 test -z $SITES_DIR && SITES_DIR=/server/sites
