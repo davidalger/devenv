@@ -233,6 +233,7 @@ function main {
     # msg "==> Clearing old site configuration"
 
     msg "==> Writing varnish includes.vcl"
+    touch /etc/varnish/includes.vcl
     vcl_list=$(find /etc/varnish/sites.d/ -mindepth 1 -maxdepth 1 -name '*.vcl')
     for vcl_file in $vcl_list; do
         printf 'include "%s";\n' "$vcl_file" >> /etc/varnish/includes.vcl
