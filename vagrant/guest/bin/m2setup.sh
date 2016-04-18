@@ -119,7 +119,7 @@ for arg in "$@"; do
             echo "  -d : --sampledata                       triggers installation of sample data"
             echo "  -e : --enterprise                       uses enterprise meta-packages vs community"
             echo "  -g : --github                           will install via github clone instead of from meta-packages"
-            echo "       --hostname=<hostname>              domain of the site"
+            echo "       --hostname=<hostname>              domain of the site (required input)"
             echo "       --urlpath=<urlpath>                path component of base url and install sub-directyory"
             echo "       --branch=<branch>                  branch to build the site from (defaults to develop)"
             echo "       --backend-frontname=<frontname>    alphanumerical admin username (defaults to backend)"
@@ -167,6 +167,11 @@ if [[ ! $VERBOSE ]]; then
 fi
 
 ## verify pre-requisites
+
+if [[ ! "$HOSTNAME" ]]; then
+    >&2 echo "Error: Required input --hostname missing. Please use --help for proper usage"
+    exit -1
+fi
 
 if [[ ! "$ADMIN_EMAIL" ]] || [[ ! "$ADMIN_FIRST" ]] || [[ ! "$ADMIN_LAST" ]]; then
     >&2 echo "Error: Required admin account information missing. Please use --help for proper usage"
