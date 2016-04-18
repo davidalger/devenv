@@ -288,7 +288,7 @@ function install_from_packages {
 
     if [[ $SAMPLEDATA ]]; then
         echo "==> Deploying sample data meta-packages"
-        bin/magento sampledata:deploy $NOISE_LEVEL
+        COMPOSER_NO_INTERACTION=1 bin/magento sampledata:deploy $NOISE_LEVEL
         composer update $NOISE_LEVEL --no-interaction --prefer-dist
     fi
 }
