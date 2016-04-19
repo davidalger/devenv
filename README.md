@@ -60,7 +60,7 @@ It is setup with two primary machines: web and db. Together these two virtual ma
 4. Create a Magento 2 build available at m2.demo:
 
     ```bash
-    vagrant ssh web -- /server/vagrant/guest/bin/m2setup.sh --sampledata --hostname=m2.demo
+    vagrant ssh web -- m2setup.sh --sampledata --hostname=m2.demo
     echo "10.19.89.10 m2.demo" | sudo tee -a /etc/hosts > /dev/null
     ```
 
