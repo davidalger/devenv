@@ -1,3 +1,11 @@
+1.0.0-beta21
+===============
+
+* Fixed issue where reloading the db node would cause mysqld to start _before_ the file-system was mounted
+* Fixed SSL cert availability issue in guest causing nginx start failure on reload (see e80cf5b for details)
+* Added php-ldap extension to support OroCRM development (PR #67)
+* Updated README with correct script usage for m2.demo setup procedure
+
 1.0.0-beta20
 ===============
 
