@@ -43,7 +43,8 @@ update-ca-trust
 update-ca-trust enable
 
 # create local ssl private key
-[ ! -f $SSL_DIR/local.key.pem ] && openssl genrsa -out $SSL_DIR/local.key.pem 2048
+[[ ! -d /etc/nginx/ssl ]] && mkdir -p /etc/nginx/ssl
+openssl genrsa -out /etc/nginx/ssl/local.key.pem 2048
 
 ########################################
 :: installing web services
