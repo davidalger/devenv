@@ -43,7 +43,6 @@ if [[ ! -f /var/lib/mysql/data/ibdata1 ]]; then
     rmdir /var/lib/mysql/data.new
 fi
 
-chkconfig mysqld on
 service mysqld start
 
 ########################################

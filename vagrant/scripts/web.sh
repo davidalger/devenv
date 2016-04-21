@@ -43,7 +43,8 @@ update-ca-trust
 update-ca-trust enable
 
 # create local ssl private key
-[ ! -f $SSL_DIR/local.key.pem ] && openssl genrsa -out $SSL_DIR/local.key.pem 2048
+[[ ! -d /etc/nginx/ssl ]] && mkdir -p /etc/nginx/ssl
+openssl genrsa -out /etc/nginx/ssl/local.key.pem 2048
 
 ########################################
 :: installing web services
@@ -59,7 +60,7 @@ yum $extra_repos install -y php php-cli php-curl php-gd php-intl php-mcrypt php-
 
 # install packages only available on 5.4 or newer (available from remi rpms)
 if [[ "$PHP_VERSION" > 53 ]]; then
-    yum $extra_repos install -y php-mysqlnd php-xdebug php-mhash php-opcache
+    yum $extra_repos install -y php-mysqlnd php-xdebug php-mhash php-opcache php-ldap
 
     # older versions of php don't prioritize ini files by default
     [[ "$PHP_VERSION" < 56 ]] && mv /etc/php.d/xdebug.ini /etc/php.d/15-xdebug.ini

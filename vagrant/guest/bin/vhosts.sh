@@ -14,7 +14,7 @@ set -eu
 # Init default script vars
 
 sites_dir=/server/sites
-certs_dir=/server/.shared/ssl
+certs_dir=/etc/nginx/ssl
 is_quiet=
 no_reload=
 reset_config=
