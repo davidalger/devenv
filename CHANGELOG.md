@@ -1,3 +1,8 @@
+1.0.0-beta22
+===============
+
+* Fixed issue where reloading the db node would cause mysqld to start _before_ the file-system was mounted (for real ;)
+
 1.0.0-beta21
 ===============
 
