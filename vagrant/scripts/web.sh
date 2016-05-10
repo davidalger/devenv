@@ -62,12 +62,12 @@ yum $extra_repos install -y php php-cli php-curl php-gd php-intl php-mcrypt php-
 if [[ "$PHP_VERSION" > 53 ]]; then
     yum $extra_repos install -y php-mysqlnd php-xdebug php-mhash php-opcache php-ldap
 
+    # the ioncube-loader package for php7 does not exist yet
+    [[ "$PHP_VERSION" < 70 ]] && yum $extra_repos install -y php-ioncube-loader
+
     # older versions of php don't prioritize ini files by default
     [[ "$PHP_VERSION" < 56 ]] && mv /etc/php.d/xdebug.ini /etc/php.d/15-xdebug.ini
     [[ "$PHP_VERSION" < 56 ]] && mv /etc/php.d/ioncube_loader.ini /etc/php.d/05-ioncube_loader.ini
-
-    # the ioncube-loader package for php7 does not exist yet
-    [[ "$PHP_VERSION" < 70 ]] && yum $extra_repos install -y php-ioncube-loader
 fi
 
 # phpredis does not yet have php7 support
