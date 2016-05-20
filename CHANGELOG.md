@@ -1,3 +1,10 @@
+1.0.0-beta23
+===============
+
+* Added a couple brew packages to assertion list in install script
+* Fixed issue with IonCube Loader installation in PHP versions older than 5.6 - resolves #70
+* Changed `max_allowed_packet` size to 16M for mysql client - PR #69
+
 1.0.0-beta22
 ===============
 

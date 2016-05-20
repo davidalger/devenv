@@ -192,6 +192,8 @@ function install_environment {
     assert_pack redis
     assert_pack ruby
     assert_pack tree
+    assert_pack watch
+    assert_pack imagemagick
     assert_pack wget
 
     assert_tap homebrew/php
