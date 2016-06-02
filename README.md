@@ -111,6 +111,12 @@ During vhost discovery and configuration, a wildcard cert, signed by the root CA
 This means that all vhosts support SSL on both the naked domain and any immediate subdomain. 
 Since these certs are all signed by the persistent root CA, if the root CA is added to the host as a trusted cert, the SSL cert for any vhost will automatically be valid.
 
+To add the generated root CA to your trusted certs list on the host machine, run this command (after vagrant up has been run):
+
+```bash
+sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain /server/.shared/ssl/rootca/certs/ca.cert.pem
+```
+
 ### Database Server
 
 This node has MySql 5.6.x installed. Since this is a development environment, the root mysql password has been left blank.
