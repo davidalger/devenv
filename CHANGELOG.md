@@ -1,3 +1,9 @@
+1.0.0-beta24
+===============
+
+* Fixed issue causing mysqld start failure: InnoDB: Unable to lock ./ibdata1, error: 37
+* Fixed broken Xdebug configuration in PHP versions prior to 5.6 - resolves #71
+
 1.0.0-beta23
 ===============
 
