@@ -76,6 +76,13 @@ for arg in "$@"; do
                 exit -1
             fi
             ;;
+        --version=*)
+            VERSION="${arg#*=}"
+            if [[ ! "$VERSION" =~ ^[a-z0-9\.-]+$ ]]; then
+                >&2 echo "Error: Invalid value given --version=$VERSION"
+                exit -1
+            fi
+            ;;
         --backend-frontname=*)
             BACKEND_FRONTNAME="${arg#*=}"
             if [[ ! "$BACKEND_FRONTNAME" =~ ^([a-zA-Z0-9]+)$ ]]; then
@@ -121,6 +128,7 @@ for arg in "$@"; do
             echo "  -d : --sampledata                       triggers installation of sample data"
             echo "  -e : --enterprise                       uses enterprise meta-packages vs community"
             echo "  -g : --github                           will install via github clone instead of from meta-packages"
+            echo "       --version=<version>                if installing via Composer, what version of Magento should be installed"
             echo "       --hostname=<hostname>              domain of the site (required input)"
             echo "       --urlpath=<urlpath>                path component of base url and install sub-directyory"
             echo "       --branch=<branch>                  branch to build the site from (defaults to develop)"
@@ -278,9 +286,14 @@ function install_from_packages {
         if [[ $ENTERPRISE ]]; then
             package_name="magento/project-enterprise-edition"
         fi
+        
+        version=""
+        if [[ $VERSION ]]; then
+            version=$VERSION
+        fi
 
         composer create-project $NOISE_LEVEL --no-interaction --prefer-dist \
-            --repository-url=https://repo.magento.com/ $package_name $INSTALL_DIR
+            --repository-url=https://repo.magento.com/ $package_name $INSTALL_DIR $version
     else
         echo "==> Updating magento meta-packages"
         composer update $NOISE_LEVEL --no-interaction --prefer-dist
