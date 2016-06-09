@@ -78,7 +78,7 @@ for arg in "$@"; do
             ;;
         --proj-version=*)
             PROJ_VERSION="${arg#*=}"
-            if [[ ! "$PROJ_VERSION" =~ ^[a-z0-9\.-]+$ ]]; then
+            if [[ ! "$PROJ_VERSION" =~ ^.+$ ]]; then
                 >&2 echo "Error: Invalid value given --proj-version=$PROJ_VERSION"
                 exit -1
             fi
@@ -287,13 +287,8 @@ function install_from_packages {
             package_name="magento/project-enterprise-edition"
         fi
         
-        proj_version=""
-        if [[ $PROJ_VERSION ]]; then
-            proj_version=$PROJ_VERSION
-        fi
-
         composer create-project $NOISE_LEVEL --no-interaction --prefer-dist \
-            --repository-url=https://repo.magento.com/ $package_name $INSTALL_DIR $proj_version
+            --repository-url=https://repo.magento.com/ $package_name $INSTALL_DIR "$PROJ_VERSION"
     else
         echo "==> Updating magento meta-packages"
         composer update $NOISE_LEVEL --no-interaction --prefer-dist
