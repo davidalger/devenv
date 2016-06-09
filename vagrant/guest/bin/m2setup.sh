@@ -76,10 +76,10 @@ for arg in "$@"; do
                 exit -1
             fi
             ;;
-        --version=*)
-            VERSION="${arg#*=}"
-            if [[ ! "$VERSION" =~ ^[a-z0-9\.-]+$ ]]; then
-                >&2 echo "Error: Invalid value given --version=$VERSION"
+        --proj-version=*)
+            PROJ_VERSION="${arg#*=}"
+            if [[ ! "$PROJ_VERSION" =~ ^[a-z0-9\.-]+$ ]]; then
+                >&2 echo "Error: Invalid value given --proj-version=$PROJ_VERSION"
                 exit -1
             fi
             ;;
@@ -128,7 +128,7 @@ for arg in "$@"; do
             echo "  -d : --sampledata                       triggers installation of sample data"
             echo "  -e : --enterprise                       uses enterprise meta-packages vs community"
             echo "  -g : --github                           will install via github clone instead of from meta-packages"
-            echo "       --version=<version>                if installing via Composer, what version of Magento should be installed"
+            echo "       --proj-version=<proj-version>                if installing via Composer, what version of Magento should be installed"
             echo "       --hostname=<hostname>              domain of the site (required input)"
             echo "       --urlpath=<urlpath>                path component of base url and install sub-directyory"
             echo "       --branch=<branch>                  branch to build the site from (defaults to develop)"
@@ -287,13 +287,13 @@ function install_from_packages {
             package_name="magento/project-enterprise-edition"
         fi
         
-        version=""
-        if [[ $VERSION ]]; then
-            version=$VERSION
+        proj_version=""
+        if [[ $PROJ_VERSION ]]; then
+            proj_version=$PROJ_VERSION
         fi
 
         composer create-project $NOISE_LEVEL --no-interaction --prefer-dist \
-            --repository-url=https://repo.magento.com/ $package_name $INSTALL_DIR $version
+            --repository-url=https://repo.magento.com/ $package_name $INSTALL_DIR $proj_version
     else
         echo "==> Updating magento meta-packages"
         composer update $NOISE_LEVEL --no-interaction --prefer-dist
