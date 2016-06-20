@@ -111,10 +111,18 @@ During vhost discovery and configuration, a wildcard cert, signed by the root CA
 This means that all vhosts support SSL on both the naked domain and any immediate subdomain. 
 Since these certs are all signed by the persistent root CA, if the root CA is added to the host as a trusted cert, the SSL cert for any vhost will automatically be valid.
 
+##### Mac
 To add the generated root CA to your trusted certs list on the host machine, run this command (after vagrant up has been run):
 
 ```bash
 sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain /server/.shared/ssl/rootca/certs/ca.cert.pem
+```
+
+##### Windows
+To add the generated root CA to your certificate manager on Windows you will need to copy the `ca.cert.pem` file to a location on your Windows system like `C:\certs\ca.cert.pem` and then open a Command Prompt window in Administrator mode to execute the following command
+
+```bash
+certutil –addstore -enterprise –f "Root" c:\certs\ca.cert.pem
 ```
 
 ### Database Server
