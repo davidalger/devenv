@@ -373,7 +373,7 @@ fi
 
 echo "==> Recompiling DI and static content"
 rm -rf var/di/ var/generation/
-bin/magento setup:di:compile-multi-tenant $NOISE_LEVEL
+bin/magento setup:di:compile $NOISE_LEVEL
 bin/magento setup:static-content:deploy $NOISE_LEVEL
 bin/magento cache:flush $NOISE_LEVEL
 
