@@ -373,7 +373,13 @@ fi
 
 echo "==> Recompiling DI and static content"
 rm -rf var/di/ var/generation/
-bin/magento setup:di:compile $NOISE_LEVEL
+# Magento 2.0.x required usage of multi-tenant compiler (see here for details: http://bit.ly/21eMPtt).
+# Magento 2.1 dropped support for the multi-tenant compiler, so we must use the normal compiler.
+if [ `bin/magento setup:di:compile-multi-tenant --help &> /dev/null; echo $?` -eq 0 ]; then
+    bin/magento setup:di:compile-multi-tenant $NOISE_LEVEL
+else
+    bin/magento setup:di:compile $NOISE_LEVEL
+fi
 bin/magento setup:static-content:deploy $NOISE_LEVEL
 bin/magento cache:flush $NOISE_LEVEL
 
