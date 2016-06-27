@@ -76,6 +76,13 @@ for arg in "$@"; do
                 exit -1
             fi
             ;;
+        --proj-version=*)
+            PROJ_VERSION="${arg#*=}"
+            if [[ ! "$PROJ_VERSION" =~ ^.+$ ]]; then
+                >&2 echo "Error: Invalid value given --proj-version=$PROJ_VERSION"
+                exit -1
+            fi
+            ;;
         --backend-frontname=*)
             BACKEND_FRONTNAME="${arg#*=}"
             if [[ ! "$BACKEND_FRONTNAME" =~ ^([a-zA-Z0-9]+)$ ]]; then
@@ -121,6 +128,7 @@ for arg in "$@"; do
             echo "  -d : --sampledata                       triggers installation of sample data"
             echo "  -e : --enterprise                       uses enterprise meta-packages vs community"
             echo "  -g : --github                           will install via github clone instead of from meta-packages"
+            echo "       --proj-version=<proj-version>                if installing via Composer, what version of Magento should be installed"
             echo "       --hostname=<hostname>              domain of the site (required input)"
             echo "       --urlpath=<urlpath>                path component of base url and install sub-directyory"
             echo "       --branch=<branch>                  branch to build the site from (defaults to develop)"
@@ -278,9 +286,9 @@ function install_from_packages {
         if [[ $ENTERPRISE ]]; then
             package_name="magento/project-enterprise-edition"
         fi
-
+        
         composer create-project $NOISE_LEVEL --no-interaction --prefer-dist \
-            --repository-url=https://repo.magento.com/ $package_name $INSTALL_DIR
+            --repository-url=https://repo.magento.com/ $package_name $INSTALL_DIR "$PROJ_VERSION"
     else
         echo "==> Updating magento meta-packages"
         composer update $NOISE_LEVEL --no-interaction --prefer-dist
@@ -365,7 +373,13 @@ fi
 
 echo "==> Recompiling DI and static content"
 rm -rf var/di/ var/generation/
-bin/magento setup:di:compile-multi-tenant $NOISE_LEVEL
+# Magento 2.0.x required usage of multi-tenant compiler (see here for details: http://bit.ly/21eMPtt).
+# Magento 2.1 dropped support for the multi-tenant compiler, so we must use the normal compiler.
+if [ `bin/magento setup:di:compile-multi-tenant --help &> /dev/null; echo $?` -eq 0 ]; then
+    bin/magento setup:di:compile-multi-tenant $NOISE_LEVEL
+else
+    bin/magento setup:di:compile $NOISE_LEVEL
+fi
 bin/magento setup:static-content:deploy $NOISE_LEVEL
 bin/magento cache:flush $NOISE_LEVEL
 

@@ -1,3 +1,10 @@
+1.0.0-beta25
+===============
+
+* Added installation of pv and tree packages
+* Added support for specifying a package version in m2setup.sh (use --help for details)
+* Updated m2setup.sh for compatibility with standing up a Magento 2.1 site
+
 1.0.0-beta24
 ===============
 
