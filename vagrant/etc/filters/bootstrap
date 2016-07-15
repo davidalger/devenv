@@ -5,3 +5,6 @@
 ^(ftp|http|https)://.*/repomd.xml: \[Errno 14\] PYCURL ERROR 6 - "Couldn't resolve host '.*'"$
 ^chown: changing ownership of `/var/lib/mysql/data': Operation not permitted$
 ^\[.*\] \[warn\] NameVirtualHost .* has no VirtualHosts$
+^Generating RSA private key, 2048 bit long modulus$
+^\.+\+\+\+$
+^e is [0-9]+ \(0x[0-9]+\)$
