@@ -34,28 +34,28 @@ Vagrant.configure(2) do |conf|
   end
 
   conf.vm.define :web, primary: true do |node|
-    configure_web_vm node, host: 'dev-web', ip: '10.19.89.10'
+    configure_web_vm node, host: 'dev-web70', ip: '10.19.89.14'
     node.vm.network :forwarded_port, guest: 6379, host: 6379
+  end
+
+  conf.vm.define :web56, autostart: false do |node|
+    configure_web_vm node, host: 'dev-web56', ip: '10.19.89.10', php_version: 56
+    node.vm.network :forwarded_port, guest: 6380, host: 6380
   end
 
   conf.vm.define :web55, autostart: false do |node|
     configure_web_vm node, host: 'dev-web55', ip: '10.19.89.11', php_version: 55
-    node.vm.network :forwarded_port, guest: 6380, host: 6380
+    node.vm.network :forwarded_port, guest: 6381, host: 6381
   end
 
   conf.vm.define :web54, autostart: false do |node|
     configure_web_vm node, host: 'dev-web54', ip: '10.19.89.12', php_version: 54
-    node.vm.network :forwarded_port, guest: 6381, host: 6381
+    node.vm.network :forwarded_port, guest: 6382, host: 6382
   end
 
   conf.vm.define :web53, autostart: false do |node|
     configure_web_vm node, host: 'dev-web53', ip: '10.19.89.13', php_version: 53
-    node.vm.network :forwarded_port, guest: 6382, host: 6382
-  end
-
-  conf.vm.define :web70, autostart: false do |node|
-    configure_web_vm node, host: 'dev-web70', ip: '10.19.89.14', php_version: 70
-    node.vm.network :forwarded_port, guest: 6382, host: 6382
+    node.vm.network :forwarded_port, guest: 6383, host: 6383
   end
 
   conf.vm.define :db51, autostart: false do |node|
