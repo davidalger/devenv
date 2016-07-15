@@ -36,6 +36,7 @@ test -z $ADMIN_PASS && ADMIN_PASS="$(openssl rand -base64 24)"
 # user set flags
 SAMPLEDATA=
 ENTERPRISE=
+NO_COMPILE=
 GITHUB=
 VERBOSE=
 
@@ -54,6 +55,9 @@ for arg in "$@"; do
             ;;
         -g|--github)
             GITHUB=1
+            ;;
+        -C|--no-compile)
+            NO_COMPILE=1
             ;;
         --hostname=*)
             HOSTNAME="${arg#*=}"
@@ -128,15 +132,16 @@ for arg in "$@"; do
             echo "  -d : --sampledata                       triggers installation of sample data"
             echo "  -e : --enterprise                       uses enterprise meta-packages vs community"
             echo "  -g : --github                           will install via github clone instead of from meta-packages"
-            echo "       --proj-version=<proj-version>                if installing via Composer, what version of Magento should be installed"
+            echo "  -C : --no-compile                       skips DI compilation process and static asset generation"
+            echo "       --proj-version=<proj-version>      composer package version to use during installation"
             echo "       --hostname=<hostname>              domain of the site (required input)"
             echo "       --urlpath=<urlpath>                path component of base url and install sub-directyory"
             echo "       --branch=<branch>                  branch to build the site from (defaults to develop)"
             echo "       --backend-frontname=<frontname>    alphanumerical admin username (defaults to backend)"
             echo "       --admin-user=<admin>               alphanumerical admin username (defaults to admin)"
-            echo "       --admin-email=<email>              admin account email address (required input)"
-            echo "       --admin-first=<name>               admin user first name (required input)"
-            echo "       --admin-name=<name>                admin user last name (required input)"
+            echo "       --admin-email=<email>              admin account email address"
+            echo "       --admin-first=<name>               admin user first name"
+            echo "       --admin-name=<name>                admin user last name"
             echo ""
             exit -1
             ;;
@@ -374,17 +379,19 @@ else
     bin/magento setup:upgrade $NOISE_LEVEL
 fi
 
-echo "==> Recompiling DI and static content"
-rm -rf var/di/ var/generation/
-# Magento 2.0.x required usage of multi-tenant compiler (see here for details: http://bit.ly/21eMPtt).
-# Magento 2.1 dropped support for the multi-tenant compiler, so we must use the normal compiler.
-if [ `bin/magento setup:di:compile-multi-tenant --help &> /dev/null; echo $?` -eq 0 ]; then
-    bin/magento setup:di:compile-multi-tenant $NOISE_LEVEL
-else
-    bin/magento setup:di:compile $NOISE_LEVEL
+if [[ ! $NO_COMPILE ]]; then
+    echo "==> Compiling DI and generating static content"
+    rm -rf var/di/ var/generation/
+    # Magento 2.0.x required usage of multi-tenant compiler (see here for details: http://bit.ly/21eMPtt).
+    # Magento 2.1 dropped support for the multi-tenant compiler, so we must use the normal compiler.
+    if [ `bin/magento setup:di:compile-multi-tenant --help &> /dev/null; echo $?` -eq 0 ]; then
+        bin/magento setup:di:compile-multi-tenant $NOISE_LEVEL
+    else
+        bin/magento setup:di:compile $NOISE_LEVEL
+    fi
+    bin/magento setup:static-content:deploy $NOISE_LEVEL
+    bin/magento cache:flush $NOISE_LEVEL
 fi
-bin/magento setup:static-content:deploy $NOISE_LEVEL
-bin/magento cache:flush $NOISE_LEVEL
 
 echo "==> Reindexing and flushing magento cache"
 bin/magento indexer:reindex $NOISE_LEVEL
