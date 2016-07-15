@@ -109,7 +109,7 @@ fi
 :: installing generic guest tooling
 ########################################
 
-yum install -y bash-completion bc man git rsync mysql pv tree lsof
+yum install -y bash-completion bc man git rsync mysql pv tree lsof ack
 rsync -av --ignore-existing ./guest/bin/ /usr/local/bin/
 
 ########################################
