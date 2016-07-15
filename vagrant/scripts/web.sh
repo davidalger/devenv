@@ -83,6 +83,9 @@ fi
 # remove xdebug config if xdebug not installed
 [ ! -f /usr/lib64/php/modules/xdebug.so ] && rm -f /etc/php.d/15-xdebug.ini
 
+# allow vagrant user to access anything apache can (php sessions in /var/lib/php would be an example)
+usermod -a -G apache vagrant
+
 ########################################
 :: configuring web services
 ########################################
