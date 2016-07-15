@@ -106,7 +106,7 @@ service nginx start
 
 npm install -g grunt-cli
 
-install_tool https://getcomposer.org/download/1.0.0-alpha11/composer.phar /usr/local/bin/composer
+install_tool https://getcomposer.org/composer.phar /usr/local/bin/composer
 
 install_tool http://files.magerun.net/n98-magerun-latest.phar /usr/local/bin/n98-magerun /usr/local/bin/mr1
 install_tool http://files.magerun.net/n98-magerun2-latest.phar /usr/local/bin/n98-magerun2 /usr/local/bin/mr2
