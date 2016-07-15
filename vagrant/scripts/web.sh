@@ -53,7 +53,7 @@ openssl genrsa -out /etc/nginx/ssl/local.key.pem 2048
 yum install -y redis sendmail varnish httpd nginx
 
 # install php and cross-version dependencies
-yum $extra_repos install -y php php-cli php-curl php-gd php-intl php-mcrypt php-xsl php-mbstring php-soap php-bcmath
+yum $extra_repos install -y php php-cli php-curl php-gd php-intl php-mcrypt php-xsl php-mbstring php-soap php-bcmath php-zip
 
 # install mysql support for php 5.3
 [[ "$PHP_VERSION" = 53 ]] && yum $extra_repos install -y php-mysql
