@@ -337,6 +337,9 @@ else
     install_from_packages
 fi
 
+# link session dir so install won't choke trying to lock a session file on an nfs mount
+ln -s /var/lib/php/session var/session
+
 # either install or upgrade database
 print_info_flag=
 code=

@@ -74,6 +74,9 @@ fi
 # phpredis does not yet have php7 support
 [[ "$PHP_VERSION" < 70 ]] && yum $extra_repos install -y php-pecl-redis
 
+# allow vagrant user to access anything apache can (php sessions in /var/lib/php would be an example)
+usermod -a -G apache vagrant
+
 ########################################
 :: configuring web services
 ########################################
