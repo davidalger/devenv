@@ -53,35 +53,26 @@ openssl genrsa -out /etc/nginx/ssl/local.key.pem 2048
 yum install -y redis sendmail varnish httpd nginx
 
 # install php and cross-version dependencies
-yum $extra_repos install -y php php-cli php-curl php-gd php-intl php-mcrypt php-xsl php-mbstring php-soap php-bcmath
+yum $extra_repos install -y php php-cli php-opcache \
+    php-mysqlnd php-mhash php-curl php-gd php-intl php-mcrypt php-xsl php-mbstring php-soap php-bcmath \
+    php-xdebug php-ldap
 
-# install mysql support for php 5.3
-[[ "$PHP_VERSION" = 53 ]] && yum $extra_repos install -y php-mysql
+# the ioncube-loader package for php7 does not exist yet
+[[ "$PHP_VERSION" < 70 ]] && yum $extra_repos install -y php-ioncube-loader
 
-# install packages only available on 5.4 or newer (available from remi rpms)
-if [[ "$PHP_VERSION" > 53 ]]; then
-    yum $extra_repos install -y php-mysqlnd php-xdebug php-mhash php-opcache php-ldap
+# versions prior to PHP 5.6 don't prioritize ini files so some special handling is required
+if [[ -f /etc/php.d/xdebug.ini ]]; then
+    mv /etc/php.d/xdebug.ini /etc/php.d/xdebug.ini.rpmnew
+    touch /etc/php.d/xdebug.ini    # prevents yum update from re-creating the file
+fi
 
-    # the ioncube-loader package for php7 does not exist yet
-    [[ "$PHP_VERSION" < 70 ]] && yum $extra_repos install -y php-ioncube-loader
-
-    # versions prior to PHP 5.6 don't prioritize ini files so some special handling is required
-    if [[ -f /etc/php.d/xdebug.ini ]]; then
-        mv /etc/php.d/xdebug.ini /etc/php.d/xdebug.ini.rpmnew
-        touch /etc/php.d/xdebug.ini    # prevents yum update from re-creating the file
-    fi
-
-    if [[ -f /etc/php.d/ioncube_loader.ini ]]; then
-        mv /etc/php.d/ioncube_loader.ini /etc/php.d/05-ioncube_loader.ini
-        touch /etc/php.d/ioncube_loader.ini     # prevent yum update from re-creating the file
-    fi
+if [[ -f /etc/php.d/ioncube_loader.ini ]]; then
+    mv /etc/php.d/ioncube_loader.ini /etc/php.d/05-ioncube_loader.ini
+    touch /etc/php.d/ioncube_loader.ini     # prevent yum update from re-creating the file
 fi
 
 # phpredis does not yet have php7 support
 [[ "$PHP_VERSION" < 70 ]] && yum $extra_repos install -y php-pecl-redis
-
-# remove xdebug config if xdebug not installed
-[ ! -f /usr/lib64/php/modules/xdebug.so ] && rm -f /etc/php.d/15-xdebug.ini
 
 ########################################
 :: configuring web services
