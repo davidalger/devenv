@@ -14,6 +14,7 @@
 def bootstrap_sh (conf, roles, env = {})
   conf.vm.provision :shell do |conf|
     env = {
+      verbose: VERBOSE_MODE,
       base_dir: BASE_DIR,
       vagrant_dir: VAGRANT_DIR,
       shared_dir: SHARED_DIR,

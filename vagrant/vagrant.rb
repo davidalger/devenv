@@ -12,13 +12,14 @@ require_relative 'lib/mount'
 require_relative 'lib/provision'
 require_relative 'lib/machine'
 
-# configure environment paths
+# configure environment
 BASE_DIR = base_dir('/server')
 MOUNT_PATH = mount_path(BASE_DIR)
 VAGRANT_DIR = BASE_DIR + '/vagrant'
 SHARED_DIR = BASE_DIR + '/.shared'
 SITES_DIR = '/sites'
 SITES_MOUNT = '/var/www/sites'
+VERBOSE_MODE = false
 
 # auto configure host machine
 auto_config_host
