@@ -10,6 +10,8 @@
 
 set -e
 
+trap '>&2 echo Error: Command \`$BASH_COMMAND\` on line $LINENO failed with exit code $?' ERR
+
 function datetime {
     date -u '+%F %H:%m:%S'
 }
