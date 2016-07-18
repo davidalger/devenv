@@ -101,6 +101,8 @@ If any of these three paths exist, a virtual host will be created based on the t
 
 #### PHP Versions
 
+TODO: Update this to reflect use of phpenv.
+
 This node has PHP 5.6 from Remi's repository installed. Older versions are available as pre-configured machines, but do not start automatically. To use them, start via `vagrant up web55` or similar. Then configure your local hosts file to point the site needing this specific version of PHP to the correct machine instance.
 
 #### SSL

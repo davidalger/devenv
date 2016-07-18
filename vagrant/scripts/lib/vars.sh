@@ -13,14 +13,12 @@ set -e
 # determine which version of php we are installing and determine which extra RPMs are needed
 case "$PHP_VERSION" in
     
-    "" ) # set default of PHP 7.0 if none was specified
+    "" ) # set default version if none specified
         PHP_VERSION="70"
-        ;&  ## fallthrough to below case, we know it matches
+        ;&  ## fallthrough to below case
     55 | 56 | 70 )
-        extra_repos="--enablerepo=remi --enablerepo=remi-php${PHP_VERSION}"
         ;;
     54 )
-        extra_repos="--enablerepo=remi"
         >&2 echo "Warning: PHP 5.4 is deprecated"
         ;;
     * )
@@ -41,4 +39,4 @@ case "$MYSQL_VERSION" in
         exit -1;
 esac
 
-export PHP_VERSION MYSQL_VERSION extra_repos
+export PHP_VERSION MYSQL_VERSION

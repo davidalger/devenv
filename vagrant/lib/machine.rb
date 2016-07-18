@@ -18,7 +18,9 @@ def configure_common (conf)
   Mount.vmfs('host-cache', SHARED_DIR, SHARED_DIR)
   Mount.bind(SHARED_DIR + '/yum', '/var/cache/yum')
   Mount.bind(SHARED_DIR + '/npm', '/var/cache/npm')
-  
+  # Mount.bind(SHARED_DIR + '/phpenv', '/root/.phpenv')
+  # Mount.bind(SHARED_DIR + '/phpenv', '/home/vagrant/.phpenv')
+
   # configure default RAM and number of CPUs allocated to vm
   vm_set_ram(conf, 2048)
   vm_set_cpu(conf, 2)

@@ -52,30 +52,62 @@ openssl genrsa -out /etc/nginx/ssl/local.key.pem 2048
 
 yum install -y redis sendmail varnish httpd nginx
 
-# install php and cross-version dependencies
-yum $extra_repos install -y php php-cli php-opcache \
-    php-mysqlnd php-mhash php-curl php-gd php-intl php-mcrypt php-xsl php-mbstring php-soap php-bcmath php-zip \
-    php-xdebug php-ldap
+# install devel tool chain required for php-build to run
+yum install -y libxml2-devel httpd-devel libXpm-devel gmp-devel libicu-devel t1lib-devel aspell-devel \
+    openssl-devel bzip2-devel libcurl-devel libjpeg-devel libvpx-devel libpng-devel freetype-devel readline-devel \
+    libtidy-devel libxslt-devel libmcrypt-devel bison
 
-# the ioncube-loader package for php7 does not exist yet
-[[ "$PHP_VERSION" < 70 ]] && yum $extra_repos install -y php-ioncube-loader
+# TODO: verify each of these extensions is in fact installed
+# yum $extra_repos install -y php php-cli php-opcache php-devel \
+#     php-mysqlnd php-mhash php-curl php-gd php-intl php-mcrypt php-xsl php-mbstring php-soap php-bcmath php-zip \
+#     php-xdebug php-ldap
 
-# versions prior to PHP 5.6 don't prioritize ini files so some special handling is required
-if [[ -f /etc/php.d/xdebug.ini ]]; then
-    mv /etc/php.d/xdebug.ini /etc/php.d/xdebug.ini.rpmnew
-    touch /etc/php.d/xdebug.ini    # prevents yum update from re-creating the file
+# setup or update phpenv
+if [[ ! -d ~/.phpenv/.git ]]; then
+    git clone git://github.com/madumlao/phpenv.git ~/.phpenv
+else
+    pushd ~/.phpenv
+    git pull
+    popd
 fi
 
-if [[ -f /etc/php.d/ioncube_loader.ini ]]; then
-    mv /etc/php.d/ioncube_loader.ini /etc/php.d/05-ioncube_loader.ini
-    touch /etc/php.d/ioncube_loader.ini     # prevent yum update from re-creating the file
+# create phpenv profile for shell
+echo 'export PATH="$HOME/.phpenv/bin:$PATH"' >> /etc/profile.d/phpenv.sh
+echo 'eval "$(phpenv init -)"' >> /etc/profile.d/phpenv.sh
+source /etc/profile.d/phpenv.sh
+
+# setup or update php-build (used by phpenv)
+if [[ ! -d $(phpenv root)/plugins/php-build/.git ]]; then
+    git clone https://github.com/php-build/php-build $(phpenv root)/plugins/php-build
+else
+    pushd ~/.phpenv/plugins/php-build
+    git pull
+    popd
 fi
 
-# phpredis does not yet have php7 support
-[[ "$PHP_VERSION" < 70 ]] && yum $extra_repos install -y php-pecl-redis
+# install latest patch of current php version
+php_version=$(echo $PHP_VERSION | sed 's/^[0-9]/&\./')
+php_version=$(phpenv install -l | grep -E "^ +$php_version\." | tail -n1)
 
-# allow vagrant user to access anything apache can (php sessions in /var/lib/php would be an example)
-usermod -a -G apache vagrant
+if [[ ! `phpenv versions --bare | grep "^$php_version$"` ]]; then
+    phpenv install $php_version
+fi
+phpenv global $php_version
+
+# TODO: verify ioncube-loader and xdebug present
+# TODO: add custom php configs
+# TODO: make sure php sessions work on m2 install process
+
+# # versions prior to PHP 5.6 don't prioritize ini files so some special handling is required
+# if [[ -f /etc/php.d/xdebug.ini ]]; then
+#     mv /etc/php.d/xdebug.ini /etc/php.d/xdebug.ini.rpmnew
+#     touch /etc/php.d/xdebug.ini    # prevents yum update from re-creating the file
+# fi
+#
+# if [[ -f /etc/php.d/ioncube_loader.ini ]]; then
+#     mv /etc/php.d/ioncube_loader.ini /etc/php.d/05-ioncube_loader.ini
+#     touch /etc/php.d/ioncube_loader.ini     # prevent yum update from re-creating the file
+# fi
 
 ########################################
 :: configuring web services
