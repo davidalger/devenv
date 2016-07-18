@@ -1,3 +1,14 @@
+1.0.0-beta26
+===============
+
+* Added --no-compile flag to m2setup.sh and updated help info
+* Added php-zip Magento 2 dependency to web role provisioner - resolves #79
+* Added install of ack to node provisioner
+* Added filters to bootstrap provisioner to quite the output of ssl private key gen
+* Updated composer install to dynamically use latest snapshot
+* Fixed bug breaking m2setup running within PHP 7 node
+* Removed PHP 5.3 support from the environment
+
 1.0.0-beta25
 ===============
 

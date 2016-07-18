@@ -48,11 +48,6 @@ Vagrant.configure(2) do |conf|
     node.vm.network :forwarded_port, guest: 6381, host: 6381
   end
 
-  conf.vm.define :web53, autostart: false do |node|
-    configure_web_vm node, host: 'dev-web53', ip: '10.19.89.13', php_version: 53
-    node.vm.network :forwarded_port, guest: 6382, host: 6382
-  end
-
   conf.vm.define :web70, autostart: false do |node|
     configure_web_vm node, host: 'dev-web70', ip: '10.19.89.14', php_version: 70
     node.vm.network :forwarded_port, guest: 6382, host: 6382

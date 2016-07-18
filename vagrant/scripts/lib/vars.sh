@@ -23,10 +23,6 @@ case "$PHP_VERSION" in
         extra_repos="--enablerepo=remi"
         >&2 echo "Warning: PHP 5.4 is deprecated"
         ;;
-    53 )
-        extra_repos=""
-        >&2 echo "Warning: PHP 5.3 is deprecated, some things may not work properly..."
-        ;;
     * )
         >&2 echo "Error: Invalid or unsupported PHP version specified"
         exit -1;
