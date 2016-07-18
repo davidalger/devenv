@@ -54,8 +54,8 @@ yum install -y redis sendmail varnish httpd nginx
 
 # install php and cross-version dependencies
 yum $extra_repos install -y php php-cli php-opcache \
-    php-mysqlnd php-mhash php-curl php-gd php-intl php-mcrypt php-xsl php-mbstring php-soap php-bcmath \
-    php-xdebug php-ldap php-zip
+    php-mysqlnd php-mhash php-curl php-gd php-intl php-mcrypt php-xsl php-mbstring php-soap php-bcmath php-zip \
+    php-xdebug php-ldap
 
 # the ioncube-loader package for php7 does not exist yet
 [[ "$PHP_VERSION" < 70 ]] && yum $extra_repos install -y php-ioncube-loader

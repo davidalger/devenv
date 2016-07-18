@@ -51,7 +51,7 @@ for arg in "$@"; do
     esac
 done
 
-vagrant ssh web -- '
+vagrant ssh -- '
 ## If flag is set, reset settings to default
 if [[ "'$RESET'" -ne 0 ]]; then
     if [[ -f /etc/nginx/default.d/proxy.conf.bak ]]; then

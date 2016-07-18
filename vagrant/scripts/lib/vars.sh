@@ -13,8 +13,8 @@ set -e
 # determine which version of php we are installing and determine which extra RPMs are needed
 case "$PHP_VERSION" in
     
-    "" ) # set default of PHP 5.6 if none was specified
-        PHP_VERSION="56"
+    "" ) # set default of PHP 7.0 if none was specified
+        PHP_VERSION="70"
         ;&  ## fallthrough to below case, we know it matches
     55 | 56 | 70 )
         extra_repos="--enablerepo=remi --enablerepo=remi-php${PHP_VERSION}"
@@ -24,7 +24,7 @@ case "$PHP_VERSION" in
         >&2 echo "Warning: PHP 5.4 is deprecated"
         ;;
     * )
-        >&2 echo "Error: Invalid or unsupported PHP version specified"
+        >&2 echo "Error: Invalid or unsupported PHP version '$PHP_VERSION' specified"
         exit -1;
 esac
 
@@ -37,7 +37,7 @@ case "$MYSQL_VERSION" in
     51 | 56 )
         ;;
     * )
-        >&2 echo "Error: Invalid or unsupported MySql version specified"
+        >&2 echo "Error: Invalid or unsupported MySql version '$MYSQL_VERSION' specified"
         exit -1;
 esac
 
