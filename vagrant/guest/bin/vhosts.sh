@@ -116,6 +116,7 @@ function generate_config {
     local site_path="$5"
 
     local conf_dir="/etc/$service/sites.d"
+    [[ "$service" == "php-fpm" ]] && conf_dir="/etc/$service.d/sites.d"
     local conf_file="$conf_dir/$site_name.$conf_ext"
     local conf_src=
 
@@ -147,7 +148,7 @@ function generate_config {
             # failing above check, use as template in below loop
             conf_src="$override"
         fi
-    elif [[ -d "$site_path/$site_pub" ]] && [[ "$service" != "varnish" ]]; then
+    elif [[ -d "$site_path/$site_pub" ]] && [[ "$service" != "varnish" ]] && [[ "$service" != "php-fpm" ]]; then
         # only use a template if the pub is there and we're not configuring varnish
         conf_src="$template"
     fi
@@ -201,6 +202,7 @@ function process_site {
     generate_config httpd conf $site_name "${site_hosts[*]}" $site_path
     generate_config nginx conf $site_name "${site_hosts[*]}" $site_path
     generate_config varnish vcl $site_name "${site_hosts[*]}" $site_path
+    generate_config php-fpm conf $site_name "${site_hosts[*]}" $site_path
 }
 
 function remove_files {
@@ -216,7 +218,8 @@ function main {
     fi
 
     msg "==> Removing pre-existing configuration"
-    [[ $reset_config ]] && remove_files /etc/{httpd,nginx,varnish}/sites.d/*.{conf,vcl} /etc/varnish/includes.vcl
+    [[ $reset_config ]] && remove_files /etc/{httpd,nginx,varnish,php-fpm.d}/sites.d/*.{conf,vcl} /etc/varnish/includes.vcl
+    [[ $reset_config ]] && touch /etc/php-fpm.d/sites.d/empty.conf
     [[ $reset_certs ]] && remove_files $certs_dir/*.c??.pem
 
     sites_list=$(find $sites_dir -mindepth 1 -maxdepth 1 -type d)
@@ -243,6 +246,7 @@ function main {
         service_reload httpd
         service_reload nginx
         service_reload varnish
+        service_reload php-fpm
     fi
 
 }; main "$@"

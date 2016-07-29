@@ -56,6 +56,7 @@ mysql -uroot -e "
     GRANT ALL PRIVILEGES ON *.* TO 'root'@'dev-host' WITH GRANT OPTION;
     GRANT ALL PRIVILEGES ON *.* TO 'root'@'dev-web' WITH GRANT OPTION;
     GRANT ALL PRIVILEGES ON *.* TO 'root'@'dev-web70' WITH GRANT OPTION;
+    GRANT ALL PRIVILEGES ON *.* TO 'root'@'dev-web56' WITH GRANT OPTION;
     GRANT ALL PRIVILEGES ON *.* TO 'root'@'dev-web55' WITH GRANT OPTION;
     GRANT ALL PRIVILEGES ON *.* TO 'root'@'dev-web54' WITH GRANT OPTION;
     GRANT ALL PRIVILEGES ON *.* TO 'root'@'dev-web53' WITH GRANT OPTION;
