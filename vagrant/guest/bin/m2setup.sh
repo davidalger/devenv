@@ -61,7 +61,7 @@ for arg in "$@"; do
             ;;
         --hostname=*)
             HOSTNAME="${arg#*=}"
-            if [[ ! "$HOSTNAME" =~ ^[a-z0-9\.]+\.[a-z]{2,5}$ ]]; then
+            if [[ ! "$HOSTNAME" =~ ^[a-z0-9\.\-]+\.[a-z]{2,5}$ ]]; then
                 >&2 echo "Error: Invalid value given --hostname=$HOSTNAME"
                 exit -1
             fi
