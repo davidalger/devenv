@@ -61,7 +61,7 @@ for arg in "$@"; do
             ;;
         --hostname=*)
             HOSTNAME="${arg#*=}"
-            if [[ ! "$HOSTNAME" =~ ^[a-z0-9\.]+\.[a-z]{2,5}$ ]]; then
+            if [[ ! "$HOSTNAME" =~ ^[a-z0-9\.\-]+\.[a-z]{2,5}$ ]]; then
                 >&2 echo "Error: Invalid value given --hostname=$HOSTNAME"
                 exit -1
             fi
@@ -351,7 +351,7 @@ code=
 mysql -e "use $DB_NAME" 2> /dev/null || code="$?"
 if [[ $code ]]; then
     echo "==> Creating $DB_NAME database"
-    mysql -e "create database $DB_NAME"
+    mysql -e "create database \`$DB_NAME\`"
     
     echo "==> Running bin/magento setup:install"
     bin/magento $NOISE_LEVEL setup:install           \
