@@ -153,7 +153,7 @@ for arg in "$@"; do
 done
 
 if [[ -z $DB_NAME ]]; then
-    DB_NAME="$(printf "$HOSTNAME" | tr ._ _)"
+    DB_NAME="$(printf "$HOSTNAME" | tr .- _)"
 fi
 
 if [[ -z $INSTALL_DIR ]]; then
