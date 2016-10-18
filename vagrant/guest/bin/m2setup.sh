@@ -153,7 +153,7 @@ for arg in "$@"; do
 done
 
 if [[ -z $DB_NAME ]]; then
-    DB_NAME="$(printf "$HOSTNAME" | tr . _)"
+    DB_NAME="$(printf "$HOSTNAME" | tr ._ _)"
 fi
 
 if [[ -z $INSTALL_DIR ]]; then
@@ -351,7 +351,7 @@ code=
 mysql -e "use $DB_NAME" 2> /dev/null || code="$?"
 if [[ $code ]]; then
     echo "==> Creating $DB_NAME database"
-    mysql -e "create database \`$DB_NAME\`"
+    mysql -e "create database $DB_NAME"
     
     echo "==> Running bin/magento setup:install"
     bin/magento $NOISE_LEVEL setup:install           \
