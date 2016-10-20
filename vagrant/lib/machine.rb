@@ -81,7 +81,7 @@ def configure_db_vm (node, host: nil, ip: nil, mysql_version: nil)
   # start mysqld on every reload (must happen here so mysqld starts after file-system is mounted)
   node.vm.provision :shell, run: 'always' do |conf|
     conf.name = "service mysqld start"
-    conf.inline = "service mysqld start 2>&1 | grep -v \"/var/lib/mysql/data': Operation not permitted\""
+    conf.inline = "service mysqld start 2> >(grep -v \"/var/lib/mysql/data': Operation not permitted\")"
   end
 end
 
