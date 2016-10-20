@@ -52,10 +52,10 @@ openssl genrsa -out /etc/nginx/ssl/local.key.pem 2048
 
 yum install -y redis sendmail varnish httpd nginx
 
-# install php and cross-version dependencies
-yum $extra_repos install -y php php-cli php-opcache \
-    php-mysqlnd php-mhash php-curl php-gd php-intl php-mcrypt php-xsl php-mbstring php-soap php-bcmath \
-    php-xdebug php-ldap php-zip
+# install php php-fpm and cross-version dependencies
+yum $extra_repos install -y php php-fpm php-cli php-opcache php-xdebug \
+    php-mysqlnd php-mhash php-curl php-gd php-intl php-mcrypt php-xsl php-mbstring php-soap php-bcmath php-zip php-ldap \
+    php-pecl-memcache
 
 # the ioncube-loader package for php7 does not exist yet
 [[ "$PHP_VERSION" < 70 ]] && yum $extra_repos install -y php-ioncube-loader
@@ -71,11 +71,13 @@ if [[ -f /etc/php.d/ioncube_loader.ini ]]; then
     touch /etc/php.d/ioncube_loader.ini     # prevent yum update from re-creating the file
 fi
 
+if [[ -f /etc/php-fpm.d/www.conf ]]; then
+    mv /etc/php-fpm.d/www.conf /etc/php-fpm.d/www.conf.rpmnew
+    touch /etc/php-fpm.d/www.conf     # prevent yum update from re-creating the file
+fi
+
 # phpredis does not yet have php7 support
 [[ "$PHP_VERSION" < 70 ]] && yum $extra_repos install -y php-pecl-redis
-
-# allow vagrant user to access anything apache can (php sessions in /var/lib/php would be an example)
-usermod -a -G apache vagrant
 
 ########################################
 :: configuring web services
@@ -88,6 +90,23 @@ perl -0777 -pi -e 's#(<Directory "/var/www/html">.*?)AllowOverride None(.*?</Dir
 # disable error index file if installed
 [ -f "/var/www/error/noindex.html" ] && mv /var/www/error/noindex.html /var/www/error/noindex.html.disabled
 
+# create www-data user
+adduser --system --user-group --no-create-home www-data
+usermod -a -G www-data vagrant
+usermod -a -G www-data nginx
+usermod -a -G www-data apache
+
+# allow vagrant user to access anything apache can (php sessions in /var/lib/php would be an example)
+usermod -a -G apache vagrant
+usermod -a -G apache nginx
+usermod -a -G apache www-data
+
+chgrp www-data /var/log/php-fpm     # allow www-data group to write log files
+mkdir -p /etc/php-fpm.d/sites.d     # create directory for site specific overrides
+
+chown -R root /var/log/php-fpm      # ditch apache ownership
+chgrp -R www-data /var/lib/php      # ditch apache group
+
 chkconfig redis on
 service redis start
 
@@ -99,6 +118,9 @@ service varnish start
 
 chkconfig nginx on
 service nginx start
+
+chkconfig php-fpm on
+service php-fpm start
 
 ########################################
 :: installing develop tools

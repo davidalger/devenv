@@ -1,3 +1,14 @@
+1.0.0-beta27
+===============
+
+* Added install of php-pecl-memcached by default
+* Added rudimentary php-fpm support - PR #89,87,84
+* Added support for use of the dash in hostnames passed to m2setup.sh - PR #88
+* Changed default web vm mapping to dev-web70
+* Changed hostnames used on setup to always include PHP version from web nodes
+* Fixed issue caused by a leaked file-descriptor in bash when mysql started on a reboot - resolves #86
+* Updated php and nginx settings to eliminate issues caused by some fringe use cases
+
 1.0.0-beta26
 ===============
 
