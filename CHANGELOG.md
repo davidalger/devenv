@@ -1,3 +1,8 @@
+1.0.0-beta28
+===============
+
+* Fixed issue with util-linux update requiring newer kernel than whats found in current base-box image - issue #94
+
 1.0.0-beta27
 ===============
 
