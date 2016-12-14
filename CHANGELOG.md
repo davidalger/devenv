@@ -1,3 +1,8 @@
+UNRELEASED
+===============
+
+* Fixed issue with m2setup.sh failing to install sample-data in Magento 2.1 composer installs due to bin/magento change
+
 1.0.0-beta28
 ===============
 

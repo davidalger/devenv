@@ -303,8 +303,10 @@ function install_from_packages {
 
     if [[ $SAMPLEDATA ]]; then
         echo "==> Deploying sample data meta-packages"
+        mkdir -p $INSTALL_DIR/var/composer_home/
+        ln -s "$(composer config -g home 2> /dev/null)/auth.json" $INSTALL_DIR/var/composer_home/auth.json
+        ln -s "$(composer config -g cache-dir 2> /dev/null)/" $INSTALL_DIR/var/composer_home/cache
         COMPOSER_NO_INTERACTION=1 bin/magento sampledata:deploy $NOISE_LEVEL
-        composer update $NOISE_LEVEL --no-interaction --prefer-dist
     fi
 }
 
