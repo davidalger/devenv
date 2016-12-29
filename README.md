@@ -119,7 +119,7 @@ sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keyc
 
 ##### Windows
 
-NOTE: Windows is currently not supported, as devenv uses NFS and Linux Drive paths which are not compatible with Windows.
+NOTE: Windows is currently not supported, as devenv uses NFS and Linux drive paths.
 
 To add the generated root CA to your certificate manager on Windows you will need to copy the `ca.cert.pem` file to a location on your Windows system like `C:\certs\ca.cert.pem` and then open a Command Prompt window in Administrator mode to execute the following command
 
