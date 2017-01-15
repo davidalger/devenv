@@ -1,1 +1,1 @@
-../guest/etc/profile.d
+../provisioning/roles/base/files/etc/profile.d

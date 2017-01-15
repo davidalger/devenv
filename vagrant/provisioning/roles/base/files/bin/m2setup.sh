@@ -141,7 +141,7 @@ for arg in "$@"; do
             echo "       --admin-user=<admin>               alphanumerical admin username (defaults to admin)"
             echo "       --admin-email=<email>              admin account email address"
             echo "       --admin-first=<name>               admin user first name"
-            echo "       --admin-name=<name>                admin user last name"
+            echo "       --admin-last=<name>                admin user last name"
             echo ""
             exit -1
             ;;

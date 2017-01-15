@@ -46,6 +46,8 @@ def configure_web_vm (node, host: nil, ip: nil, php_version: nil)
   
   # setup guest provisioners
   Mount.provision(node)
+  
+  ansible_play(node, 'web', { php_version: php_version })
   bootstrap_sh(node, ['node', 'web'], { php_version: php_version })
   
   # run vhosts.sh on every reload
@@ -55,7 +57,7 @@ def configure_web_vm (node, host: nil, ip: nil, php_version: nil)
   end
 end
 
-def configure_db_vm (node, host: nil, ip: nil, mysql_version: nil)
+def configure_db_vm (node, host: nil, ip: nil, mysql_version: 56)
   node.vm.hostname = host
   node.vm.network :private_network, ip: ip
   assert_hosts_entry host, ip
@@ -66,7 +68,7 @@ def configure_db_vm (node, host: nil, ip: nil, mysql_version: nil)
   local_data_dir_name = MOUNT_PATH + '/mysql/data'
   
   # if non-default version specified, append to data dir path
-  if mysql_version and mysql_version != 56
+  if mysql_version != 56
     local_data_dir_name = "#{local_data_dir_name}#{mysql_version}"
   end
 
@@ -76,6 +78,7 @@ def configure_db_vm (node, host: nil, ip: nil, mysql_version: nil)
   
   # setup guest provisioners
   Mount.provision(node)
+  ansible_play(node, 'node', { mysql_version: mysql_version })
   bootstrap_sh(node, ['node', 'db'], { mysql_version: mysql_version })
   
   # start mysqld on every reload (must happen here so mysqld starts after file-system is mounted)

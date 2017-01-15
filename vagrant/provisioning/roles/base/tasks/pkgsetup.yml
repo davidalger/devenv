@@ -1,0 +1,84 @@
+---
+- name: configure yum cache
+  ini_file:
+    dest: /etc/yum.conf
+    section: main
+    option: "{{ item.key }}"
+    value: "{{ item.value }}"
+  with_dict:
+    keepcache: 1
+    metadata_expire: 24h
+
+- name: install libselinux-python / kernel-headers
+  package:
+    name: libselinux-python, kernel-headers
+
+- name: configure yum exclude
+  ini_file:
+    dest: /etc/yum.conf
+    section: main
+    option: exclude
+
+    # updating these packages can cause issue with the box, nfs mounts and/or VM Ware tools
+    value: yum nfs-utils util-linux-ng libuuid libblkid kernel*
+
+- file:
+    path: /tmp/.ansible/keys/
+    state: directory
+
+- name: copy GPG keys to tmp location
+  copy:
+    src: keys/{{ item }}
+    dest: /tmp/.ansible/keys/{{ item }}
+  with_items:
+    - RPM-GPG-KEY-CentOS-6.txt
+    - RPM-GPG-KEY-EPEL-6.txt
+    - RPM-GPG-KEY-MySql.txt
+    - RPM-GPG-KEY-remi.txt
+    - RPM-GPG-KEY-nginx.txt
+    - RPM-GPG-KEY-Varnish.txt
+
+- name: import repo GPG keys
+  rpm_key:
+    key: /tmp/.ansible/keys/{{ item }}
+  with_items:
+    - RPM-GPG-KEY-CentOS-6.txt
+    - RPM-GPG-KEY-EPEL-6.txt
+    - RPM-GPG-KEY-MySql.txt
+    - RPM-GPG-KEY-remi.txt
+    - RPM-GPG-KEY-nginx.txt
+    - RPM-GPG-KEY-Varnish.txt
+
+- name: download rpm files
+  get_url:
+    url: "{{ item }}"
+    dest: "{{ yum_cache_dir }}/{{ item | basename }}"
+  with_items:
+    - http://rpms.famillecollet.com/enterprise/remi-release-6.rpm
+    - http://nginx.org/packages/centos/6/noarch/RPMS/nginx-release-centos-6-0.el6.ngx.noarch.rpm
+    - https://repo.varnish-cache.org/redhat/varnish-4.1.el6.rpm
+    - http://repo.mysql.com/mysql-community-release-el6-5.noarch.rpm
+
+- name: install repos
+  yum:
+    name: "{{ item }}"
+  with_items:
+    - epel-release
+    - "{{ yum_cache_dir }}/remi-release-6.rpm"
+    - "{{ yum_cache_dir }}/nginx-release-centos-6-0.el6.ngx.noarch.rpm"
+    - "{{ yum_cache_dir }}/varnish-4.1.el6.rpm"
+
+- name: fail on invalid mysql_version
+  fail:
+    msg: "Error: Invalid or unsupported MySql version '{{ mysql_version }}' specified"
+  when: mysql_version != 51 and mysql_version != 56
+
+- name: install mysql 5.6 repo
+  yum:
+    name: "{{ yum_cache_dir }}/mysql-community-release-el6-5.noarch.rpm"
+  when: mysql_version == 56
+
+- name: update installed packages
+  package:
+    name: "*"
+    state: latest

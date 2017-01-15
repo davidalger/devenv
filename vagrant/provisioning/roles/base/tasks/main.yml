@@ -1,0 +1,63 @@
+---
+- include: pkgsetup.yml
+
+# TODO: configure /etc/vmware-tools/locations if present
+
+# ########################################
+# :: configuring guest machine provider
+# ########################################
+#
+# # configure VM Ware tools to automatically rebuild missing VMX kernel modules upon boot
+# # see: https://github.com/mitchellh/vagrant/issues/4362#issuecomment-52589577
+# #
+# if [[ -f /etc/vmware-tools/locations ]]; then
+#     sed -i -re 's/^answer (AUTO_KMODS_ENABLED|AUTO_KMODS_ENABLED_ANSWER) no$/answer \1 yes/' /etc/vmware-tools/locations
+# fi
+
+- include: npmsetup.yml
+
+- name: set timezone to {{ host_zoneinfo | dirname | basename }}/{{ host_zoneinfo | basename }}
+  file:
+    src: "{{ host_zoneinfo }}"
+    dest: /etc/localtime
+    state: link
+    force: yes
+
+- package:
+    name: "{{ item }}"
+  with_items:
+    - wget
+    - bash-completion
+    - bc
+    - man
+    - git
+    - rsync
+    - mysql
+    - pv
+    - tree
+    - lsof
+    - ack
+
+- name: install scripts
+  synchronize:
+    src: bin/
+    dest: /usr/local/bin
+    archive: no
+    times: yes
+    recursive: yes
+
+- name: import /etc/ config
+  synchronize:
+    src: etc/
+    dest: /etc
+    archive: no
+    times: yes
+    recursive: yes
+
+- name: configure .gitignore_global
+  ini_file:
+    dest: ~/.gitconfig
+    section: core
+    option: "	excludesfile"   # note: there is a tab here because that's how git config formats it's ini files
+    value: /etc/.gitignore_global
+  become: false

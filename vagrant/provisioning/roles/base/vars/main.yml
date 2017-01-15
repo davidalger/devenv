@@ -1,0 +1,6 @@
+---
+# defaults to mysql 5.6 if not passed in from caller
+mysql_version: 56
+
+# path to mounted yum cache directory on guest
+yum_cache_dir: /var/cache/yum/rpms

@@ -13,6 +13,12 @@ set -e
 source ./scripts/lib/utils.sh
 
 ########################################
+:: installing configuration into /etc
+########################################
+
+rsync -av ./guest/etc/ /etc/
+
+########################################
 :: installing mysqld service
 ########################################
 

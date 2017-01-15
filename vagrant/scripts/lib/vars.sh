@@ -28,17 +28,4 @@ case "$PHP_VERSION" in
         exit -1;
 esac
 
-# determine which version of MySql we are installing
-case "$MYSQL_VERSION" in
-    
-    "" ) # set default of MySql 5.6 if none was specified
-        MYSQL_VERSION="56"
-        ;&  ## fallthrough to below case, we know it matches
-    51 | 56 )
-        ;;
-    * )
-        >&2 echo "Error: Invalid or unsupported MySql version '$MYSQL_VERSION' specified"
-        exit -1;
-esac
-
-export PHP_VERSION MYSQL_VERSION extra_repos
+export PHP_VERSION extra_repos
