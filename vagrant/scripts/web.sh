@@ -127,16 +127,3 @@ service nginx start
 
 chkconfig php-fpm on
 service php-fpm start
-
-########################################
-:: installing develop tools
-########################################
-
-npm install -g grunt-cli
-
-install_tool https://getcomposer.org/composer.phar /usr/local/bin/composer
-
-install_tool http://files.magerun.net/n98-magerun-latest.phar /usr/local/bin/n98-magerun /usr/local/bin/mr1
-install_tool http://files.magerun.net/n98-magerun2-latest.phar /usr/local/bin/n98-magerun2 /usr/local/bin/mr2
-
-ln -s /usr/local/bin/mr1 /usr/local/bin/mr

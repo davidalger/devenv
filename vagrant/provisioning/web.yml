@@ -3,3 +3,11 @@
   become: true
   roles:
     - base
+  tasks:
+    - name: install grunt-cli
+      npm:
+        name: grunt-cli
+        global: yes
+
+    - include: tasks/composer.yml
+    - include: tasks/n98-magerun.yml
