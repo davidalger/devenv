@@ -20,11 +20,11 @@
 - name: create n98-magerun2 "mr" shortcut
   file:
     path: /usr/local/bin/mr
-    src: /usr/local/bin/n98-magerun
+    src: /usr/local/bin/n98-magerun2
     state: link
 
 - name: create n98-magerun2 "mr2" shortcut
   file:
     path: /usr/local/bin/mr2
-    src: /usr/local/bin/n98-magerun
+    src: /usr/local/bin/n98-magerun2
     state: link
