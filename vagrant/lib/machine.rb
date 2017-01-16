@@ -78,7 +78,7 @@ def configure_db_vm (node, host: nil, ip: nil, mysql_version: 56)
   
   # setup guest provisioners
   Mount.provision(node)
-  ansible_play(node, 'node', { mysql_version: mysql_version })
+  ansible_play(node, 'db', { mysql_version: mysql_version })
   bootstrap_sh(node, ['node', 'db'], { mysql_version: mysql_version })
   
   # start mysqld on every reload (must happen here so mysqld starts after file-system is mounted)
