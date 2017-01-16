@@ -1,0 +1,38 @@
+---
+- name: os-specific vars
+  include_vars: "{{ansible_os_family}}.yml"
+  tags:
+      - always
+
+- name: check-set-parameters
+  include: elasticsearch-parameters.yml
+  tags:
+      - always
+
+- include: java.yml
+  when: es_java_install
+  tags:
+      - java
+- include: elasticsearch.yml
+  tags:
+      - install
+- include: elasticsearch-config.yml
+  tags:
+      - config
+- include: elasticsearch-scripts.yml
+  when: es_scripts
+  tags:
+      - scripts
+- include: elasticsearch-plugins.yml
+  when: es_plugins is defined or es_plugins_reinstall
+  tags:
+      - plugins
+  #We always execute xpack as we may need to remove features
+- include: xpack/elasticsearch-xpack.yml
+  tags:
+      - xpack
+- include: elasticsearch-templates.yml
+  when: es_templates
+  tags:
+      - templates
+- meta: flush_handlers
