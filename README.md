@@ -8,9 +8,11 @@ It is setup with two primary machines: web and db. Together these two virtual ma
 * An HFS+ **Case-sensitive** partition mounted at `/Volumes/Server` or `/server`
 
     *Note: The environment should install and run from a case-insensitive mount, but this is not recommended for two reasons: a) the majority of deployments are done to case-sensitive file-systems, so development done on a case-sensitive mount is less error prone (ex: autoloaders may find a class in development, then fail on production); b) mysql will behave differently as it pertains to [identifier case sensitivity](https://dev.mysql.com/doc/refman/5.0/en/identifier-case-sensitivity.html) potentially causing unexpected behavior*
+    
+    *Note: Though it is recommended to use a separate parition for storage of the data and virtual machines so that you can specify the partition type to be case sensetive, it is possible to temporarily setup a directory in a location you choose `mkdir /Users/myusername/server` and setup a symbolic link `sudo ln -s /server /Users/myusername/server` to that directory*
 
 ## Environment Setup
-
+    
 1. The install process will install brew on the host machine for gathering dependencies where not already present. If you already have brew installed, however, it is recommended to run the following commands, then cleanup any major issues it reports:
 
     ```bash
@@ -18,6 +20,8 @@ It is setup with two primary machines: web and db. Together these two virtual ma
     brew doctor
     ```
 
+    *Note: The path `/server` needs to exist before proceeding*
+    
 2. Install technical dependencies and setup the environment, entering your account password when prompted (this may happen a few times):
 
     ```bash
