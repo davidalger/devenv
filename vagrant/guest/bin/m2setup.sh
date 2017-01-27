@@ -141,12 +141,13 @@ for arg in "$@"; do
             echo "       --admin-user=<admin>               alphanumerical admin username (defaults to admin)"
             echo "       --admin-email=<email>              admin account email address"
             echo "       --admin-first=<name>               admin user first name"
-            echo "       --admin-name=<name>                admin user last name"
+            echo "       --admin-last=<name>                admin user last name"
             echo ""
             exit -1
             ;;
         *)
             >&2 echo "Error: Unrecognized argument $arg"
+            >&2 echo "Tip: If using an argument starting with \"--\", make sure to add \"=\" before the value"
             exit -1
             ;;
     esac
