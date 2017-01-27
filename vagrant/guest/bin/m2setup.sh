@@ -147,7 +147,7 @@ for arg in "$@"; do
             ;;
         *)
             >&2 echo "Error: Unrecognized argument $arg"
-            >&2 echo "If using a parameter with \"--\", add \"=\" before the value"
+            >&2 echo "Tip: If using an argument starting with \"--\", make sure to add \"=\" before the value"
             exit -1
             ;;
     esac
