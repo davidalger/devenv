@@ -39,6 +39,7 @@ ENTERPRISE=
 NO_COMPILE=
 GITHUB=
 VERBOSE=
+SECURE_EVERYWHERE=
 
 ## argument parsing
 
@@ -58,6 +59,9 @@ for arg in "$@"; do
             ;;
         -C|--no-compile)
             NO_COMPILE=1
+            ;;
+        -s|--secure-everywhere)
+            SECURE_EVERYWHERE=1
             ;;
         --hostname=*)
             HOSTNAME="${arg#*=}"
@@ -133,6 +137,7 @@ for arg in "$@"; do
             echo "  -e : --enterprise                       uses enterprise meta-packages vs community"
             echo "  -g : --github                           will install via github clone instead of from meta-packages"
             echo "  -C : --no-compile                       skips DI compilation process and static asset generation"
+            echo "  -s : --secure-everywhere                configures all urls for secure connections over https"
             echo "       --proj-version=<proj-version>      composer package version to use during installation"
             echo "       --hostname=<hostname>              domain of the site (required input)"
             echo "       --urlpath=<urlpath>                path component of base url and install sub-directory"
@@ -180,6 +185,12 @@ fi
 NOISE_LEVEL=" "
 if [[ ! $VERBOSE ]]; then
     NOISE_LEVEL=" -q "
+fi
+
+
+S_IN_HTTP=""
+if [[ $SECURE_EVERYWHERE ]]; then
+    S_IN_HTTP="s"
 fi
 
 ## verify pre-requisites
@@ -312,7 +323,7 @@ function install_from_packages {
 }
 
 function print_install_info {
-    URL_FRONT="http://$BASE_URL"
+    URL_FRONT="http${S_IN_HTTP}://$BASE_URL"
     URL_ADMIN="https://$BASE_URL/$BACKEND_FRONTNAME/admin"
 
     FILL=$(printf "%0.s-" {1..128})
@@ -358,7 +369,7 @@ if [[ $code ]]; then
     
     echo "==> Running bin/magento setup:install"
     bin/magento $NOISE_LEVEL setup:install           \
-        --base-url="http://$BASE_URL"                \
+        --base-url="http${S_IN_HTTP}://$BASE_URL"    \
         --base-url-secure="https://$BASE_URL"        \
         --backend-frontname="$BACKEND_FRONTNAME"     \
         --use-secure=1                               \
@@ -426,7 +437,7 @@ echo "==> Reindexing and flushing magento cache"
 bin/magento indexer:reindex $NOISE_LEVEL
 bin/magento cache:flush $NOISE_LEVEL
 # Magento 2.1.6 introduced a requirement for building catalog images when sample data is imported
-if [[ $SAMPLEDATA ]] && [ $(bin/magento bin/magento catalog:images:resize --help &> /dev/null; echo $?) -eq 0 ]; then
+if [[ $SAMPLEDATA ]] && [ $(bin/magento catalog:images:resize --help &> /dev/null; echo $?) -eq 0 ]; then
     echo "==> building catalog images for imported data"
     bin/magento catalog:images:resize $NOISE_LEVEL
 fi
