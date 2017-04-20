@@ -372,7 +372,6 @@ if [[ $code ]]; then
         --db-host="$DB_HOST"                         \
         --db-user="$DB_USER"                         \
         --db-name="$DB_NAME"                         \
-        --magento-init-params 'MAGE_MODE=production' \
     ;
     
     print_info_flag=1
@@ -387,18 +386,51 @@ if [[ ! $NO_COMPILE ]]; then
     rm -rf var/di/ var/generation/
     # Magento 2.0.x required usage of multi-tenant compiler (see here for details: http://bit.ly/21eMPtt).
     # Magento 2.1 dropped support for the multi-tenant compiler, so we must use the normal compiler.
-    if [ `bin/magento setup:di:compile-multi-tenant --help &> /dev/null; echo $?` -eq 0 ]; then
+    if [ $(bin/magento setup:di:compile-multi-tenant --help &> /dev/null; echo $?) -eq 0 ]; then
         bin/magento setup:di:compile-multi-tenant $NOISE_LEVEL
     else
         bin/magento setup:di:compile $NOISE_LEVEL
     fi
-    bin/magento setup:static-content:deploy $NOISE_LEVEL
+    
+    # Workaround for 2.1 specific issue: https://github.com/magento/magento2/pull/6437
+    [ ! -f pub/static/deployed_version.txt ] && touch pub/static/deployed_version.txt
+    
+    JOBS=''
+    if [ $(bin/magento help setup:static-content:deploy | grep -i '\-\-jobs' | wc -l) -gt 0 ]; then
+        # Limiting jobs to 1 thread to eliminate potential random errors when configured with redis
+        JOBS='--jobs 1'
+    fi
+    
+    # Magento 2.1.0 and earlier lack support for these flags, so generation of secure files requires full re-run
+    DEPLOY_FLAGS=''
+    if [ $(bin/magento help setup:static-content:deploy | grep -i '\-\-no\-javascript' | wc -l) -gt 0 ]; then
+        DEPLOY_FLAGS='--no-javascript --no-css --no-less --no-images --no-fonts --no-html --no-misc --no-html-minify'
+    fi
+    
+    bin/magento setup:static-content:deploy \
+        $JOBS \
+        $NOISE_LEVEL
+    
+    # set https environment variable so it exists during the next execution of static-content:deploy
+    # https env var set to 'on' to pre-generate secure versions of RequireJS configs
+    export https=on
+    bin/magento setup:static-content:deploy \
+        $JOBS \
+        $DEPLOY_FLAGS \
+        $NOISE_LEVEL
+    
     bin/magento cache:flush $NOISE_LEVEL
 fi
 
 echo "==> Reindexing and flushing magento cache"
 bin/magento indexer:reindex $NOISE_LEVEL
 bin/magento cache:flush $NOISE_LEVEL
+# Magento 2.1.6 introduced a requirement for building catalog images when sample data is imported
+if [[ $SAMPLEDATA ]] && [ $(bin/magento bin/magento catalog:images:resize --help &> /dev/null; echo $?) -eq 0 ]; then
+    echo "==> building catalog images for imported data"
+    bin/magento catalog:images:resize $NOISE_LEVEL
+fi
+
 
 echo "==> Flushing redis service"
 redis-cli flushall > /dev/null
