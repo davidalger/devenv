@@ -39,7 +39,7 @@ Vagrant.configure(2) do |conf|
   end
 
   conf.vm.define :web56, autostart: false do |node|
-    configure_web_vm node, host: 'dev-web56', ip: '10.19.89.10', php_version: 56
+    configure_web_vm node, host: 'dev-web56', ip: '10.19.89.10', php_version: 56, ram_mb: 2048
     node.vm.network :forwarded_port, guest: 6380, host: 6380
   end
 

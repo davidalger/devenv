@@ -27,10 +27,12 @@ def configure_common (conf)
   conf.ssh.forward_agent = true
 end
 
-def configure_web_vm (node, host: nil, ip: nil, php_version: nil)
+def configure_web_vm (node, host: nil, ip: nil, php_version: nil, ram_mb: 2048)
   node.vm.hostname = host
   node.vm.network :private_network, ip: ip
   assert_hosts_entry host, ip
+  
+  vm_set_ram(node, ram_mb)
 
   # verify exports and mount nfs sites location
   Mount.assert_export(MOUNT_PATH + SITES_DIR)
