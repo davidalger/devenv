@@ -39,6 +39,7 @@ ENTERPRISE=
 NO_COMPILE=
 GITHUB=
 VERBOSE=
+SECURE_EVERYWHERE=
 
 ## argument parsing
 
@@ -59,6 +60,9 @@ for arg in "$@"; do
         -C|--no-compile)
             NO_COMPILE=1
             ;;
+        -s|--secure-everywhere)
+            SECURE_EVERYWHERE=1
+            ;;
         --hostname=*)
             HOSTNAME="${arg#*=}"
             if [[ ! "$HOSTNAME" =~ ^[a-z0-9\.\-]+\.[a-z]{2,5}$ ]]; then
@@ -68,7 +72,7 @@ for arg in "$@"; do
             ;;
         --urlpath=*)
             URLPATH="${arg#*=}"
-            if [[ ! "$URLPATH" =~ ^[a-z0-9][a-z0-9/]*[a-z0-9]+$ ]]; then
+            if [[ ! "$URLPATH" =~ ^[a-z0-9][a-z0-9_/-]*[a-z0-9_-]+$ ]]; then
                 >&2 echo "Error: Invalid value given --urlpath=$URLPATH"
                 exit -1
             fi
@@ -133,6 +137,7 @@ for arg in "$@"; do
             echo "  -e : --enterprise                       uses enterprise meta-packages vs community"
             echo "  -g : --github                           will install via github clone instead of from meta-packages"
             echo "  -C : --no-compile                       skips DI compilation process and static asset generation"
+            echo "  -s : --secure-everywhere                configures all urls for secure connections over https"
             echo "       --proj-version=<proj-version>      composer package version to use during installation"
             echo "       --hostname=<hostname>              domain of the site (required input)"
             echo "       --urlpath=<urlpath>                path component of base url and install sub-directory"
@@ -180,6 +185,12 @@ fi
 NOISE_LEVEL=" "
 if [[ ! $VERBOSE ]]; then
     NOISE_LEVEL=" -q "
+fi
+
+
+S_IN_HTTP=""
+if [[ $SECURE_EVERYWHERE ]]; then
+    S_IN_HTTP="s"
 fi
 
 ## verify pre-requisites
@@ -312,7 +323,7 @@ function install_from_packages {
 }
 
 function print_install_info {
-    URL_FRONT="http://$BASE_URL"
+    URL_FRONT="http${S_IN_HTTP}://$BASE_URL"
     URL_ADMIN="https://$BASE_URL/$BACKEND_FRONTNAME/admin"
 
     FILL=$(printf "%0.s-" {1..128})
@@ -358,7 +369,7 @@ if [[ $code ]]; then
     
     echo "==> Running bin/magento setup:install"
     bin/magento $NOISE_LEVEL setup:install           \
-        --base-url="http://$BASE_URL"                \
+        --base-url="http${S_IN_HTTP}://$BASE_URL"    \
         --base-url-secure="https://$BASE_URL"        \
         --backend-frontname="$BACKEND_FRONTNAME"     \
         --use-secure=1                               \
@@ -372,7 +383,6 @@ if [[ $code ]]; then
         --db-host="$DB_HOST"                         \
         --db-user="$DB_USER"                         \
         --db-name="$DB_NAME"                         \
-        --magento-init-params 'MAGE_MODE=production' \
     ;
     
     print_info_flag=1
@@ -387,18 +397,51 @@ if [[ ! $NO_COMPILE ]]; then
     rm -rf var/di/ var/generation/
     # Magento 2.0.x required usage of multi-tenant compiler (see here for details: http://bit.ly/21eMPtt).
     # Magento 2.1 dropped support for the multi-tenant compiler, so we must use the normal compiler.
-    if [ `bin/magento setup:di:compile-multi-tenant --help &> /dev/null; echo $?` -eq 0 ]; then
+    if [ $(bin/magento setup:di:compile-multi-tenant --help &> /dev/null; echo $?) -eq 0 ]; then
         bin/magento setup:di:compile-multi-tenant $NOISE_LEVEL
     else
         bin/magento setup:di:compile $NOISE_LEVEL
     fi
-    bin/magento setup:static-content:deploy $NOISE_LEVEL
+    
+    # Workaround for 2.1 specific issue: https://github.com/magento/magento2/pull/6437
+    [ ! -f pub/static/deployed_version.txt ] && touch pub/static/deployed_version.txt
+    
+    JOBS=''
+    if [ $(bin/magento help setup:static-content:deploy | grep -i '\-\-jobs' | wc -l) -gt 0 ]; then
+        # Limiting jobs to 1 thread to eliminate potential random errors when configured with redis
+        JOBS='--jobs 1'
+    fi
+    
+    # Magento 2.1.0 and earlier lack support for these flags, so generation of secure files requires full re-run
+    DEPLOY_FLAGS=''
+    if [ $(bin/magento help setup:static-content:deploy | grep -i '\-\-no\-javascript' | wc -l) -gt 0 ]; then
+        DEPLOY_FLAGS='--no-javascript --no-css --no-less --no-images --no-fonts --no-html --no-misc --no-html-minify'
+    fi
+    
+    bin/magento setup:static-content:deploy \
+        $JOBS \
+        $NOISE_LEVEL
+    
+    # set https environment variable so it exists during the next execution of static-content:deploy
+    # https env var set to 'on' to pre-generate secure versions of RequireJS configs
+    export https=on
+    bin/magento setup:static-content:deploy \
+        $JOBS \
+        $DEPLOY_FLAGS \
+        $NOISE_LEVEL
+    
     bin/magento cache:flush $NOISE_LEVEL
 fi
 
 echo "==> Reindexing and flushing magento cache"
 bin/magento indexer:reindex $NOISE_LEVEL
 bin/magento cache:flush $NOISE_LEVEL
+# Magento 2.1.6 introduced a requirement for building catalog images when sample data is imported
+if [[ $SAMPLEDATA ]] && [ $(bin/magento catalog:images:resize --help &> /dev/null; echo $?) -eq 0 ]; then
+    echo "==> building catalog images for imported data"
+    bin/magento catalog:images:resize $NOISE_LEVEL
+fi
+
 
 echo "==> Flushing redis service"
 redis-cli flushall > /dev/null
