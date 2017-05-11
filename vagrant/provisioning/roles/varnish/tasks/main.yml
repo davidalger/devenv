@@ -1,0 +1,33 @@
+---
+- name: install varnish-4.1 rpm
+  yum: name=https://repo.varnish-cache.org/redhat/varnish-4.1.el{{ ansible_distribution_major_version }}.rpm
+  tags: varnish
+
+- name: install varnish
+  yum: name=varnish
+  tags: varnish
+
+- name: disable default varnish service
+  service:
+    name: varnish
+    state: stopped
+    enabled: no
+  tags: varnish
+
+- include: configure-el{{ ansible_distribution_major_version }}.yml
+  tags: varnish
+
+# append the actual service name to list which the "restart varnish" handler iterates
+# this is neccessary because handlers cannot use variables in the same way tasks can
+- name: register varnish-{{ varnish_instance.name }} restart
+  set_fact:
+    varnish_service_restart: "{{ varnish_service_restart|default([]) }} + [ 'varnish-{{ varnish_instance.name }}' ]"
+  when: varnish_config.changed
+  tags: varnish
+
+- name: start varnish-{{ varnish_instance.name }} service
+  service:
+    name: varnish-{{ varnish_instance.name }}
+    state: started
+    enabled: yes
+  tags: varnish

@@ -1,0 +1,10 @@
+---
+www_user_name: www-data
+www_user_groups:
+  - sshusers
+www_user_ssh_keys:
+  - files/ssh-keys/david.alger
+  - files/ssh-keys/matt.johnson
+
+# This may be used to set an optional custom home directory. The home dir's parent directory must already exist.=
+www_user_home: null

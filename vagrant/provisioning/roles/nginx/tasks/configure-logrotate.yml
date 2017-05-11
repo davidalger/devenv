@@ -1,0 +1,23 @@
+---
+- name: configure logrotate.d/nginx
+  template:
+    src: logrotate
+    dest: /etc/logrotate.d/nginx
+    owner: root
+    group: root
+    mode: 0644
+  tags: logrotate
+
+- name: create group {{ nginx_logrotate_group }}
+  group:
+    name: "{{ nginx_logrotate_group }}"
+    system: yes
+  tags: logrotate
+
+- name: assign users to logrotate group
+  user:
+    name: "{{ item }}"
+    groups: "{{ nginx_logrotate_group }}"
+    append: yes
+  with_items: "{{ nginx_logrotate_users }}"
+  tags: logrotate

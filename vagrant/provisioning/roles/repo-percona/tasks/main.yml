@@ -1,0 +1,17 @@
+---
+- name: Check if Percona Server repo is already configured
+  stat:
+    path: /etc/yum.repos.d/percona-release.repo
+  register: percona_repofile_result
+
+- name: Install Percona Server repo
+  yum:
+    name: "http://www.percona.com/downloads/percona-release/redhat/0.1-4/percona-release-0.1-4.noarch.rpm"
+    state: present
+  when: not percona_repofile_result.stat.exists
+
+- name: Import Percona Server GPG key
+  rpm_key:
+    key: /etc/pki/rpm-gpg/RPM-GPG-KEY-Percona
+    state: present
+  when: not percona_repofile_result.stat.exists

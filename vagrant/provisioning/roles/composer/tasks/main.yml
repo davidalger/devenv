@@ -1,0 +1,5 @@
+- name: install composer
+  get_url:
+    url: "{{ composer.download_url }}"
+    dest: /usr/local/bin/{{ composer.install_name }}
+    mode: 0755
