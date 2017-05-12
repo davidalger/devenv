@@ -1,13 +1,174 @@
 ---
 - hosts: all
   become: true
+  vars:
+    ansible_managed_header:
+    ansible_managed_header_alt:
+    www_user_groups: []
+    www_user_ssh_keys: []
+    redis_maxmemory: 512mb
+    php_additional_modules:
+      - mhash
+      - curl
+      - xsl
+      - zip
+      - ldap
+      # - pecl-memcache (no stable 7.0 compatible release for this included in the IUS repo)
+      - ioncube-loader
+      - xdebug
+    php_fpm_additional_ini:
+      include: /etc/php-fpm.d/sites.d/*.conf
+    php_fpm_global_additional_ini:
+      display_errors: "on"
+      html_errors: "on"
+      error_reporting: E_ALL ^ E_DEPRECATED
+      max_execution_time: 600
+      date.timezone: UTC
+      session.gc_maxlifetime: 7200
+      openssl.cafile: /etc/pki/tls/certs/ca-bundle.crt
+    php_fpm_owner: vagrant
+    php_fpm_group: vagrant
+    php_fpm_pm: ondemand
+    php_fpm_pm_max_children: 5
+    php_fpm_pm_max_requests: 100
+    php_xdebug_ini_path: "{{ (php_version == 55) | ternary('/etc/php.d/xdebug.ini','/etc/php.d/15-xdebug.ini') }}"
+
+  pre_tasks:
+    - name: create /etc/php-fpm.d/sites.d
+      file:
+        path: /etc/php-fpm.d/sites.d
+        state: directory
+
   roles:
-    - base
+    - devenv-yum
+    - devenv-npm
+    - devenv-base
+    - repo-percona
+    - composer
+    - n98-magerun
+    - role: n98-magerun
+      n98_magerun_version: 1
+      n98_magerun_shortcut_name: mr1
+    - redis
+    - www-user
+    - php-fpm
+    - { role: varnish, varnish_instance: { name: dev, port: 6081, admin_port: 6082, backend_port: 8080 }}
+
   tasks:
+    - name: configure php.ini [phar]
+      ini_file:
+        dest: /etc/php.ini
+        section: phar
+        option: "{{ item.key }}"
+        value: "{{ item.value }}"
+      with_dict:
+        phar.readonly: "off"
+      notify: restart php-fpm
+
+    - name: configure xdebug.ini
+      ini_file:
+        dest: "{{ php_xdebug_ini_path }}"
+        section: xdebug
+        option: "{{ item.key }}"
+        value: "{{ item.value }}"
+      with_dict:
+        xdebug.remote_enable: "on"
+        xdebug.remote_host: dev-host
+        xdebug.idekey: PHPSTORM
+        xdebug.show_local_vars: "on"
+        xdebug.var_display_max_depth: 3
+        xdebug.max_nesting_level: 250
+        xdebug.file_link_format :  "phpstorm://open?file=%f&line=%l"
+        xdebug.profiler_enable: 0
+        xdebug.profiler_output_dir: "/tmp"
+        xdebug.profiler_output_name: cachegrind.out.%s.%t
+      notify: restart php-fpm
+
+    - name: Installing packages
+      package:
+        name: "{{ item }}"
+      with_items:
+        - mod_php{{ php_version }}u
+        - sendmail
+        - httpd
+        - nginx
+        - Percona-Server-client-56
+
     - name: install grunt-cli
       npm:
         name: grunt-cli
         global: yes
 
-    - include: tasks/composer.yml
-    - include: tasks/n98-magerun.yml
+    - name: Append www-data group to users
+      user:
+        name: "{{ item }}"
+        groups:
+          - www-data
+        append: yes
+      with_items:
+        - vagrant
+        - nginx
+        - apache
+
+    - name: Append apache group to users
+      user:
+        name: "{{ item }}"
+        groups:
+          - apache
+        append: yes
+      with_items:
+        - vagrant
+        - nginx
+        - www-data
+
+    - name: Append php-fpm group to users
+      user:
+        name: "{{ item }}"
+        groups:
+          - php-fpm
+        append: yes
+      with_items:
+        - vagrant
+        - www-data
+
+    - name: Upload /etc/
+      copy:
+        src: files/web/etc/
+        dest: /etc/
+
+    - name: Disabling default error index page
+      file:
+        path: /var/www/error/noindex.html
+        state: absent
+
+    - name: Removing default apache "Listen 80"
+      lineinfile:
+        path: /etc/httpd/conf/httpd.conf
+        regexp: ^Listen 80$
+        state: absent
+
+    - name: Configuring /var/www/html "AllowOverride All"
+      command: >-
+        perl -0777 -pi
+          -e 's#(<Directory "/var/www/html">.*?)AllowOverride None(.*?</Directory>)#$1AllowOverride All$2#s'
+          /etc/httpd/conf/httpd.conf
+
+    - name: Uploading configure-ssl.sh
+      template:
+        src: configure-ssl.sh
+        dest: /usr/local/bin/configure-ssl.sh
+        owner: root
+        group: root
+        mode: 0700
+
+    - name: Configuring ssl root for cert signing
+      command: /usr/local/bin/configure-ssl.sh
+
+    - name: Start and enable services
+      service:
+        name: "{{ item }}"
+        state: started
+        enabled: yes
+      with_items:
+        - httpd
+        - nginx

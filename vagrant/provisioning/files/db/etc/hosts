@@ -1,0 +1,7 @@
+127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
+::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
+
+10.19.89.1  dev-host    dev-host.local
+10.19.89.10 dev-web56   dev-web56.local
+10.19.89.14 dev-web70   dev-web70.local
+10.19.89.20 dev-db      dev-db.local

@@ -8,7 +8,9 @@
 /.machines/
 /.shared/
 /proj/
+/tools/
 /private/
 /backups/
 /bigfiles/
 /vendor/
+/vagrant/.ansible-retry

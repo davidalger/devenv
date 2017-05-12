@@ -46,9 +46,7 @@ def configure_web_vm (node, host: nil, ip: nil, php_version: nil)
   
   # setup guest provisioners
   Mount.provision(node)
-  
   ansible_play(node, 'web', { php_version: php_version })
-  bootstrap_sh(node, ['node', 'web'], { php_version: php_version })
   
   # run vhosts.sh on every reload
   node.vm.provision :shell, run: 'always' do |conf|
@@ -57,7 +55,7 @@ def configure_web_vm (node, host: nil, ip: nil, php_version: nil)
   end
 end
 
-def configure_db_vm (node, host: nil, ip: nil, mysql_version: 56)
+def configure_db_vm (node, host: nil, ip: nil)
   node.vm.hostname = host
   node.vm.network :private_network, ip: ip
   assert_hosts_entry host, ip
@@ -67,24 +65,18 @@ def configure_db_vm (node, host: nil, ip: nil, mysql_version: 56)
   # default local data directory location
   local_data_dir_name = MOUNT_PATH + '/mysql/data'
   
-  # if non-default version specified, append to data dir path
-  if mysql_version != 56
-    local_data_dir_name = "#{local_data_dir_name}#{mysql_version}"
-  end
-
   # verify exports and mount nfs mysql data directory
   Mount.assert_export(MOUNT_PATH + '/mysql')
-  Mount.nfs('host-mysql-data', local_data_dir_name, '/var/lib/mysql/data')
+  Mount.nfs('host-mysql-data', local_data_dir_name, '/var/lib/mysql')
   
   # setup guest provisioners
   Mount.provision(node)
-  ansible_play(node, 'db', { mysql_version: mysql_version })
-  bootstrap_sh(node, ['node', 'db'], { mysql_version: mysql_version })
+  ansible_play(node, 'db')
   
   # start mysqld on every reload (must happen here so mysqld starts after file-system is mounted)
   node.vm.provision :shell, run: 'always' do |conf|
-    conf.name = "service mysqld start"
-    conf.inline = "service mysqld start 2> >(grep -v \"/var/lib/mysql/data': Operation not permitted\")"
+    conf.name = "service mysql start"
+    conf.inline = "service mysql start"
   end
 end
 
@@ -95,4 +87,5 @@ def configure_solr_vm (node, host: nil, ip: nil)
 
   # setup guest provisioners
   Mount.provision(node)
+  ansible_play(node, 'solr')
 end

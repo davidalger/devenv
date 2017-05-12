@@ -1,6 +1,0 @@
----
-- name: install composer
-  get_url:
-    url: https://getcomposer.org/download/1.1.0/composer.phar
-    dest: /usr/local/bin/composer
-    mode: 0755
