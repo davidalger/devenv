@@ -6,6 +6,7 @@ It is setup with two primary machines: web and db. Together these two virtual ma
 ## System Requirements
 * Mac OS X 10.9 or later
 * An HFS+ **Case-sensitive** partition mounted at `/Volumes/Server` or `/server`
+* Ansible 2.3 or later (this will be installed by the install.sh script below if not already present)
 
     *Note: The environment should install and run from a case-insensitive mount, but this is not recommended for two reasons: a) the majority of deployments are done to case-sensitive file-systems, so development done on a case-sensitive mount is less error prone (ex: autoloaders may find a class in development, then fail on production); b) mysql will behave differently as it pertains to [identifier case sensitivity](https://dev.mysql.com/doc/refman/5.0/en/identifier-case-sensitivity.html) potentially causing unexpected behavior*
 
@@ -70,12 +71,8 @@ It is setup with two primary machines: web and db. Together these two virtual ma
 | ------------- | ------------ | -------- | --------- | -------------------------------------------------- |
 | dev-host      | 10.19.89.1   | host     | n/a       | this is the host machine for the environment       |
 | [dev-web56]   | 10.19.89.10  | app      | no        | web app node running PHP 5.6                       |
-| [dev-web55]   | 10.19.89.11  | app      | no        | web app node running PHP 5.5                       |
-| [dev-web54]   | 10.19.89.12  | app      | no        | web app node running PHP 5.4                       |
-| [dev-web70]   | 10.19.89.14  | app      | **yes**   | web app node running PHP 7.0 (no redis or ioncube) |
-| [dev-db]      | 10.19.89.20  | database | **yes**   | database node running MySql 5.6                    |
-| [dev-db51]    | 10.19.89.21  | database | no        | database node running MySql 5.1                    |
-| [dev-solr]    | 10.19.89.30  | solr     | no        | currently un-provisioned                           |
+| [dev-web70]   | 10.19.89.14  | app      | **yes**   | web app node running PHP 7.0                       |
+| [dev-db]      | 10.19.89.20  | database | **yes**   | database node running Percona Server 5.6           |
 
 ## Virtual Machines
 
@@ -101,7 +98,7 @@ If any of these three paths exist, a virtual host will be created based on the t
 
 #### PHP Versions
 
-This node has PHP 5.6 from Remi's repository installed. Older versions are available as pre-configured machines, but do not start automatically. To use them, start via `vagrant up web55` or similar. Then configure your local hosts file to point the site needing this specific version of PHP to the correct machine instance.
+The default web70 node has PHP 7.0.x from the IUS repository. PHP 5.6 is also available via the web56 node, but it will not start automatically. To use it, start via `vagrant up web56`, then configure your local hosts file to point the site needing this specific version of PHP to the correct machine instance.
 
 #### SSL
 When the `web` VM is provisioned, a root CA is automatically generated and stored at `/server/.shared/ssl/rootca/certs/ca.cert.pem` if it does not already exist.
@@ -126,21 +123,21 @@ certutil –addstore -enterprise –f "Root" c:\certs\ca.cert.pem
 
 ### Database Server
 
-This node has MySql 5.6.x installed. Since this is a development environment, the root mysql password has been left blank.
+This node has Percona Server 5.6.x installed. Since this is a development environment, the root mysql password has been left blank.
 
 To allow for custom database settings without modifying the default my.cnf file directly, files found at `vagrant/etc/my.cnf.d/*.cnf` will be copied onto this node and are applied via the `!includedir` directive in the `/etc/my.cnf` defaults file. Example use case: create the file `vagrant/etc/my.cnf.d/lower_case_table_names.cnf` with the following contents and then re-provision the vm:
 
     [mysqld]
     lower_case_table_names = 1
 
-***WARNING:*** Because this node is running the mysqld service and persisting data, attempts to forcefully shutdown (aka run `vagrant destroy`) on the db node will cause data corruption and fail subsequent mysqld start operations unless the vm has first been halted and/or the mysqld service stopped gracefully prior to vm destruction. The recommended sequence to wipe the vm and create from scratch is halt, destroy, then up.
+***WARNING:*** Because this node is running the mysql service and persisting data, attempts to forcefully shutdown (aka run `vagrant destroy`) on the db node will cause data corruption and fail subsequent mysql start operations unless the vm has first been halted and/or the mysql service stopped gracefully prior to vm destruction. The recommended sequence to wipe the vm and create from scratch is halt, destroy, then up.
 
 #### MySql Versions
 
 This node has MySql 5.6 from the community MySql RPM installed. Should MySql 5.1 be required, there is a pre-configured machine available, but it will not start by default. Start this machine via `vagrant up db51`. The data directory of this will be kept separate from the MySql 5.6 data in order to preserve data integrity. These machines may be run simultaneously. Configure sites to connect to `dev-db` or `dev-db51` as needed.
 
 #### Common Problems
-##### mysqld fails to start
+##### mysql fails to start
 When this happens you'll see something like the following when attempting to boot the vm:
 
     ==> db: MySQL Daemon failed to start.
@@ -183,10 +180,6 @@ This happens (per above warning) when the mysqld service fails to shutdown clean
 
 If the above does not succeed in bringing it back online, try rebooting the host machine. If that still does not solve the issue, it is likely you will have to help mysqld out a bit with recovery. Check `/var/log/mysqld.log` for more info.
 
-## Solr Server
-
-This node does not boot by default and currently does nothing. It is here as a placeholder for running Solr once the provisioning scripts for it are created.
-
 ## Development Notes
 
 ### Session Storage
@@ -219,12 +212,7 @@ sudo nfsd restart
 
 [dev-web56]: #web-application
 [dev-web70]: #web-application
-[dev-web55]: #web-application
-[dev-web54]: #web-application
-[dev-web53]: #web-application
 [dev-db]: #database-server
-[dev-db51]: #database-server
-[dev-solr]: #solr-server
 
 # License
 This project is licensed under the Open Software License 3.0 (OSL-3.0). See included LICENSE file for full text of OSL-3.0

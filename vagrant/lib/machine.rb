@@ -79,13 +79,3 @@ def configure_db_vm (node, host: nil, ip: nil)
     conf.inline = "service mysql start"
   end
 end
-
-def configure_solr_vm (node, host: nil, ip: nil)
-  node.vm.hostname = host
-  node.vm.network :private_network, ip: ip
-  assert_hosts_entry host, ip
-
-  # setup guest provisioners
-  Mount.provision(node)
-  ansible_play(node, 'solr')
-end

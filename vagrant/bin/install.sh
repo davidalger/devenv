@@ -183,6 +183,7 @@ function install_environment {
     assert_bin_dir
 
     # general tooling
+    assert_pack ansible
     assert_pack ack
     assert_pack bash-completion
     assert_pack git
