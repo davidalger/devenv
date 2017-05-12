@@ -203,10 +203,6 @@ function install_environment {
     assert_pack homebrew/php/php56-redis
     assert_pack homebrew/php/php56-intl
 
-    # virtualization tech
-    assert_tap caskroom/cask
-    assert_pack caskroom/cask/brew-cask
-
     assert_cask vagrant
     assert_tap homebrew/completions
     assert_pack homebrew/completions/vagrant-completion
