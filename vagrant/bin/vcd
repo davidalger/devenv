@@ -1,4 +1,10 @@
 #!/usr/bin/env bash
 
 set -e
-vagrant ssh -c "[ -d $(pwd) ] && cd $(pwd); bash" -- "$@"
+
+target_dir="$(pwd)"
+if [[ "$(pwd)" =~ ^/(Volumes/Server/|server/)?sites(/*|$) ]]; then
+    target_dir="$(pwd | sed -E 's#/(Volumes/Server/|server/)?sites(/*|$)#/var/www/sites\2#')"
+fi
+
+vagrant ssh -c "[ -d '$target_dir' ] && cd '$target_dir'; bash" -- "$@"
