@@ -34,12 +34,10 @@ Vagrant.configure(2) do |conf|
   conf.vm.define :web, primary: true do |node|
     configure_vm node, host: 'dev-web70', ip: '10.19.89.14'
     configure_web node, php_version: 70
-    node.vm.network :forwarded_port, guest: 6379, host: 6379
   end
 
   conf.vm.define :web56, autostart: false do |node|
     configure_vm node, host: 'dev-web56', ip: '10.19.89.10'
     configure_web node, php_version: 56
-    node.vm.network :forwarded_port, guest: 6380, host: 6380
   end
 end
