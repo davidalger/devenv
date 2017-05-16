@@ -26,6 +26,17 @@
       date.timezone: UTC
       session.gc_maxlifetime: 7200
       openssl.cafile: /etc/pki/tls/certs/ca-bundle.crt
+    php_extension_xdebug_ini:
+      xdebug.remote_enable: "on"
+      xdebug.remote_host: dev-host
+      xdebug.idekey: PHPSTORM
+      xdebug.show_local_vars: "on"
+      xdebug.var_display_max_depth: 3
+      xdebug.max_nesting_level: 250
+      xdebug.file_link_format :  '"phpstorm://open?file=%f&line=%l"'
+      xdebug.profiler_enable: 0
+      xdebug.profiler_output_dir: "/tmp"
+      xdebug.profiler_output_name: cachegrind.out.%s.%t
     php_fpm_owner: vagrant
     php_fpm_group: vagrant
     php_fpm_pm: ondemand
@@ -71,17 +82,7 @@
         section: xdebug
         option: "{{ item.key }}"
         value: "{{ item.value }}"
-      with_dict:
-        xdebug.remote_enable: "on"
-        xdebug.remote_host: dev-host
-        xdebug.idekey: PHPSTORM
-        xdebug.show_local_vars: "on"
-        xdebug.var_display_max_depth: 3
-        xdebug.max_nesting_level: 250
-        xdebug.file_link_format :  "phpstorm://open?file=%f&line=%l"
-        xdebug.profiler_enable: 0
-        xdebug.profiler_output_dir: "/tmp"
-        xdebug.profiler_output_name: cachegrind.out.%s.%t
+      with_dict: "{{ php_extension_xdebug_ini }}"
       notify: restart php-fpm
 
     - name: Installing packages
