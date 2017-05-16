@@ -1,27 +1,17 @@
 ---
-- hosts: all
+- name: PerconaDB
+  hosts: all
   become: true
   vars:
     mysql_package_name: Percona-Server-server-56
 
   roles:
-    - devenv-yum
-    - devenv-base
     - repo-percona
-    - name: elasticsearch
-      es_instance_name: "es-dev1"
-      es_config: {
-        http.host: 0.0.0.0,
-        http.port: 9200,
-        transport.tcp.port: 9300,
-
-        index.query.bool.max_clause_count: 16384    # devdocs specifies 10024 for catalogs with > 40k SKUs, need higher
-      }
 
   tasks:
     - name: Upload /etc/
       copy:
-        src: files/db/etc/
+        src: files/percona/etc/
         dest: /etc/
 
     - name: Uploading init-mysql.sh
@@ -64,4 +54,3 @@
         - dev-host
         - dev-web70
         - dev-web56
-        - dev-db

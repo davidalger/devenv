@@ -1,0 +1,13 @@
+---
+- name: Base Box
+  hosts: all
+  become: true
+  roles:
+    - devenv-yum
+    - devenv-base
+
+  tasks:
+    - name: Upload /etc/
+      copy:
+        src: files/basebox/etc/
+        dest: /etc/

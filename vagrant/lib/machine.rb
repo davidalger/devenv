@@ -7,7 +7,7 @@
  # http://davidalger.com/contact/
  ##
 
-def configure_vm (node, host: nil, ip: nil, memory: 2048, cpu: 2)
+def configure_basebox (node, host: nil, ip: nil, memory: 4096, cpu: 2)
   node.vm.box = 'bento/centos-6.7'
 
   node.vm.hostname = host
@@ -22,7 +22,10 @@ def configure_vm (node, host: nil, ip: nil, memory: 2048, cpu: 2)
   Mount.vmfs('host-cache', SHARED_DIR, SHARED_DIR)
   Mount.bind(SHARED_DIR + '/yum', '/var/cache/yum')
   Mount.bind(SHARED_DIR + '/npm', '/var/cache/npm')
+
+  # setup guest provisioners
   Mount.provision(node)
+  ansible_play(node, 'basebox')
 
   # configure default RAM and number of CPUs allocated to vm
   vm_set_ram(node, memory)
@@ -32,7 +35,7 @@ def configure_vm (node, host: nil, ip: nil, memory: 2048, cpu: 2)
   node.ssh.forward_agent = true
 end
 
-def configure_web (node, php_version: nil)
+def configure_web (node, php_version: 70)
   # verify exports and mount nfs sites location
   Mount.assert_export(MOUNT_PATH + SITES_DIR)
   Mount.nfs('host-www-sites', MOUNT_PATH + SITES_DIR, SITES_MOUNT)
@@ -51,7 +54,7 @@ def configure_web (node, php_version: nil)
   end
 end
 
-def configure_db (node, data_dir: 'data')
+def configure_percona (node, data_dir: 'data')
   # default local data directory location
   local_data_dir_name = MOUNT_PATH + '/mysql/' + data_dir
 
@@ -61,11 +64,15 @@ def configure_db (node, data_dir: 'data')
 
   # setup guest provisioners
   Mount.provision(node)
-  ansible_play(node, 'db')
+  ansible_play(node, 'percona')
 
   # start mysqld on every reload (must happen here so mysqld starts after file-system is mounted)
   node.vm.provision :shell, run: 'always' do |conf|
     conf.name = "service mysql start"
     conf.inline = "service mysql start"
   end
+end
+
+def configure_elasticsearch (node)
+  ansible_play(node, 'elasticsearch')
 end
