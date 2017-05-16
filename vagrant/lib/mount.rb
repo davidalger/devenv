@@ -71,6 +71,7 @@ class Mount
           bindings += [mount]
       end
     end
+    @@mounts = []
 
     if bindings.count
       provision_bind(conf, bindings)

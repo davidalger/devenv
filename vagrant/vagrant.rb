@@ -26,20 +26,20 @@ auto_config_host
 # begin the configuration sequence
 Vagrant.require_version '>= 1.7.4'
 Vagrant.configure(2) do |conf|
-  
-  configure_common conf
-  
   conf.vm.define :db do |node|
-    configure_db_vm node, host: 'dev-db', ip: '10.19.89.20'
+    configure_vm node, host: 'dev-db', ip: '10.19.89.20'
+    configure_db node
   end
 
   conf.vm.define :web, primary: true do |node|
-    configure_web_vm node, host: 'dev-web70', ip: '10.19.89.14', php_version: 70
+    configure_vm node, host: 'dev-web70', ip: '10.19.89.14'
+    configure_web node, php_version: 70
     node.vm.network :forwarded_port, guest: 6379, host: 6379
   end
 
   conf.vm.define :web56, autostart: false do |node|
-    configure_web_vm node, host: 'dev-web56', ip: '10.19.89.10', php_version: 56
+    configure_vm node, host: 'dev-web56', ip: '10.19.89.10'
+    configure_web node, php_version: 56
     node.vm.network :forwarded_port, guest: 6380, host: 6380
   end
 end
