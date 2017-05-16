@@ -5,7 +5,7 @@ server {
 
     server_name ~^.*\.?__SITE_HOST__;
 
-    root   /server/sites/__SITE_NAME__/__SITE_PUB__;
+    root   /var/www/sites/__SITE_NAME__/__SITE_PUB__;
     index  index.php index.html;
 
     ssl_certificate     /etc/nginx/ssl/__SITE_HOST__.crt.pem;

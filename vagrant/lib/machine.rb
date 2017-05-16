@@ -37,11 +37,6 @@ def configure_web (node, php_version: nil)
   Mount.assert_export(MOUNT_PATH + SITES_DIR)
   Mount.nfs('host-www-sites', MOUNT_PATH + SITES_DIR, SITES_MOUNT)
 
-  # bind sites directory shortcuts
-  Mount.bind(SITES_MOUNT, SITES_DIR)
-  Mount.bind(SITES_MOUNT, BASE_DIR + SITES_DIR)
-  Mount.bind(SITES_MOUNT, MOUNT_PATH + SITES_DIR)
-
   # bind localhost pub directory
   Mount.bind(SITES_MOUNT + '/__localhost/pub', '/var/www/html')
 

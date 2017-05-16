@@ -13,7 +13,7 @@ set -eu
 ########################################
 # Init default script vars
 
-sites_dir=/server/sites
+sites_dir=/var/www/sites
 certs_dir=/etc/nginx/ssl
 is_quiet=
 no_reload=

@@ -4,5 +4,5 @@
     ServerAlias *.__SITE_HOST__
     CustomLog logs/access_log vhost_combined
 
-    DocumentRoot /server/sites/__SITE_NAME__/__SITE_PUB__
+    DocumentRoot /var/www/sites/__SITE_NAME__/__SITE_PUB__
 </VirtualHost>
