@@ -70,9 +70,8 @@ It is setup with two primary machines: web and db. Together these two virtual ma
 | hostname      | ip           | role     | autostart | description                                        |
 | ------------- | ------------ | -------- | --------- | -------------------------------------------------- |
 | dev-host      | 10.19.89.1   | host     | n/a       | this is the host machine for the environment       |
-| [dev-web56]   | 10.19.89.10  | app      | no        | web app node running PHP 5.6                       |
-| [dev-web70]   | 10.19.89.14  | app      | **yes**   | web app node running PHP 7.0                       |
-| [dev-db]      | 10.19.89.20  | database | **yes**   | database node running Percona Server 5.6           |
+| [dev-web56]   | 10.19.89.10  | app      | no        | App node running PHP 5.6 / Percona Server 5.6      |
+| [dev-web70]   | 10.19.89.14  | app      | **yes**   | App node running PHP 7.0 / Percona Server 5.6      |
 
 ## Virtual Machines
 
@@ -123,34 +122,25 @@ certutil –addstore -enterprise –f "Root" c:\certs\ca.cert.pem
 
 ### Database Server
 
-This node has Percona Server 5.6.x installed. Since this is a development environment, the root mysql password has been left blank.
+Each machine has an instance of Percona Server 5.6.x installed. Since this is a development environment, the root mysql password has been left blank. The data from the default machine is persisted in `/server/mysql/data`, data from other nodes persisted at `/server/mysql/<NAME>` where `<NAME>` is the name of machine the data is for.
 
 To allow for custom database settings without modifying the default my.cnf file directly, files found at `vagrant/etc/my.cnf.d/*.cnf` will be copied onto this node and are applied via the `!includedir` directive in the `/etc/my.cnf` defaults file. Example use case: create the file `vagrant/etc/my.cnf.d/lower_case_table_names.cnf` with the following contents and then re-provision the vm:
 
     [mysqld]
     lower_case_table_names = 1
 
-***WARNING:*** Because this node is running the mysql service and persisting data, attempts to forcefully shutdown (aka run `vagrant destroy`) on the db node will cause data corruption and fail subsequent mysql start operations unless the vm has first been halted and/or the mysql service stopped gracefully prior to vm destruction. The recommended sequence to wipe the vm and create from scratch is halt, destroy, then up.
-
-#### MySql Versions
-
-This node has MySql 5.6 from the community MySql RPM installed. Should MySql 5.1 be required, there is a pre-configured machine available, but it will not start by default. Start this machine via `vagrant up db51`. The data directory of this will be kept separate from the MySql 5.6 data in order to preserve data integrity. These machines may be run simultaneously. Configure sites to connect to `dev-db` or `dev-db51` as needed.
+***WARNING:*** Because data is persisted to the host machine via an NFS mount, attempts to forcefully shutdown (aka run `vagrant destroy`) a machine may cause data corruption and will fail subsequent mysql start operations unless the vm has first been halted and/or the mysql service stopped gracefully prior to vm destruction. The recommended sequence to wipe the vm and create from scratch is halt, destroy, then up.
 
 #### Common Problems
-##### mysql fails to start
-When this happens you'll see something like the following when attempting to boot the vm:
+##### Percona Server fails to start
+When this happens you'll see something like the following when attempting to provision or boot the vm:
 
-    ==> db: MySQL Daemon failed to start.
-    ==> db: Starting mysqld:  
-    ==> db: [FAILED]
-    The SSH command responded with a non-zero exit status. Vagrant
-    assumes that this means the command failed. The output for this command
-    should be in the log above. Please read the output to determine what
-    went wrong.
+    TASK [Starting mysql service] **************************************************
+    fatal: [web]: FAILED! => {"changed": false, "failed": true, "msg": "Starting MySQL (Percona Server). ERROR! The server quit without updating PID file (/var/lib/mysql/dev-web70.pid).\n"}
 
-This happens (per above warning) when the mysqld service fails to shutdown cleanly. To solve this issue, proceed through the following steps:
+This happens (per above warning) when the mysql service fails to shutdown cleanly. To solve this issue, proceed through the following steps:
 
-***WARNING:*** If this is done and there is a running mysqld instance using these ib* files, irreversible data corruption could occur. Be very careful.
+***WARNING:*** If this is done and there is a running mysql instance using these ib* files, irreversible data corruption could occur. Please be careful!
 
 1. Verify that Virtual Box reports NO instances of the db machine is still running before proceeding
 
@@ -158,12 +148,14 @@ This happens (per above warning) when the mysqld service fails to shutdown clean
     VBoxManage list runningvms | grep "Server_db"
     ```
 
-2. Restart the rpc.lockd service on the host
+2. Restart the `rpc.lockd` service on the host
 
     ```bash
     sudo launchctl unload /System/Library/LaunchDaemons/com.apple.lockd.plist
     sudo launchctl load /System/Library/LaunchDaemons/com.apple.lockd.plist
     ```
+
+    Starting in MacOS 10.12.4 the rpc.lockd service is protected by System Integrity Protection, preventing you from reloading it via launchctl. If you see the message `Operation not permitted while System Integrity Protection is engaged` you will need to kill the `rpc.lockd` service instead. The service configuration has KeepAlive enabled, so the desired effect is accomplised, although in a much more heavy-handed fashion. Do this by running `sudo kill <PID>` where `<PID>` is replaced with the number `lsof` (per following step) displays under the PID column for the `rpc.lockd` command.
 
 3. Verify no locks exist on your `ib*` files (command should return nothing)
 
@@ -212,7 +204,6 @@ sudo nfsd restart
 
 [dev-web56]: #web-application
 [dev-web70]: #web-application
-[dev-db]: #database-server
 
 # License
 This project is licensed under the Open Software License 3.0 (OSL-3.0). See included LICENSE file for full text of OSL-3.0

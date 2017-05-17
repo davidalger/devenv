@@ -14,10 +14,7 @@
 def ansible_play (conf, playbook, env = {})
   conf.vm.provision :ansible do |conf|
     conf.playbook = "#{VAGRANT_DIR}/provisioning/#{playbook}.yml"
-    conf.extra_vars = {
-      shared_ssl_dir: SHARED_DIR + '/ssl',
-      host_zoneinfo: File.readlink('/etc/localtime')
-    }.merge(env)
+    conf.extra_vars = env
   end
 end
 

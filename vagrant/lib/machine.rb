@@ -25,7 +25,9 @@ def configure_basebox (node, host: nil, ip: nil, memory: 4096, cpu: 2)
 
   # setup guest provisioners
   Mount.provision(node)
-  ansible_play(node, 'basebox')
+  ansible_play(node, 'basebox', {
+    host_zoneinfo: File.readlink('/etc/localtime')
+  })
 
   # configure default RAM and number of CPUs allocated to vm
   vm_set_ram(node, memory)
@@ -45,7 +47,10 @@ def configure_web (node, php_version: 70)
 
   # setup guest provisioners
   Mount.provision(node)
-  ansible_play(node, 'web', { php_version: php_version })
+  ansible_play(node, 'web', {
+    php_version: php_version,
+    shared_ssl_dir: SHARED_DIR + '/ssl'
+  })
 
   # run vhosts.sh on every reload
   node.vm.provision :shell, run: 'always' do |conf|
