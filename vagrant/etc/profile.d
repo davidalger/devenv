@@ -1,1 +1,1 @@
-../provisioning/roles/devenv-base/files/etc/profile.d
+../provisioning/files/basebox/etc/profile.d
