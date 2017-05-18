@@ -28,15 +28,21 @@ Vagrant.require_version '>= 1.7.4'
 Vagrant.configure(2) do |conf|
   conf.vm.define :web, primary: true do |node|
     configure_basebox node, host: 'dev-web70', ip: '10.19.89.14'
+
     configure_web node
     configure_percona node
-    configure_elasticsearch node
+
+    ansible_play(node, 'solr')
+    ansible_play(node, 'elasticsearch')
   end
 
   conf.vm.define :web56, autostart: false do |node|
     configure_basebox node, host: 'dev-web56', ip: '10.19.89.10'
+
     configure_web node, php_version: 56
     configure_percona node, data_dir: 'web56'
-    configure_elasticsearch node
+
+    ansible_play(node, 'solr')
+    ansible_play(node, 'elasticsearch')
   end
 end

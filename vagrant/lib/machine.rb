@@ -84,7 +84,3 @@ def configure_percona (node, data_dir: 'data')
     conf.inline = "service mysql start"
   end
 end
-
-def configure_elasticsearch (node)
-  ansible_play(node, 'elasticsearch')
-end
