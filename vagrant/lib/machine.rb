@@ -14,9 +14,8 @@ def configure_basebox (node, host: nil, ip: nil, memory: 4096, cpu: 2)
   node.vm.network :private_network, ip: ip
   assert_hosts_entry host, ip
 
-  # disable default /vagrant mount and mount at /server/vagrant
+  # disable default /vagrant synced dir; we don't need it
   node.vm.synced_folder VAGRANT_DIR, '/vagrant', disabled: true
-  Mount.vmfs('host-vagrant', VAGRANT_DIR, VAGRANT_DIR)
 
   # mount persistent shared cache storage on vm and bind sub-caches
   Mount.vmfs('host-cache', SHARED_DIR, SHARED_DIR)
