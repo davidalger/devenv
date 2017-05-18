@@ -4,6 +4,7 @@
 .TemporaryItems
 .fseventsd
 .idea
+.ansible-retry
 /.vagrant/
 /.machines/
 /.shared/
@@ -13,4 +14,3 @@
 /backups/
 /bigfiles/
 /vendor/
-/vagrant/.ansible-retry
