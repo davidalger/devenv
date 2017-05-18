@@ -15,7 +15,7 @@ require_relative 'lib/machine'
 # configure environment paths
 BASE_DIR = base_dir('/server')
 MOUNT_PATH = mount_path(BASE_DIR)
-VAGRANT_DIR = BASE_DIR + '/vagrant'
+VAGRANT_DIR = '/vagrant'
 SHARED_DIR = BASE_DIR + '/.shared'
 SITES_DIR = '/sites'
 SITES_MOUNT = '/var/www/sites'
