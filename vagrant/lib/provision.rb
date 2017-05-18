@@ -11,10 +11,10 @@
 # Params:
 # +conf+:: vagrant provisioning conf object
 # +playbook+:: +String+ name of playbook to run against node
-def ansible_play (conf, playbook, env = {})
+def ansible_play (conf, playbook, extra_vars = {})
   conf.vm.provision :ansible_local do |conf|
     conf.playbook = "/vagrant/provisioning/#{playbook}.yml"
-    conf.extra_vars = env
+    conf.extra_vars = extra_vars
   end
 end
 
