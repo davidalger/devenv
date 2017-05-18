@@ -14,16 +14,23 @@ def configure_basebox (node, host: nil, ip: nil, memory: 4096, cpu: 2)
   node.vm.network :private_network, ip: ip
   assert_hosts_entry host, ip
 
-  # disable default /vagrant synced dir; we don't need it
-  node.vm.synced_folder VAGRANT_DIR, '/vagrant', disabled: true
+  node.vm.synced_folder VAGRANT_DIR, '/vagrant'
 
   # mount persistent shared cache storage on vm and bind sub-caches
   Mount.vmfs('host-cache', SHARED_DIR, SHARED_DIR)
   Mount.bind(SHARED_DIR + '/yum', '/var/cache/yum')
   Mount.bind(SHARED_DIR + '/npm', '/var/cache/npm')
 
-  # setup guest provisioners
+  # setup mount provisioners
   Mount.provision(node)
+
+  # setup the yum cache before vagrant installs ansible in the box (so it can be installed from the cache)
+  node.vm.provision :shell do |conf|
+    conf.name = "yum-cache"
+    conf.inline = 'sed -i \'s/keepcache=0/keepcache = 1\nmetadata_expire = 24h/\' /etc/yum.conf'
+  end
+
+  # run the basebox ansible play on the box
   ansible_play(node, 'basebox', {
     host_zoneinfo: File.readlink('/etc/localtime')
   })
