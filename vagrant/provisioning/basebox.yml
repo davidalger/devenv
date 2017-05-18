@@ -4,6 +4,7 @@
   become: true
   roles:
     - devenv-yum
+    - geerlingguy.repo-epel
 
   tasks:
     # TODO: configure /etc/vmware-tools/locations if present
