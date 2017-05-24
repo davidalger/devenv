@@ -1,6 +1,7 @@
 ---
 # Valid values are 55, 56, 70 and 71
 php_version: 70
+php_enablerepo: null
 
 # List of php modules to install
 php_default_modules:
@@ -26,6 +27,9 @@ php_default_modules:
   - xmlrpc
 php_additional_modules: []
 php_modules: "{{ php_default_modules }} + {{ php_additional_modules }}"
+
+php_fpm_sys_owner: "{{ (php_version >= 56) | ternary('php-fpm', 'apache') }}"
+php_fpm_sys_group: "{{ (php_version >= 56) | ternary('php-fpm', 'apache') }}"
 
 php_fpm_pool: www-data
 

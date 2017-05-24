@@ -26,8 +26,8 @@
   file:
     path: "{{ php_fpm_log_dir }}"
     state: directory
-    owner: php-fpm
-    group: php-fpm
+    owner: "{{ php_fpm_sys_owner }}"
+    group: "{{ php_fpm_sys_group }}"
     mode: 0751
   notify:
     - restart php-fpm
