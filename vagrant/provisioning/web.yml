@@ -14,8 +14,6 @@
       - xsl
       - zip
       - ldap
-      # - pecl-memcache (no stable 7.0 compatible release for this included in the IUS repo)
-      - ioncube-loader
       - xdebug
     php_fpm_additional_ini:
       include: /etc/php-fpm.d/sites.d/*.conf
@@ -46,8 +44,24 @@
     php_xdebug_ini_path: "{{ (php_version == 55) | ternary('/etc/php.d/xdebug.ini','/etc/php.d/15-xdebug.ini') }}"
 
   pre_tasks:
+    # PHP 5.5 is past EOL and only available via the IUS archive repo now
     - set_fact: php_enablerepo=ius-archive
       when: php_version <= 55
+
+    # pecl-memcache is only available for PHP 5.6 and earlier
+    - set_fact:
+        php_additional_modules: "{{ php_additional_modules + ['pecl-memcache']}}"
+      when: php_version <= 56
+
+    # IonCube Loader is only available for PHP 7.0 and earlier
+    - set_fact:
+        php_additional_modules: "{{ php_additional_modules + ['ioncube-loader']}}"
+      when: php_version <=70
+
+    # php71u-pear is not a valid package, so remove it from module list on PHP 7.1
+    - set_fact:
+        php_default_modules: "{{ php_default_modules | difference(['pear']) }}"
+      when: php_version >= 71
 
     - name: create /etc/php-fpm.d/sites.d
       file: path=/etc/php-fpm.d/sites.d state=directory
