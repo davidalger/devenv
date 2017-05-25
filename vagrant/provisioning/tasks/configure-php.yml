@@ -1,0 +1,33 @@
+---
+- name: configure php.ini [phar]
+  ini_file:
+    dest: /etc/php.ini
+    section: phar
+    option: "{{ item.key }}"
+    value: "{{ item.value }}"
+  with_dict:
+    phar.readonly: "off"
+  notify: restart php-fpm
+
+- name: configure xdebug.ini
+  ini_file:
+    dest: "{{ php_xdebug_ini_path }}"
+    section: xdebug
+    option: "{{ item.key }}"
+    value: "{{ item.value }}"
+  with_dict: "{{ php_extension_xdebug_ini }}"
+  notify: restart php-fpm
+
+- name: Linking /var/lib/php/session
+  file:
+    path: /var/lib/php/session
+    src: /var/lib/php/mod_php/session
+    state: link
+    force: yes
+
+- name: Add vagrant to php-fpm group
+  user:
+    name: vagrant
+    groups:
+      - "{{ php_fpm_sys_group }}"
+    append: yes

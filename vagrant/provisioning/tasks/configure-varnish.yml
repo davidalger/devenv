@@ -1,0 +1,5 @@
+---
+- name: Upload /etc/varnish
+  copy:
+    src: files/web/etc/varnish/
+    dest: /etc/varnish/

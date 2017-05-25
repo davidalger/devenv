@@ -1,0 +1,16 @@
+---
+- name: Upload /etc/openssl
+  copy:
+    src: files/web/etc/openssl/
+    dest: /etc/openssl/
+
+- name: Uploading configure-ssl.sh
+  template:
+    src: configure-ssl.sh
+    dest: /usr/local/bin/configure-ssl.sh
+    owner: root
+    group: root
+    mode: 0700
+
+- name: Configuring ssl root for cert signing
+  command: /usr/local/bin/configure-ssl.sh

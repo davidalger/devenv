@@ -76,9 +76,13 @@ def configure_percona (node)
 
   # start mysqld on every reload (must happen here so mysqld starts after file-system is mounted)
   node.vm.provision :shell, run: 'always' do |conf|
-    conf.name = "service mysql start"
-    conf.inline = "service mysql start"
+    conf.name = "systemctl start mysqld"
+    conf.inline = "systemctl start mysqld"
   end
+end
+
+def configure_elasticsearch (node)
+  ansible_play(node, 'elasticsearch')
 end
 
 def configure_solr (node)
