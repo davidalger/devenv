@@ -21,8 +21,3 @@
 
     # updating these packages can cause issue with the box, nfs mounts and/or VM Ware tools
     value: yum nfs-utils util-linux-ng libuuid libblkid kernel*
-
-- name: Update packages
-  package:
-    name: "*"
-    state: latest

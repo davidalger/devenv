@@ -24,7 +24,7 @@ SITES_MOUNT = '/var/www/sites'
 auto_config_host
 
 # begin the configuration sequence
-Vagrant.require_version '>= 1.7.4'
+Vagrant.require_version '>= 1.9.5'
 Vagrant.configure(2) do |conf|
   conf.vm.define :web, primary: true do |node|
     configure_basebox node, host: 'dev-web70', ip: '10.19.89.14'
