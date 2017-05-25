@@ -66,6 +66,9 @@
     - name: create /etc/php-fpm.d/sites.d
       file: path=/etc/php-fpm.d/sites.d state=directory
 
+    - name: create www-data user
+      user: name=www-data
+
   roles:
     - devenv-npm
     - repo-percona
@@ -75,7 +78,6 @@
       n98_magerun_version: 1
       n98_magerun_shortcut_name: mr1
     - redis
-    - www-user
     - php-fpm
     - { role: varnish, varnish_instance: { name: dev, port: 6081, admin_port: 6082, backend_port: 8080 }}
 
