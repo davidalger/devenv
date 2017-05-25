@@ -10,11 +10,6 @@
     src: files/web/etc/httpd/
     dest: /etc/httpd/
 
-- name: Disabling default error index page
-  file:
-    path: /var/www/error/noindex.html
-    state: absent
-
 - name: Removing default httpd "Listen 80"
   lineinfile:
     path: /etc/httpd/conf/httpd.conf

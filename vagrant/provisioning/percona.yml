@@ -22,18 +22,18 @@
         group: root
         mode: 0700
 
-    - name: Initializing mysql data
+    - name: Initialize mysql data
       command: /usr/local/bin/init-mysql.sh
       args:
         creates: /var/lib/mysql/ibdata1
 
     # Ensures Percona is installed when init procedure isn't needed
-    - name: Installing Percona server
+    - name: Install Percona server
       package:
         name: "{{ mysql_package_name }}"
         state: present
 
-    - name: Starting mysql service
+    - name: Start mysql service
       service:
         name: mysqld
         state: started
