@@ -65,7 +65,7 @@ def configure_web (node, php_version: 70)
   end
 end
 
-def configure_percona (node, data_dir)
+def configure_percona (node)
   # verify exports and mount nfs mysql data directory
   Mount.assert_export(MOUNT_PATH + '/mysql')
   Mount.nfs('host-mysql-data', MOUNT_PATH + '/mysql/' + node.vm.hostname.sub('dev-', ''), '/var/lib/mysql')
@@ -79,4 +79,13 @@ def configure_percona (node, data_dir)
     conf.name = "service mysql start"
     conf.inline = "service mysql start"
   end
+end
+
+def configure_solr (node)
+  # bind the solr workspace to the install/download cache location
+  Mount.bind(SHARED_DIR + '/solr', '/var/cache/solr')
+  Mount.provision(node)
+
+  # provision the box with solr
+  ansible_play(node, 'solr')
 end
