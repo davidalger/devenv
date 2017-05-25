@@ -46,10 +46,11 @@
     php_xdebug_ini_path: "{{ (php_version == 55) | ternary('/etc/php.d/xdebug.ini','/etc/php.d/15-xdebug.ini') }}"
 
   pre_tasks:
+    - set_fact: php_enablerepo=ius-archive
+      when: php_version <= 55
+
     - name: create /etc/php-fpm.d/sites.d
-      file:
-        path: /etc/php-fpm.d/sites.d
-        state: directory
+      file: path=/etc/php-fpm.d/sites.d state=directory
 
   roles:
     - devenv-npm
@@ -85,10 +86,9 @@
       notify: restart php-fpm
 
     - name: Installing packages
-      package:
-        name: "{{ item }}"
+      yum: name={{ item }} enablerepo={{ php_enablerepo }}
       with_items:
-        - mod_php{{ php_version }}u
+        - php{{ php_version }}u
         - sendmail
         - httpd
         - nginx
@@ -132,7 +132,7 @@
       user:
         name: "{{ item }}"
         groups:
-          - php-fpm
+          - "{{ php_fpm_sys_group }}"
         append: yes
       with_items:
         - vagrant

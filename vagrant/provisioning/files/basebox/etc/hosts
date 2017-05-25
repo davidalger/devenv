@@ -4,4 +4,5 @@
 127.0.0.1   dev-db      dev-db.local
 10.19.89.1  dev-host    dev-host.local
 10.19.89.10 dev-web56   dev-web56.local
+10.19.89.11 dev-web55   dev-web55.local
 10.19.89.14 dev-web70   dev-web70.local

@@ -45,4 +45,11 @@ Vagrant.configure(2) do |conf|
     ansible_play(node, 'solr')
     ansible_play(node, 'elasticsearch')
   end
+
+  conf.vm.define :web55, autostart: false do |node|
+    configure_basebox node, host: 'dev-web55', ip: '10.19.89.11'
+
+    configure_web node, php_version: 55
+    configure_percona node, data_dir: 'web56'
+  end
 end

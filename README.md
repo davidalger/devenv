@@ -70,8 +70,9 @@ It is setup with two primary machines: web and db. Together these two virtual ma
 | hostname      | ip           | role     | autostart | description                                        |
 | ------------- | ------------ | -------- | --------- | -------------------------------------------------- |
 | dev-host      | 10.19.89.1   | host     | n/a       | this is the host machine for the environment       |
-| [dev-web56]   | 10.19.89.10  | app      | no        | App node running PHP 5.6 / Percona Server 5.6      |
 | [dev-web70]   | 10.19.89.14  | app      | **yes**   | App node running PHP 7.0 / Percona Server 5.6      |
+| [dev-web56]   | 10.19.89.10  | app      | no        | App node running PHP 5.6 / Percona Server 5.6      |
+| [dev-web55]   | 10.19.89.11  | app      | no        | App node running PHP 5.5 / Percona Server 5.6      |
 
 ## Virtual Machines
 
@@ -201,9 +202,6 @@ printf "%s\n%s\n" \
     | sudo tee -a /etc/exports > /dev/null
 sudo nfsd restart
 ```
-
-[dev-web56]: #web-application
-[dev-web70]: #web-application
 
 # License
 This project is licensed under the Open Software License 3.0 (OSL-3.0). See included LICENSE file for full text of OSL-3.0
