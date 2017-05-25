@@ -1,12 +1,13 @@
 # Development Environment
+
 This setup relies on Vagrant and VirtualBox (or [VMWare Fusion](#vmware-provider) if that's what you prefer) running on Mac OS X to power the virtualized developer environment. These dependencies are installed as part of the setup process using [Homebrew](http://brew.sh) and [Homebrew Cask](http://caskroom.io).
 
 It is setup with two primary machines: web and db. Together these two virtual machines provide all the necessary components to build on Magento 1 and Magento 2, including support for running multiple PHP / MySql versions side-by-side if necessary ([see below for details](#virtual-machines)). The web node runs a traditional LAMP stack, with Nginx sitting in front of Apache as a proxy for static assets. It also includes [Xdebug](http://xdebug.org) pre-configured to connect to your IDE on the host machine.
 
 ## System Requirements
+
 * Mac OS X 10.9 or later
 * An HFS+ **Case-sensitive** partition mounted at `/Volumes/Server` or `/server`
-* Ansible 2.3 or later (this will be installed by the install.sh script below if not already present)
 
     *Note: The environment should install and run from a case-insensitive mount, but this is not recommended for two reasons: a) the majority of deployments are done to case-sensitive file-systems, so development done on a case-sensitive mount is less error prone (ex: autoloaders may find a class in development, then fail on production); b) mysql will behave differently as it pertains to [identifier case sensitivity](https://dev.mysql.com/doc/refman/5.0/en/identifier-case-sensitivity.html) potentially causing unexpected behavior*
 
