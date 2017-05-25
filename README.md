@@ -70,6 +70,7 @@ It is setup with two primary machines: web and db. Together these two virtual ma
 | hostname      | ip           | role     | autostart | description                                        |
 | ------------- | ------------ | -------- | --------- | -------------------------------------------------- |
 | dev-host      | 10.19.89.1   | host     | n/a       | this is the host machine for the environment       |
+| [dev-web71]   | 10.19.89.15  | app      | no        | App node running PHP 7.1 / Percona Server 5.6      |
 | [dev-web70]   | 10.19.89.14  | app      | **yes**   | App node running PHP 7.0 / Percona Server 5.6      |
 | [dev-web56]   | 10.19.89.10  | app      | no        | App node running PHP 5.6 / Percona Server 5.6      |
 | [dev-web55]   | 10.19.89.11  | app      | no        | App node running PHP 5.5 / Percona Server 5.6      |
