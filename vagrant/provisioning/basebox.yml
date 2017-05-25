@@ -48,11 +48,6 @@
         value: /etc/.gitignore_global
       become: false
 
-    - name: Update packages
-      package:
-        name: "*"
-        state: latest
-
     - package:
         name: "{{ item }}"
       with_items:

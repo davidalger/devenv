@@ -8,7 +8,7 @@
  ##
 
 def configure_basebox (node, host: nil, ip: nil, memory: 4096, cpu: 2)
-  node.vm.box = 'bento/centos-6.9'
+  node.vm.box = 'bento/centos-7.3'
 
   node.vm.hostname = host
   node.vm.network :private_network, ip: ip
