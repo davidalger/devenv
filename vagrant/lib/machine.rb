@@ -65,13 +65,10 @@ def configure_web (node, php_version: 70)
   end
 end
 
-def configure_percona (node, data_dir: 'data')
-  # default local data directory location
-  local_data_dir_name = MOUNT_PATH + '/mysql/' + data_dir
-
+def configure_percona (node, data_dir)
   # verify exports and mount nfs mysql data directory
   Mount.assert_export(MOUNT_PATH + '/mysql')
-  Mount.nfs('host-mysql-data', local_data_dir_name, '/var/lib/mysql')
+  Mount.nfs('host-mysql-data', MOUNT_PATH + '/mysql/' + node.vm.hostname.sub('dev-', ''), '/var/lib/mysql')
 
   # setup guest provisioners
   Mount.provision(node)

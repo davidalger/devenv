@@ -30,7 +30,7 @@ Vagrant.configure(2) do |conf|
     configure_basebox node, host: 'dev-web70', ip: '10.19.89.14'
 
     configure_web node
-    configure_percona node
+    configure_percona node, data_dir: 'web70'
 
     ansible_play(node, 'solr')
     ansible_play(node, 'elasticsearch')
@@ -50,6 +50,6 @@ Vagrant.configure(2) do |conf|
     configure_basebox node, host: 'dev-web55', ip: '10.19.89.11'
 
     configure_web node, php_version: 55
-    configure_percona node, data_dir: 'web56'
+    configure_percona node, data_dir: 'web55'
   end
 end
