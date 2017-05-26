@@ -2,6 +2,8 @@
 
 ## 2.0.0 from 1.x
 
+### DevEnv Update Procedure
+
     cd /server
 
     vagrant halt
@@ -33,3 +35,25 @@
 
     vagrant status
     vagrant up
+
+### Transferring Databases from web70 to web56
+
+    db_name=m1_dev
+    db_srchost=dev-web70
+    db_dsthost=dev-web56
+    mysqldump -h$db_srchost -uroot "$db_name" | pv > "$db_name.sql"
+    mysql -h$db_dsthost -uroot -e "drop database if exists $db_name"
+    mysql -h$db_dsthost -uroot -e "create database $db_name"
+    pv "$db_name.sql" | LC_ALL=C sed 's/\/\*[^*]*DEFINER=[^*]*\*\///g' | mysql -h$db_dsthost -uroot "$db_name"
+    rm -vf "$db_name.sql"
+    mysql -h$db_srchost -uroot -e "drop database if exists $db_name"
+
+### Re-Importing a Database to Correct DEFINERs
+
+    db_name=m2_demo
+    db_host=dev-web70
+    mysqldump -h$db_host -uroot "$db_name" | pv > "$db_name.sql"
+    mysql -h$db_host -uroot -e "drop database if exists $db_name"
+    mysql -h$db_host -uroot -e "create database $db_name"
+    pv "$db_name.sql" | LC_ALL=C sed 's/\/\*[^*]*DEFINER=[^*]*\*\///g' | mysql -h$db_host -uroot "$db_name"
+    rm -vf "$db_name.sql"
