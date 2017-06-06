@@ -58,6 +58,14 @@ Default timezone of JVM running solr. You can override this if needed when using
 
 A list of cores / collections which should exist on the server. Each one will be created (if it doesn't exist already) using the default example configuration that ships with Solr. Note that this variable only applies when using Solr 5+.
 
+    solr_connect_host: localhost
+
+The hostname or IP address on which Solr will be reachable. `localhost` should work in most circumstances, but there are special cases where you may only be able to access the local Solr instance via another IP or hostname.
+
+    solr_restart_handler_enabled: true
+
+Whether the `restart solr` handler should be used or not. If you're building containers or AMIs, you might need to disable the restart handler for a provisioning run.
+
 ### Variables used only for Solr < 5.
 
 The following variables are currently only applied to installations of Solr 4 and below:
@@ -87,4 +95,4 @@ MIT / BSD
 
 ## Author Information
 
-This role was created in 2014 by [Jeff Geerling](http://www.jeffgeerling.com/), author of [Ansible for DevOps](https://www.ansiblefordevops.com/).
+This role was created in 2014 by [Jeff Geerling](https://www.jeffgeerling.com/), author of [Ansible for DevOps](https://www.ansiblefordevops.com/).
