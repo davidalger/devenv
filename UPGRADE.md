@@ -33,6 +33,10 @@
     # reset the shared npm/yum cache
     rm -rf /server/.shared/{yum,npm}
 
+    # upgrade local php version to PHP 7 and ensure deps are installed
+    brew unlink php56
+    /server/vagrant/bin/install.sh
+
     vagrant status
     vagrant up
 
