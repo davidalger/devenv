@@ -57,7 +57,6 @@
       yum: name={{ item }}
       with_items:
         - sendmail
-        - Percona-Server-client-56
 
     - name: Install grunt-cli
       npm:

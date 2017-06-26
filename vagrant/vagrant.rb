@@ -37,7 +37,7 @@ Vagrant.configure(2) do |conf|
   conf.vm.define :web71, autostart: false do |node|
     configure_basebox node, host: 'dev-web71', ip: '10.19.89.15'
     configure_web node, php_version: 71
-    configure_percona node
+    configure_percona node, mysql_version: 57
     configure_solr node
     configure_elasticsearch node
   end

@@ -3,8 +3,25 @@
   hosts: all
   become: true
   vars:
-    mysql_package_name: Percona-Server-server-56
+    mysql_server_package_name: nil
+    mysql_client_package_name: nil
 
+  pre_tasks:
+    - debug: var=mysql_version
+      
+    - set_fact: mysql_server_package_name=Percona-Server-server-56
+      when: mysql_version <= 56
+    - set_fact: mysql_client_package_name=Percona-Server-client-56
+      when: mysql_version <= 56
+
+    - set_fact: mysql_server_package_name=Percona-Server-server-57
+      when: mysql_version >= 57
+    - set_fact: mysql_client_package_name=Percona-Server-client-57
+      when: mysql_version >= 57
+
+    - debug: var=mysql_server_package_name
+    - debug: var=mysql_client_package_name
+    
   roles:
     - repo-percona
 
@@ -22,31 +39,58 @@
         group: root
         mode: 0700
 
+    - name: Uploading status-mysql.sh
+      template:
+        src: status-mysql.sh
+        dest: /usr/local/bin/status-mysql.sh
+        owner: root
+        group: root
+        mode: 0700
+    
+    - command: /usr/local/bin/status-mysql.sh
+      register: mysqld_package_installed
+    - debug: var=mysqld_package_installed
+    
+    - stat:
+        path: /var/lib/mysql/ibdata1
+      register: ibdata1_stat
+    - debug: var=ibdata1_stat
+    
     - name: Initialize mysql data
       command: /usr/local/bin/init-mysql.sh
-      args:
-        creates: /var/lib/mysql/ibdata1
+      register: init_mysql_data_out
+      when:  ibdata1_stat.stat.exists == false or mysqld_package_installed.stdout == "false"
+    - debug: var=init_mysql_data_out.stdout_lines
 
     # Ensures Percona is installed when init procedure isn't needed
-    - name: Install Percona server
+    - name: Install Percona Client/Server
       package:
-        name: "{{ mysql_package_name }}"
+        name: "{{ item }}"
         state: present
+      with_items:
+        - "{{ mysql_client_package_name }}"
+        - "{{ mysql_server_package_name }}"
 
     - name: Start mysql service
       service:
         name: mysqld
         state: started
         enabled: no     # no auto-starting after reboot (i.e. halt, up); provisioner starts it after data is mounted
-
+    
     - name: Install python-mysqldb
       package:
         name: MySQL-python
         state: present
-
+    
+    - name: Extract mysql root password
+      command: perl -0777 -ne 'print "$&\n" if /(?<=password = ).+/' /root/.my.cnf
+      register: mysql_root_password
+    - debug: var=mysql_root_password
+    
     - name: Configuring mysql root user
       mysql_user:
         user: root
+        password: "{{ mysql_root_password.stdout }}"
         host: "{{ item }}"
         priv: "*.*:ALL,GRANT"
       with_items:
