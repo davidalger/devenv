@@ -125,7 +125,7 @@ function generate_config {
     local override="$site_path/.$service.$conf_ext"
     local status=
 
-    local site_pub=$(ls -1dU "$site_path"/{pub,html,htdocs} 2>/dev/null | head -n1)
+    local site_pub=$(ls -1dU "$site_path"/{pub,public,html,htdocs} 2>/dev/null | head -n1)
     [[ -n $site_pub ]] && site_pub=$(basename "$site_pub") || site_pub=pub
 
     # If a varnish config exists, use the varnish backend in generated config file
