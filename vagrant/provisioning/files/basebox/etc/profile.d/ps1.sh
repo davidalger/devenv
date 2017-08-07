@@ -33,9 +33,20 @@ function __git_ps1_devenv {
     fi
 }
 
+## show current terraform workspace in prompt if workspaces are being used
+function __terraform_ps1 {
+    if [[ ! -x "$(which terraform 2> /dev/null)" ]]; then
+        return
+    fi
+    
+    if [[ -f .terraform/environment ]]; then
+        echo "[$(cat .terraform/environment)] "
+    fi
+}
+
 ## set PS1 with different colors / options on host vs guest machines
 if [[ -f "/etc/.vagranthost" ]]; then
-    export PS1='\[\033[0;34m\]\u\[\033[0m\]:\@:\[\033[0;37m\]\w\[\033[0m\]$(__git_ps1_devenv)$ '
+    export PS1='\[\033[0;34m\]\u\[\033[0m\]:\@:\[\033[0;37m\]\w\[\033[0m\]$(__git_ps1_devenv)$(__terraform_ps1)$ '
 else
     if [[ $EUID -ne 0 ]]; then
         export PS1='\[\033[0;36m\]\u@\h\[\033[0m\]:\@:\[\033[0;37m\]\w\[\033[0m\]$ '
