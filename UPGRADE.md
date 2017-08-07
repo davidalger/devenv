@@ -61,3 +61,7 @@
     mysql -h$db_host -uroot -e "create database $db_name"
     pv "$db_name.sql" | LC_ALL=C sed 's/\/\*[^*]*DEFINER=[^*]*\*\///g' | mysql -h$db_host -uroot "$db_name"
     rm -vf "$db_name.sql"
+
+### Correcting Redis Config in env.php or local.xml
+
+Redis is no longer deployed with 16 databases. Sites using different db numbers for obj/fpc/ses storage in redis will need to be updated to use db 0, pointing to the appropriate (std) redis ports for the obj/fpc/ses redis servers.
