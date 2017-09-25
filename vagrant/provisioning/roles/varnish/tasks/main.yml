@@ -1,33 +1,60 @@
 ---
-- name: install varnish-4.1 rpm
-  yum: name=https://repo.varnish-cache.org/redhat/varnish-4.1.el{{ ansible_distribution_major_version }}.rpm
-  tags: varnish
+- name: Install varnish41 repo dependencies
+  yum:
+    name: "{{ item }}"
+  with_items:
+    - pygpgme
+    - yum-utils
 
-- name: install varnish
-  yum: name=varnish
-  tags: varnish
+- name: Remove deprecated varnish41 repo config
+  file:
+    path: /etc/yum.repos.d/varnish-4.1.repo
+    state: absent
 
-- name: disable default varnish service
+- name: Check if varnish41 repo is already configured
+  stat:
+    path: /etc/yum.repos.d/varnishcache_varnish41.repo
+  register: varnish_repofile_result
+
+- name: Install varnish41 repo
+  template:
+    src: varnishcache_varnish41.repo
+    dest: /etc/yum.repos.d/varnishcache_varnish41.repo
+  when: not varnish_repofile_result.stat.exists
+
+# - name: Import Varnish GPG key
+#   rpm_key:
+#     key: https://packagecloud.io/varnishcache/varnish41/gpgkey
+#     state: present
+#   when: not varnish_repofile_result.stat.exists
+
+- name: Generate yum cache for varnish41 repo
+  command: yum -q makecache -y --disablerepo='*' --enablerepo='varnishcache_varnish41*'
+  args:
+    warn: no
+  when: not varnish_repofile_result.stat.exists
+
+- name: Install varnish
+  yum:
+    name: varnish
+
+- name: Disable default varnish service
   service:
     name: varnish
     state: stopped
     enabled: no
-  tags: varnish
 
 - include: configure-el{{ ansible_distribution_major_version }}.yml
-  tags: varnish
 
 # append the actual service name to list which the "restart varnish" handler iterates
 # this is neccessary because handlers cannot use variables in the same way tasks can
-- name: register varnish-{{ varnish_instance.name }} restart
+- name: Register varnish-{{ varnish_instance.name }} restart
   set_fact:
     varnish_service_restart: "{{ varnish_service_restart|default([]) }} + [ 'varnish-{{ varnish_instance.name }}' ]"
   when: varnish_config.changed
-  tags: varnish
 
-- name: start varnish-{{ varnish_instance.name }} service
+- name: Start varnish-{{ varnish_instance.name }} service
   service:
     name: varnish-{{ varnish_instance.name }}
     state: started
     enabled: yes
-  tags: varnish
