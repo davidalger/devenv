@@ -1,0 +1,65 @@
+---
+- name: Provision Web
+  hosts: all
+  become: true
+  vars:
+    # compatibility with the headers in some of the imported provisioner roles
+    ansible_managed_header:
+    ansible_managed_header_alt:
+
+  vars_files:
+    - vars/nginx.yml
+    - vars/php-fpm.yml
+
+  pre_tasks:
+    # PHP 5.5 is past EOL and only available via the IUS archive repo now
+    - set_fact: php_enablerepo=ius-archive
+      when: php_version <= 55
+
+    # pecl-memcache is only available for PHP 5.6 and earlier
+    - set_fact:
+        php_additional_modules: "{{ php_additional_modules + ['pecl-memcache']}}"
+      when: php_version <= 56
+
+    # IonCube Loader is only available for PHP 7.0 and earlier
+    - set_fact:
+        php_additional_modules: "{{ php_additional_modules + ['ioncube-loader']}}"
+      when: php_version <=70
+
+    # php71u-pear is not a valid package, so remove it from module list on PHP 7.1
+    - set_fact:
+        php_default_modules: "{{ php_default_modules | difference(['pear']) }}"
+      when: php_version >= 71
+
+    - name: create /etc/php-fpm.d/sites.d
+      file: path=/etc/php-fpm.d/sites.d state=directory
+
+  roles:
+    - devenv-npm
+    - repo-percona
+    - composer
+    - n98-magerun
+    - { role: n98-magerun, n98_magerun_version: 1, n98_magerun_shortcut_name: mr1 }
+    - { role: varnish, varnish_instance: { name: dev, port: 6081, admin_port: 6082, backend_port: 8080 }}
+    - { role: redis, redis_instance: { name: obj, port: 6379, redis_maxmemory: 512mb }}
+    - { role: redis, redis_instance: { name: fpc, port: 6381, redis_maxmemory: 512mb }}
+    - { role: redis, redis_instance: { name: ses, port: 6380, redis_maxmemory: 512mb }}
+    - php-fpm
+    - nginx
+
+  tasks:
+    - include: tasks/configure-php.yml
+    - include: tasks/configure-varnish.yml
+    - include: tasks/configure-httpd.yml
+    - include: tasks/configure-nginx.yml
+
+    - name: Install packages
+      yum: name={{ item }}
+      with_items:
+        - sendmail
+        - Percona-Server-client-56
+
+    - name: Install grunt-cli
+      npm:
+        name: grunt-cli
+        global: yes

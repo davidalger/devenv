@@ -1,0 +1,23 @@
+---
+- name: install nginx
+  yum: name=nginx
+
+- name: install httpd-tools
+  package: name=httpd-tools
+
+- include: configure-nginx.yml
+- include: configure-ssl.yml
+- include: configure-logrotate.yml
+
+- name: start nginx service
+  service:
+    name: nginx
+    state: started
+    enabled: yes
+
+# Reload nginx now if nginx.conf was touched; this allows nginx to disassociate with previous user if needed
+- name: restart nginx service
+  service:
+    name: nginx
+    state: restarted
+  when: nginx_conf_result|default(false) and nginx_conf_result|changed

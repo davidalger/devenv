@@ -75,6 +75,10 @@ class Mount
     if bindings.count
       provision_bind(conf, bindings)
     end
+
+    # reset so subsequent calls won't operate on the same mounts as a previous run
+    @@mounts = []
+    bindings = []
   end
 
   def self.provision_nfs (conf, mount)

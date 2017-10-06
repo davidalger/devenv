@@ -1,0 +1,21 @@
+---
+- name: Configure local yum cache
+  ini_file:
+    dest: /etc/yum.conf
+    section: main
+    option: "{{ item.key }}"
+    value: "{{ item.value }}"
+  with_dict:
+    keepcache: 1
+    metadata_expire: 24h
+
+- name: Install libselinux-python / kernel-headers
+  package:
+    name: libselinux-python, kernel-headers
+
+- name: Configure yum to exclude breaking upgrades
+  ini_file:
+    dest: /etc/yum.conf
+    section: main
+    option: exclude
+    value: "{{ devenv_yum_conf_exclude | join(' ') }}"

@@ -1,1 +1,1 @@
-../guest/etc/profile.d
+../provisioning/files/basebox/etc/profile.d

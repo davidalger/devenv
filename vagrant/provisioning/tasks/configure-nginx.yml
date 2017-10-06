@@ -1,0 +1,15 @@
+---
+- name: Upload /etc/nginx
+  copy:
+    src: files/web/etc/nginx/
+    dest: /etc/nginx/
+  notify: reload nginx
+
+- include: configure-ssl.yml
+
+- name: Add vagrant to nginx group
+  user:
+    name: vagrant
+    groups:
+      - nginx
+    append: yes

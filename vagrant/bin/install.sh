@@ -171,6 +171,12 @@ function assert_bin_dir {
     fi
 }
 
+function configure_php {
+    if [[ -f /usr/local/etc/php/7.0/php.ini ]]; then
+        perl -pi -e 's/^memory_limit\s?=\s?.*/memory_limit = 2G/g' /usr/local/etc/php/7.0/php.ini
+    fi
+}
+
 ##############################
 # declare installation routine
 
@@ -183,6 +189,7 @@ function install_environment {
     assert_bin_dir
 
     # general tooling
+    assert_pack ansible
     assert_pack ack
     assert_pack bash-completion
     assert_pack git
@@ -197,14 +204,11 @@ function install_environment {
     assert_pack wget
 
     assert_tap homebrew/php
-    assert_pack homebrew/php/php56
-    assert_pack homebrew/php/php56-mcrypt
-    assert_pack homebrew/php/php56-redis
-    assert_pack homebrew/php/php56-intl
-
-    # virtualization tech
-    assert_tap caskroom/cask
-    assert_pack caskroom/cask/brew-cask
+    assert_pack homebrew/php/php70
+    assert_pack homebrew/php/php70-mcrypt
+    assert_pack homebrew/php/php70-redis
+    assert_pack homebrew/php/php70-intl
+    configure_php
 
     assert_cask vagrant
     assert_tap homebrew/completions

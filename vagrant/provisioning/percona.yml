@@ -1,0 +1,58 @@
+---
+- name: PerconaDB
+  hosts: all
+  become: true
+  vars:
+    mysql_package_name: Percona-Server-server-56
+
+  roles:
+    - repo-percona
+
+  tasks:
+    - name: Upload /etc/
+      copy:
+        src: files/percona/etc/
+        dest: /etc/
+
+    - name: Uploading init-mysql.sh
+      template:
+        src: init-mysql.sh
+        dest: /usr/local/bin/init-mysql.sh
+        owner: root
+        group: root
+        mode: 0700
+
+    - name: Initialize mysql data
+      command: /usr/local/bin/init-mysql.sh
+      args:
+        creates: /var/lib/mysql/ibdata1
+
+    # Ensures Percona is installed when init procedure isn't needed
+    - name: Install Percona server
+      package:
+        name: "{{ mysql_package_name }}"
+        state: present
+
+    - name: Start mysql service
+      service:
+        name: mysqld
+        state: started
+        enabled: no     # no auto-starting after reboot (i.e. halt, up); provisioner starts it after data is mounted
+
+    - name: Install python-mysqldb
+      package:
+        name: MySQL-python
+        state: present
+
+    - name: Configuring mysql root user
+      mysql_user:
+        user: root
+        host: "{{ item }}"
+        priv: "*.*:ALL,GRANT"
+      with_items:
+        - localhost
+        - dev-host
+        - dev-web71
+        - dev-web70
+        - dev-web56
+        - dev-web55
