@@ -345,6 +345,9 @@ else
     install_from_packages
 fi
 
+# Find Magento version; the echo here trims the resulting string
+installed_version=$(echo -n $(bin/magento --version --no-ansi | cut -d' ' -f4))
+
 # link session dir so install won't choke trying to lock a session file on an nfs mount
 ln -s /var/lib/php/session var/session
 
@@ -392,7 +395,15 @@ if [[ ! $NO_COMPILE ]]; then
     else
         bin/magento setup:di:compile $NOISE_LEVEL
     fi
-    bin/magento setup:static-content:deploy $NOISE_LEVEL
+    
+    m22_vercheck=$(php -r 'echo version_compare("'$installed_version'", "2.2.0", ">=") ? 1 : "";')
+    
+    # Magento 2.2 added requirement of using -f flag to deploy static content when Magento is in developer mode
+    if [[ ! -z $m22_vercheck ]]; then
+        bin/magento setup:static-content:deploy -f $NOISE_LEVEL
+    else
+        bin/magento setup:static-content:deploy $NOISE_LEVEL
+    fi
     bin/magento cache:flush $NOISE_LEVEL
 fi
 
