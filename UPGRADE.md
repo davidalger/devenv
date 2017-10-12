@@ -40,6 +40,10 @@
     # remove old dev-* records from /etc/hosts
     sudo perl -i -pe 's/^10\.19\.89\..*dev-.*\n$//' /etc/hosts
 
+    # clear all pub/static generated content to avoid broken symlinks
+    ls -lhd /server/sites/*/pub/static/*/
+    rm -rf /server/sites/*/pub/static/*/
+
     vagrant status
     vagrant up
 
