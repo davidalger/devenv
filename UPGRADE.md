@@ -37,6 +37,9 @@
     brew unlink php56
     /server/vagrant/bin/install.sh
 
+    # remove old dev-* records from /etc/hosts
+    sudo perl -i -pe 's/^10\.19\.89\..*dev-.*\n$//' /etc/hosts
+
     vagrant status
     vagrant up
 
