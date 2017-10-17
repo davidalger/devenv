@@ -349,7 +349,9 @@ fi
 installed_version=$(echo -n $(bin/magento --version --no-ansi | cut -d' ' -f4))
 
 # link session dir so install won't choke trying to lock a session file on an nfs mount
-ln -s /var/lib/php/session var/session
+if [[ ! -d var/session ]]; then
+    ln -s /var/lib/php/session var/session
+fi 
 
 # either install or upgrade database
 print_info_flag=
