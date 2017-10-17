@@ -75,8 +75,8 @@ for arg in "$@"; do
             ;;
         --branch=*)
             BRANCH="${arg#*=}"
-            if [[ ! "$BRANCH" =~ ^(2\.0|develop)$ ]]; then
-                >&2 echo "Error: Invalid value given --branch=$BRANCH (must be '2.0' or develop)"
+            if [[ ! "$BRANCH" =~ ^(develop|2\.[0-3]|2\.[0-3]-develop)$ ]]; then
+                >&2 echo "Error: Invalid value given --branch=$BRANCH"
                 exit -1
             fi
             ;;
