@@ -157,6 +157,13 @@ function assert_composer {
         composer self-update > /dev/null
         made_changes=1
     fi
+
+    # stat results in 0000 if file is not there; doubles as permission and presence check
+    if [[ "$(perl -le 'printf "%04o", (stat("/server/.shared/composer/auth.json"))[2] & 07777;')" != "0640" ]]; then
+        echo "==> Initializing global composer config"
+        /usr/local/bin/composer config -g      # this has the effect of creating auth.json with an object of empty vals
+        chmod 640 /server/.shared/composer/auth.json
+    fi
 }
 
 function assert_bin_dir {
@@ -168,6 +175,12 @@ function assert_bin_dir {
     if [[ "$(stat -f "%u" /usr/local/bin/)" != "$(id -u)" ]]; then
         sudo chown $(whoami):admin /usr/local/bin
         made_changes=1
+    fi
+}
+
+function configure_php {
+    if [[ -f /usr/local/etc/php/7.0/php.ini ]]; then
+        perl -pi -e 's/^memory_limit\s?=\s?.*/memory_limit = 2G/g' /usr/local/etc/php/7.0/php.ini
     fi
 }
 
@@ -183,6 +196,7 @@ function install_environment {
     assert_bin_dir
 
     # general tooling
+    assert_pack ansible
     assert_pack ack
     assert_pack bash-completion
     assert_pack git
@@ -197,14 +211,11 @@ function install_environment {
     assert_pack wget
 
     assert_tap homebrew/php
-    assert_pack homebrew/php/php56
-    assert_pack homebrew/php/php56-mcrypt
-    assert_pack homebrew/php/php56-redis
-    assert_pack homebrew/php/php56-intl
-
-    # virtualization tech
-    assert_tap caskroom/cask
-    assert_pack caskroom/cask/brew-cask
+    assert_pack homebrew/php/php70
+    assert_pack homebrew/php/php70-mcrypt
+    assert_pack homebrew/php/php70-redis
+    assert_pack homebrew/php/php70-intl
+    configure_php
 
     assert_cask vagrant
     assert_tap homebrew/completions

@@ -1,0 +1,30 @@
+---
+- name: Install npm
+  package:
+    name: npm
+
+- name: Configure local npm cache
+  lineinfile:
+    line: "{{ item }}"
+    dest: /usr/etc/npmrc
+    create: yes
+  with_items:
+    - cache = /var/cache/npm
+    - cache-min = 86400
+
+# fix npm install problem by overwriting symlink with copy of linked version
+- block:
+    - name: "Fix npm install : lookup node_modules/inherits"
+      command: readlink -f /usr/lib/node_modules/inherits
+      register: inherits
+      changed_when: false
+    
+    - name: "Fix npm install : remove node_modules/inherits link"
+      file:
+        path: /usr/lib/node_modules/inherits
+        state: absent
+      when: inherits.stdout != '/usr/lib/node_modules/inherits'
+    
+    - name: "Fix npm install : copy node_modules/inherits from src"
+      command: cp -R "{{ inherits.stdout }}" /usr/lib/node_modules/inherits
+      when: inherits.stdout != '/usr/lib/node_modules/inherits'

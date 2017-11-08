@@ -4,10 +4,12 @@
 .TemporaryItems
 .fseventsd
 .idea
+.ansible-retry
 /.vagrant/
 /.machines/
 /.shared/
 /proj/
+/tools/
 /private/
 /backups/
 /bigfiles/

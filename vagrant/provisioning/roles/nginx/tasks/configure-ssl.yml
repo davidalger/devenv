@@ -1,0 +1,34 @@
+---
+- name: create /etc/nginx/ssl dir
+  file:
+    path: /etc/nginx/ssl
+    owner: root
+    group: root
+    mode: 0600
+    state: directory
+
+- debug:
+    msg: >-
+      Generating diffie-hellman using a {{ nginx_diffie_hellman_bits }} bit long safe prime; values greater
+      than 2048 bits can easily cause generation to take upwards of an hr or longer to complete!
+  when: nginx_diffie_hellman_bits > 2048
+
+# this is potentially *very* expensive (i.e. could take over 45 min with default
+# 4096 bit long safe prime; occasionally completes in under 5 min)
+- name: generate diffie-hellman parameters
+  command: openssl dhparam -out /etc/nginx/ssl/dhparam.pem {{ nginx_diffie_hellman_bits|int }}
+  args:
+    creates: /etc/nginx/ssl/dhparam.pem
+
+- name: set permission on dhparam.pem
+  file:
+    path: /etc/nginx/ssl/dhparam.pem
+    owner: root
+    group: root
+    mode: 0600
+
+- name: selfsign ssl certificates
+  include: ssl-selfsign.yml
+  args:
+    common_name: "{{ item.name }}"
+  with_items: "{{ nginx_vhosts }}"

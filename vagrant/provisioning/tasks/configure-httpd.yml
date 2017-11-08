@@ -1,0 +1,40 @@
+---
+- name: Install httpd
+  yum: name=httpd
+
+- name: Install mod_php
+  yum: name=php{{ php_version }}u enablerepo={{ php_enablerepo }}
+
+- name: Upload /etc/httpd
+  copy:
+    src: files/web/etc/httpd/
+    dest: /etc/httpd/
+
+- name: Removing default httpd "Listen 80"
+  lineinfile:
+    path: /etc/httpd/conf/httpd.conf
+    regexp: ^Listen 80$
+    state: absent
+
+- name: Configuring /var/www/html "AllowOverride All"
+  command: >-
+    perl -0777 -pi
+      -e 's#(<Directory "/var/www/html">.*?)AllowOverride None(.*?</Directory>)#$1AllowOverride All$2#s'
+      /etc/httpd/conf/httpd.conf
+
+- name: Add apache to groups
+  user:
+    name: apache
+    groups:
+      - vagrant
+    append: yes
+
+- name: Add vagrant to apache group
+  user:
+    name: vagrant
+    groups:
+      - apache
+    append: yes
+
+- name: Start httpd service
+  service: name=httpd state=started enabled=yes

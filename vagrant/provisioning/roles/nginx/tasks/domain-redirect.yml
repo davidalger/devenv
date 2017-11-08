@@ -1,0 +1,9 @@
+---
+- name: configure redirect {{ redirect_domain.replace("www.", ".") }} -> {{ redirect_target }}
+  template:
+    src: domain-redirect.conf
+    dest: /etc/nginx/conf.d/{{ redirect_domain }}.conf
+    owner: root
+    group: root
+    mode: 0644
+  notify: reload nginx

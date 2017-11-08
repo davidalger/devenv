@@ -1,0 +1,6 @@
+---
+nginx_groups: vagrant
+nginx_backends: []
+nginx_config_hsts: no
+nginx_logrotate_group: vagrant
+nginx_diffie_hellman_bits: 1024

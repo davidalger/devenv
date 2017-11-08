@@ -1,4 +1,24 @@
 #!/usr/bin/env bash
 
 set -e
-vagrant ssh -c "[ -d $(pwd) ] && cd $(pwd); bash" -- "$@"
+
+target_dir="$(pwd)"
+if [[ "$(pwd)" =~ ^/(Volumes/Server/|server/)?sites(/*|$) ]]; then
+    target_dir="$(pwd | sed -E 's#/(Volumes/Server/|server/)?sites(/*|$)#/var/www/sites\2#')"
+fi
+
+node=
+argc="$#"
+args="$@"
+if [[ "$1" =~ web[0-9]+ ]]; then
+    node="$1"
+    argc="$(echo "$argc-1" | bc)"
+    args="${@:2}"
+fi
+
+bash="bash"
+if [[ $argc -ne 0 ]]; then
+    bash="bash -c '$args'"
+fi
+
+vagrant ssh $node -c "[ -d '$target_dir' ] && cd '$target_dir'; $bash"

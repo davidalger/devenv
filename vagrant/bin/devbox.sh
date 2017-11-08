@@ -80,5 +80,5 @@ if type -t install_environment; then
     setup_devbox
 else
     echo "usage: curl -s https://raw.githubusercontent.com/davidalger/devenv/master/vagrant/bin/install.sh" \
-        " https://raw.githubusercontent.com/davidalger/devenv/master/vagrant/bin/devenv.sh | bash /dev/stdin --lib-mode"
+        " https://raw.githubusercontent.com/davidalger/devenv/master/vagrant/bin/devbox.sh | bash /dev/stdin --lib-mode"
 fi

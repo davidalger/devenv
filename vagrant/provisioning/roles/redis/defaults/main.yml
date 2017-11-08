@@ -1,0 +1,8 @@
+---
+
+redis_instance:
+  name: obj
+  port: 6379
+  save: no
+
+redis_maxmemory: 1gb

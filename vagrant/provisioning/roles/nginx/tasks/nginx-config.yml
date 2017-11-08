@@ -1,0 +1,58 @@
+---
+- file:
+    dest: /etc/nginx/{{ item }}
+    owner: root
+    group: root
+    mode: 0755
+    state: directory
+  with_items:
+    - conf.d
+    - default.d
+    - available.d
+
+- name: configure conf.d
+  template:
+    src: nginx/conf.d/{{ item }}.conf
+    dest: /etc/nginx/conf.d/{{ item }}.conf
+    owner: root
+    group: root
+    mode: 0644
+  with_items:
+    - default
+  notify: reload nginx
+
+- name: configure default.d
+  template:
+    src: nginx/default.d/{{ item }}.conf
+    dest: /etc/nginx/default.d/{{ item }}.conf
+    owner: root
+    group: root
+    mode: 0644
+  with_items:
+    - nginx-status
+    - proxy
+    - secure
+    - settings
+  notify: reload nginx
+
+- name: configure available.d
+  template:
+    src: nginx/available.d/{{ item }}.conf
+    dest: /etc/nginx/available.d/{{ item }}.conf
+    owner: root
+    group: root
+    mode: 0644
+  with_items:
+    - basicauth
+    - php-status
+  notify: reload nginx
+
+- name: configure extras
+  template:
+    src: extras/{{ item }}
+    dest: /etc/nginx/{{ item }}
+    owner: root
+    group: root
+    mode: 0644
+  with_items: "{{ nginx_extras }}"
+  notify: reload nginx

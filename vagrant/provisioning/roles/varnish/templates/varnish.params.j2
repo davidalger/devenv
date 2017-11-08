@@ -1,0 +1,47 @@
+# {{ ansible_managed_header }}
+# {{ ansible_managed }}
+
+# Varnish environment configuration description. This was derived from
+# the old style sysconfig/defaults settings
+
+# Set this to 1 to make systemd reload try to switch VCL without restart.
+RELOAD_VCL=1
+
+# Main configuration file. You probably want to change it.
+VARNISH_VCL_CONF=/etc/varnish/varnish-{{ varnish_instance.name }}.vcl
+
+# Default address and port to bind to. Blank address means all IPv4
+# and IPv6 interfaces, otherwise specify a host name, an IPv4 dotted
+# quad, or an IPv6 address in brackets.
+VARNISH_LISTEN_ADDRESS={{ varnish_listen_address }}
+VARNISH_LISTEN_PORT={{ varnish_instance.port }}
+
+# Admin interface listen address and port
+VARNISH_ADMIN_LISTEN_ADDRESS={{ varnish_admin_listen_address }}
+VARNISH_ADMIN_LISTEN_PORT={{ varnish_instance.admin_port }}
+
+# Shared secret file for admin interface
+VARNISH_SECRET_FILE=/etc/varnish/secret
+
+# Backend storage specification, see Storage Types in the varnishd(5)
+# man page for details.
+VARNISH_STORAGE="malloc,{{ varnish_storage_size }}"
+
+# User and group for the varnishd worker processes
+VARNISH_USER=varnish
+VARNISH_GROUP=varnish
+
+# Other options, see the man page varnishd(1)
+DAEMON_OPTS="-t {{ varnish_ttl }} \
+{% if varnish_instance.name is not none %}
+             -n {{ varnish_instance.name }} \
+{% endif %}
+             -p thread_pool_min={{ varnish_min_threads }} \
+             -p thread_pool_max={{ varnish_max_threads }} \
+{% if varnish_esi_ignore_https %}
+             -p feature=+esi_ignore_https \
+{% endif %}
+             -p workspace_backend={{ varnish_workspace_backend }} \
+             -p http_resp_size={{ varnish_http_resp_size }} \
+             -p http_resp_hdr_len={{ varnish_http_resp_hdr_len }} \
+             -p cli_buffer=16384"

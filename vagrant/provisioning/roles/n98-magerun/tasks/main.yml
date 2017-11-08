@@ -1,0 +1,14 @@
+---
+- name: install n98-magerun
+  get_url:
+    url: "{{ n98_magerun_download_url }}"
+    dest: /usr/local/bin/{{ n98_magerun_install_name }}
+    mode: 0755
+
+- name: link {{ n98_magerun_shortcut_name }} shortcut
+  file:
+    path: /usr/local/bin/{{ n98_magerun_shortcut_name }}
+    src: /usr/local/bin/{{ n98_magerun_install_name }}
+    state: link
+
+- debug: var=n98_magerun_version

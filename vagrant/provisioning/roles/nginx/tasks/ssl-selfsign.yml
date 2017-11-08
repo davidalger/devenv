@@ -1,0 +1,22 @@
+---
+- name: selfsign {{ common_name }} certificate
+  command: openssl req -x509 -sha256 -nodes -newkey rsa:4096 -days 365 \
+               -keyout /etc/nginx/ssl/{{ common_name }}.key \
+               -out /etc/nginx/ssl/{{ common_name }}.crt \
+               -subj "/C=US/ST=Reality/L=Dissident/O=Ansible/CN={{ common_name }}"
+  args:
+    creates: /etc/nginx/ssl/{{ common_name }}.key
+  register: result
+
+- name: enforce permission on key/cert files
+  file:
+    path: "{{ inner_item }}"
+    owner: root
+    group: root
+    mode: 0600
+  with_items:
+    - /etc/nginx/ssl/{{ common_name }}.key
+    - /etc/nginx/ssl/{{ common_name }}.crt
+  loop_control:
+      loop_var: inner_item
+  when: result|changed
