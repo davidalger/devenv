@@ -1,7 +1,30 @@
-UNRELEASED
+2.0.0
 ===============
 
+**NOTE: To upgrade from a prior version to version 2.0.0 or newer, please reference the procedure outlined in UPGRADE.md. There are many core changes that must be accounted for. I.e. a simple destroy/up of the VM will not be sufficient in this case!**
+
+* Added display of current terraform workspace to PS1 when used
+* Added web71 machine
+* Added Solr provisioning role
+* Added elasticsearch provisioning role
+* Added local cache of Solr install files
+* Added public to web-dirs vhosts.sh will use when configuring nginx
+* Added support to vcd for specifying a node name it will ssh into
 * Fixed issue with m2setup.sh failing to install sample-data in Magento 2.1 composer installs due to bin/magento change
+* Fixed issue in install.sh causing a failure due to missing brew cask package
+* Changed base box to CentOS 7.3
+* Changed architecture from split db/web machines into single-instance machines
+* Changed vcd command to translate paths to automatically match proper location inside vm
+* Changed entire provisioning process to ansible playbooks, leveraging the roles from the private AlpacaGlue project
+* Changed MySQL stack to run Percona MySQL
+* Removed mount of /server/vagrant (leave /vagrant disabled); not using this in the guest anymore
+* Removed redis port forwards from web machines
+* Removed sites-dir shortcut binds
+* Removed vhosts.sh from host machine; can be called indirectly via `vcd` command (Ex: `vcd vhosts.sh`)
+* Removed support for MySQL 5.1 (each VM simply has Percona MySQL 5.6 installed)
+* *Many other minor changes*
+
+_Note: Currently this release still uses the dual nginx / httpd stack. This will be changing in a future release to use nginx + php-fpm only, possibly with apache available as an alternative for projects where it's required._
 
 1.0.0-beta28
 ===============
