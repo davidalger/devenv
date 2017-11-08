@@ -1,5 +1,6 @@
 - name: install redis
-  yum: name=redis30u
+  yum: 
+    name: "{{ redis_package_name }}"
 
 - name: disable default redis service
   service:
@@ -42,14 +43,14 @@
     - src: init.d/redis
       dest: /etc/init.d/redis-{{ redis_instance.name }}
       mode: "0755"
-  register: redis_config
+  register: redis_config_changed
   notify: restart redis
 
 # append the actual service name to list which the "restart redis" handler iterates
 # this is neccessary because handlers cannot use variables in the same way tasks can
 - name: register redis-{{ redis_instance.name }} restart
   set_fact: redis_service_restart="{{ redis_service_restart|default([]) }} + [ 'redis-{{ redis_instance.name }}' ]"
-  when: redis_config.changed
+  when: redis_config_changed.changed
 
 - name: starting redis-{{ redis_instance.name }} service
   service:

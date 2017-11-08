@@ -28,6 +28,21 @@ nginx_http_config:
   send_timeout: "1460s"
 nginx_http_additional_config: {}
 
+# Additional IPs (may use CIDR notation) to whitelist for nginx_status, php-status, and ping type endpoints
+nginx_status_allow:
+  - "{{ ansible_default_ipv4.address }}"
+
+## Example usage:
+#    nginx_extras:
+#      - conf.d/map.conf
+#
+#    nginx_extras:
+#      - dest: conf.d/map.conf
+#      - src: extras/overrides/conf.d/map.conf
+#
+# This above two examples demonstrate two ways to specify members of this array. They may be used in
+# conjunction with one another or indiviudally.
+
 nginx_extras: []
 
 nginx_vhosts: []
@@ -36,7 +51,6 @@ nginx_vhosts: []
 #    nginx_vhosts:
 #      - name:
 #        pool:
-#        default: yes (optional)
 #        params: (optional)
 #          server_name:
 #          webroot:
@@ -59,13 +73,15 @@ nginx_backend_includes:
   - default.d/settings.conf
   - available.d/php-status.conf
 
-nginx_domain_redirects: []
-
 ## Example Usage
 #    nginx_domain_redirects:
 #      - domain: www.example.com       (www prefix is stripped in nginx server_name setting)
 #        target: www.target.com
-#        include_uri: no
+#        include_uri: no (optional; default is no)
+#        additional_configs: "include /etc/nginx/default.d/redirects.conf;"  (optional; default is empty)
+#        protocol: https (optional; default is $schema which will retain the original request protocol)
+
+nginx_domain_redirects: []
 
 # Session resumption for improved https performance
 nginx_ssl_session_cache: shared:SSL:10m

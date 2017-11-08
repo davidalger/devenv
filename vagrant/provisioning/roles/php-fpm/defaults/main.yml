@@ -19,7 +19,6 @@ php_default_modules:
   - mysqlnd
   - opcache
   - pdo
-  - pear
   - pecl-redis
   - process
   - soap
@@ -49,6 +48,7 @@ php_fpm_pm_max_children: "{{ (php_fpm_memory_percentage / 100 * ansible_memtotal
 php_fpm_pm_max_requests: 5000
 php_fpm_pm_idle_timeout: 20s
 php_fpm_status_path: /php-status
+php_fpm_ping_path: /ping
 php_fpm_catch_workers_output: "yes"
 
 php_fpm_log_dir: /var/log/php-fpm

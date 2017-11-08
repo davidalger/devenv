@@ -49,8 +49,8 @@
 
 - name: configure extras
   template:
-    src: extras/{{ item }}
-    dest: /etc/nginx/{{ item }}
+    src: "{{ ('src' in item or 'dest' in item) | ternary(item.src, ['extras/', item] | join('')) }}"
+    dest: /etc/nginx/{{ ('src' in item or 'dest' in item) | ternary(item.dest, item) }}
     owner: root
     group: root
     mode: 0644

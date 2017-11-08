@@ -23,7 +23,6 @@
   include: nginx-vhost.yml
   args:
     vhost_name: "{{ item.name }}"
-    vhost_default: "{{ item.default|default(true) }}"
     vhost_pool: "{{ item.pool }}"
     vhost_params: "{{ item.params|default({}) }}"
     vhost_template: "{{ item.template|default('vhost.conf') }}"
@@ -46,4 +45,6 @@
     redirect_domain: "{{ item.domain }}"
     redirect_target: "{{ item.target }}"
     redirect_include_uri: "{{ item.include_uri|default(false) }}"
+    additional_configs: "{{ item.additional_configs|default(false) }}"
+    protocol: "{{ item.protocol|default(false) }}"
   with_items: "{{ nginx_domain_redirects }}"
