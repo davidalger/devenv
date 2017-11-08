@@ -157,6 +157,13 @@ function assert_composer {
         composer self-update > /dev/null
         made_changes=1
     fi
+
+    # stat results in 0000 if file is not there; doubles as permission and presence check
+    if [[ "$(perl -le 'printf "%04o", (stat("/server/.shared/composer/auth.json"))[2] & 07777;')" != "0640" ]]; then
+        echo "==> Initializing global composer config"
+        /usr/local/bin/composer config -g      # this has the effect of creating auth.json with an object of empty vals
+        chmod 640 /server/.shared/composer/auth.json
+    fi
 }
 
 function assert_bin_dir {
