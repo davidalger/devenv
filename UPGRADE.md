@@ -12,6 +12,7 @@
     git fetch
     git checkout master
     git reset --hard origin/master
+    git checkout 2.0.0
 
     brew update
     brew cask reinstall vagrant
