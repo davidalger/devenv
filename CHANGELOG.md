@@ -2,6 +2,9 @@ UNRELEASED
 ===============
 
 * Added `patch` to list of utils installed by default in each vm
+* Updated m2setup.sh to require use of explicit --branch flag when using -g / --github
+* Removed `develop` as valid option for --branch flag in m2setup.sh script
+
 2.0.0
 ===============
 
