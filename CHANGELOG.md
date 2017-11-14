@@ -1,3 +1,7 @@
+UNRELEASED
+===============
+
+* Added `patch` to list of utils installed by default in each vm
 2.0.0
 ===============
 
