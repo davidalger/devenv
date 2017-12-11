@@ -2,7 +2,7 @@
 
 This setup relies on Vagrant and VirtualBox (or [VMWare Fusion](#vmware-provider) if that's what you prefer) running on Mac OS X to power the virtualized developer environment. These dependencies are installed as part of the setup process using [Homebrew](http://brew.sh) and [Homebrew Cask](http://caskroom.io).
 
-It is setup with different machines running different versions of PHP (PHP 7.0 is the default machine). The machines provide all the necessary components to build on Magento 1 and Magento 2, including support for running multiple PHP / MySql versions side-by-side if necessary ([see below for details](#virtual-machines)). The nodes run a traditional LAMP stack, with Nginx sitting in front of Apache as a proxy for static assets. It also includes [Xdebug](http://xdebug.org) pre-configured to connect to your IDE on the host machine.
+It is setup with different machines running different versions of PHP (PHP 7.0 is the default machine). The machines provide all the necessary components to build on Magento 1 and Magento 2, including support for running multiple PHP / MySql versions side-by-side if necessary ([see below for details](#virtual-machines)). The nodes run a traditional LAMP stack, with Nginx sitting in front of Apache as a proxy for static assets and for SSL termination. It also includes [Xdebug](http://xdebug.org) pre-configured to connect to your IDE on the host machine.
 
 ## System Requirements
 
@@ -143,12 +143,12 @@ When this happens you'll see something like the following when attempting to pro
 
 This happens (per above warning) when the mysql service fails to shutdown cleanly. To solve this issue, proceed through the following steps:
 
-***WARNING:*** If this is done and there is a running mysql instance using these ib* files, irreversible data corruption could occur. Please be careful! These instructions assume you're working on the `web70` VM. Update the commands if you're working on a different VM.
+***WARNING:*** If this is done and there is a running mysql instance using these ib* files, irreversible data corruption could occur. Please be careful!
 
-1. Verify that Virtual Box reports NO instances of any of the VMs are still running before proceeding
+1. Verify that Virtual Box reports none of the virtual machines as still running. If machines are still running, you will need to halt each of them before proceeding.
 
     ```bash
-    VBoxManage list runningvms | grep "Server_web70"
+    VBoxManage list runningvms | grep "Server_"
     ```
 
 2. Restart the `rpc.lockd` service on the host
@@ -163,14 +163,14 @@ This happens (per above warning) when the mysql service fails to shutdown cleanl
 3. Verify no locks exist on your `ib*` files (command should return nothing)
 
     ```bash
-    sudo lsof /server/mysql/data/ib*
+    sudo lsof /server/mysql/*/ib*
     ```
 
-4. Destroy and restart your VM
+4. Destroy and restart the virtual machine
 
     ```bash
-    vagrant destroy -f web70
-    vagrant up web70
+    vagrant destroy -f
+    vagrant up
     ```
 
 If the above does not succeed in bringing it back online, try rebooting the host machine. If that still does not solve the issue, it is likely you will have to help mysqld out a bit with recovery. Check `/var/log/mysqld.log` for more info.
