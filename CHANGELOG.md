@@ -1,3 +1,8 @@
+UNRELEASED
+===============
+
+* Removed auto-configuration of ~/.my.cnf file due to lack of central db node in v2.0
+
 2.0.0
 ===============
 
