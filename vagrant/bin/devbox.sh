@@ -51,7 +51,8 @@ function setup_devbox {
     assert_cask 1password
     assert_cask alfred
     assert_cask java
-    assert_cask clipmenu
+    # no longer available
+    # assert_cask clipmenu
     assert_cask dropbox
     assert_cask firefox
     assert_cask google-chrome
