@@ -1,6 +1,7 @@
 UNRELEASED
 ===============
 
+* Fixed issue causing a `halt` to forcefully shutdown a VM (raised `graceful_halt_timeout` in config)
 * Fixed issue causing `install.sh` to fail on a from-scratch setup
 * Updated installed version of composer to 1.6.1 (previously was 1.1.0)
 * Removed auto-configuration of ~/.my.cnf file due to lack of central db node in v2.0

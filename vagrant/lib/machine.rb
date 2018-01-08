@@ -14,6 +14,8 @@ def configure_basebox (node, host: nil, ip: nil, memory: 4096, cpu: 2)
   node.vm.network :private_network, ip: ip
   assert_hosts_entry host, ip
 
+  node.vm.graceful_halt_timeout = 120
+
   node.vm.synced_folder VAGRANT_DIR, '/vagrant'
 
   # mount persistent shared cache storage on vm and bind sub-caches
