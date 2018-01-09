@@ -23,7 +23,7 @@ test -z $DB_USER && DB_USER=root
 test -z $DB_NAME && DB_NAME=            # default init'd post argument parsing
 
 # init user configurable inputs
-BRANCH=develop
+BRANCH=
 HOSTNAME=
 URLPATH=
 BACKEND_FRONTNAME=backend
@@ -75,7 +75,7 @@ for arg in "$@"; do
             ;;
         --branch=*)
             BRANCH="${arg#*=}"
-            if [[ ! "$BRANCH" =~ ^(develop|2\.[0-3]|2\.[0-3]-develop)$ ]]; then
+            if [[ ! "$BRANCH" =~ ^(2\.[0-9]|2\.[0-9]-develop)$ ]]; then
                 >&2 echo "Error: Invalid value given --branch=$BRANCH"
                 exit -1
             fi
@@ -133,10 +133,15 @@ for arg in "$@"; do
             echo "  -e : --enterprise                       uses enterprise meta-packages vs community"
             echo "  -g : --github                           will install via github clone instead of from meta-packages"
             echo "  -C : --no-compile                       skips DI compilation process and static asset generation"
+            echo
             echo "       --proj-version=<proj-version>      composer package version to use during installation"
             echo "       --hostname=<hostname>              domain of the site (required input)"
             echo "       --urlpath=<urlpath>                path component of base url and install sub-directory"
-            echo "       --branch=<branch>                  branch to build the site from (defaults to develop)"
+            echo
+            echo "       --branch=<branch>                  the branch to checkout (required and used when using the"
+            echo "                                          --github option); must be a valid branch name such as"
+            echo "                                          2.1-develop, 2.2-develop or 2.3-develop, etc"
+            echo
             echo "       --backend-frontname=<frontname>    path to admin panel (defaults to backend)"
             echo "       --admin-user=<admin>               alphanumerical admin username (defaults to admin)"
             echo "       --admin-email=<email>              admin account email address"
@@ -191,6 +196,11 @@ fi
 
 if [[ ! "$ADMIN_EMAIL" ]] || [[ ! "$ADMIN_FIRST" ]] || [[ ! "$ADMIN_LAST" ]]; then
     >&2 echo "Error: Required admin account information missing. Please use --help for proper usage"
+    exit -1
+fi
+
+if [[ $GITHUB ]] && [[ ! $BRANCH ]]; then
+    >&2 echo "Error: --branch is required when using -g / --github option. Please use --help for proper usage"
     exit -1
 fi
 

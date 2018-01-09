@@ -65,3 +65,4 @@
         - ack
         - ps_mem
         - yara
+        - patch

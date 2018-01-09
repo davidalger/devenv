@@ -1,11 +1,14 @@
 UNRELEASED
 ===============
 
+* Added `patch` to list of utils installed by default in each vm
 * Fixed issue causing a `halt` to forcefully shutdown a VM (raised `graceful_halt_timeout` in config)
 * Fixed issue causing `install.sh` to fail on a from-scratch setup
 * Updated redis provisioning role to install from ius-archive (versions prior to 4.0 no longer available in "stable" rpm)
 * Updated installed version of composer to 1.6.1 (previously was 1.1.0)
+* Updated m2setup.sh to require use of explicit --branch flag when using -g / --github
 * Removed auto-configuration of ~/.my.cnf file due to lack of central db node in v2.0
+* Removed `develop` as valid option for --branch flag in m2setup.sh script
 * Disabled clipmenu brew package in devbox.sh install script additions file
 
 2.0.0
