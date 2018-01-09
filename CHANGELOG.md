@@ -1,4 +1,4 @@
-UNRELEASED
+2.0.1
 ===============
 
 * Added `patch` to list of utils installed by default in each vm
