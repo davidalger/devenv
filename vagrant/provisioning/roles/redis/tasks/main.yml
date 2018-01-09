@@ -1,6 +1,7 @@
 - name: install redis
   yum: 
     name: "{{ redis_package_name }}"
+    enablerepo: "{{ redis_enablerepo }}"
 
 - name: disable default redis service
   service:
