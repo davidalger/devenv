@@ -98,16 +98,6 @@ unset i
     newsh = true
   end
   
-  # add ~/.my.cnf if not present
-  if not File.exist?("#{ENV['HOME']}/.my.cnf")
-    puts "==> host: Creating ~/.my.cnf file with default info"
-    system %-printf "[client]\nhost=dev\-db\nuser=root\npassword=\n" > ~/.my.cnf-
-    if File.exist?("#{ENV['HOME']}/.mylogin.cnf")
-      puts "==> host: Warning: the ~/.mylogin.cnf file may interfere with connection info set in ~/.my.cnf"
-    end
-    changes = true
-  end
-  
   # add exports for NFS mounts to /etc/exports
   if not (File.exist?('/etc/exports') and %x{grep '## VAGRANT START ##' /etc/exports}.strip!)
     puts "==> host: Adding entries to /etc/exports for NFS mounts"

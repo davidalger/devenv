@@ -1,6 +1,7 @@
 ---
 redis_version: "30"
 redis_package_name: "redis{{ redis_version }}u"
+redis_enablerepo: ius-archive
 
 redis_instance:
   name: obj
