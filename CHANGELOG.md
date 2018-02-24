@@ -1,3 +1,8 @@
+UNRELEASED
+===============
+
+* Added support for vim with plugins located at /server/.shared/vim/plugin/*.vim
+
 2.0.1
 ===============
 

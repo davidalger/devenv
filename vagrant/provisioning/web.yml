@@ -63,3 +63,35 @@
       npm:
         name: grunt-cli
         global: yes
+
+    # Install vim and setup vimrc and vim-plug
+    - name: Install vim
+      package:
+        name: vim
+
+    - block:
+      - name: Create vim autoload dir
+        file:
+          dest: ~/.vim/autoload/
+          state: directory
+
+      - name: Install vim-plug
+        copy:
+          src: files/web/vim/plug.vim
+          dest: ~/.vim/autoload/plug.vim
+
+      - name: Install base .vimrc
+        copy:
+          src: files/web/vim/.vimrc
+          dest: ~/.vimrc
+
+      - file:
+          src: /server/.shared/vim/plugin
+          dest: ~/.vim/plugin
+          state: link
+          force: yes
+
+      - name: Install vim plugins
+        shell: vim -E -s -c "source ~/.vimrc" -c PlugInstall -c qa
+        failed_when: no
+      become: no
