@@ -1,3 +1,9 @@
+2.0.2
+===============
+
+* Added support for vim with plugins located at /server/.shared/vim/plugin/*.vim
+* Added workaround for bad autoloader failing m2setup.sh when using the --sampledata flag
+
 2.0.1
 ===============
 

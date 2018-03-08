@@ -319,6 +319,9 @@ function install_from_packages {
         ln -s "$(composer config -g cache-dir 2> /dev/null)/" $INSTALL_DIR/var/composer_home/cache
         COMPOSER_NO_INTERACTION=1 bin/magento sampledata:deploy $NOISE_LEVEL
     fi
+
+    # This fixes an issue where sample data setup fails bin/magento setup:install due to a bad auto-loader
+    composer install --no-interaction
 }
 
 function print_install_info {
