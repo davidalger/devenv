@@ -1,3 +1,9 @@
+2.0.3
+===============
+
+* Reverted workaround for bad autoloader failing m2setup.sh when using the --sampledata flag
+* Updated composer version to latest v1.6.3 (resolves underlying bug failing sample data deployment)
+
 2.0.2
 ===============
 
