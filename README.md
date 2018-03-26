@@ -1,6 +1,6 @@
 # Development Environment
 
-This setup relies on Vagrant and VirtualBox (or [VMWare Fusion](#vmware-provider) if that's what you prefer) running on Mac OS X to power the virtualized developer environment. These dependencies are installed as part of the setup process using [Homebrew](http://brew.sh) and [Homebrew Cask](http://caskroom.io).
+This setup relies on Vagrant and VirtualBox (or [VMWare Fusion](#vmware-provider) if that's what you prefer) running on Mac OS X to power the virtualized developer environment. These dependencies are installed as part of the setup process using [Homebrew](http://brew.sh) and [Homebrew Cask](https://caskroom.github.io/).
 
 It is setup with different machines running different versions of PHP (PHP 7.0 is the default machine). The machines provide all the necessary components to build on Magento 1 and Magento 2, including support for running multiple PHP / MySql versions side-by-side if necessary ([see below for details](#virtual-machines)). The nodes run a traditional LAMP stack, with Nginx sitting in front of Apache as a proxy for static assets and for SSL termination. It also includes [Xdebug](http://xdebug.org) pre-configured to connect to your IDE on the host machine.
 
