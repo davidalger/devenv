@@ -219,8 +219,7 @@ function install_environment {
     configure_php
 
     assert_cask vagrant
-    assert_tap homebrew/completions
-    assert_pack homebrew/completions/vagrant-completion
+    assert_pack vagrant-completion
 
     assert_cask virtualbox
 
