@@ -15,6 +15,7 @@ def ansible_play (conf, playbook, extra_vars = {})
   conf.vm.provision :ansible_local do |conf|
     conf.playbook = "/vagrant/provisioning/#{playbook}.yml"
     conf.extra_vars = extra_vars
+    conf.compatibility_mode = "2.0"
   end
 end
 
