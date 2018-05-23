@@ -1,6 +1,7 @@
 ---
 - name: Provision Web
   hosts: all
+  connection: local
   become: true
   vars:
     # compatibility with the headers in some of the imported provisioner roles

@@ -1,6 +1,7 @@
 ---
 - name: Elastic Search
   hosts: all
+  connection: local
   become: true
   roles:
     - name: elastic.elasticsearch

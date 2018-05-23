@@ -1,6 +1,7 @@
 ---
 - name: PerconaDB
   hosts: all
+  connection: local
   become: true
   vars:
     mysql_package_name: Percona-Server-server-56
