@@ -3,7 +3,7 @@
   hosts: all
   become: true
   roles:
-    - name: elasticsearch
+    - name: elastic.elasticsearch
       es_instance_name: es-dev
       es_config: {
         http.host: 0.0.0.0,

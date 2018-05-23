@@ -6,7 +6,7 @@
     mysql_package_name: Percona-Server-server-56
 
   roles:
-    - repo-percona
+    - alpacaglue.repo-percona
 
   tasks:
     - name: Upload /etc/

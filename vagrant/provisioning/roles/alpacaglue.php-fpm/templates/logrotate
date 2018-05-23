@@ -1,0 +1,16 @@
+# {{ ansible_managed }}
+
+/var/log/php-fpm/*.log {
+    weekly
+    missingok
+    rotate 4
+    compress
+    delaycompress
+    notifempty
+    create
+    dateext
+    sharedscripts
+    postrotate
+    /bin/kill -SIGUSR1 `cat /run/php-fpm/php-fpm.pid 2>/dev/null` 2>/dev/null || true
+    endscript
+}

@@ -1,0 +1,46 @@
+---
+- src: git@github.com:alpacaglue/ansible-role-composer.git
+  name: alpacaglue.composer
+  scm: git
+
+- src: git@github.com:alpacaglue/ansible-role-n98-magerun.git
+  name: alpacaglue.n98-magerun
+  scm: git
+
+- src: git@github.com:alpacaglue/ansible-role-nginx.git
+  name: alpacaglue.nginx
+  scm: git
+
+- src: git@github.com:alpacaglue/ansible-role-php-fpm.git
+  name: alpacaglue.php-fpm
+  scm: git
+
+- src: git@github.com:alpacaglue/ansible-role-redis.git
+  name: alpacaglue.redis
+  scm: git
+
+- src: git@github.com:alpacaglue/ansible-role-repo-ius.git
+  name: alpacaglue.repo-ius
+  scm: git
+
+- src: git@github.com:alpacaglue/ansible-role-repo-percona.git
+  name: alpacaglue.repo-percona
+  scm: git
+
+- src: git@github.com:alpacaglue/ansible-role-varnish.git
+  name: alpacaglue.varnish
+  scm: git
+
+- src: git@github.com:elastic/ansible-elasticsearch.git
+  version: 2.x
+  name: elastic.elasticsearch
+  scm: git
+
+- src: geerlingguy.java
+  version: 1.8.1
+
+- src: geerlingguy.repo-epel
+  version: 1.2.3
+
+- src: geerlingguy.solr
+  version: 3.5.5  # Deployes Solr v6.3.0

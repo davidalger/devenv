@@ -36,16 +36,16 @@
 
   roles:
     - devenv-npm
-    - repo-percona
-    - composer
-    - n98-magerun
-    - { role: n98-magerun, n98_magerun_version: 1, n98_magerun_shortcut_name: mr1 }
-    - { role: varnish, varnish_instance: { name: dev, port: 6081, admin_port: 6082, backend_port: 8080 }}
-    - { role: redis, redis_instance: { name: obj, port: 6379, redis_maxmemory: 512mb }}
-    - { role: redis, redis_instance: { name: fpc, port: 6381, redis_maxmemory: 512mb }}
-    - { role: redis, redis_instance: { name: ses, port: 6380, redis_maxmemory: 512mb }}
-    - php-fpm
-    - nginx
+    - alpacaglue.repo-percona
+    - alpacaglue.composer
+    - alpacaglue.n98-magerun
+    - { role: alpacaglue.n98-magerun, n98_magerun_version: 1, n98_magerun_shortcut_name: mr1 }
+    - { role: alpacaglue.varnish, varnish_instance: { name: dev, port: 6081, admin_port: 6082, backend_port: 8080 }}
+    - { role: alpacaglue.redis, redis_instance: { name: obj, port: 6379, redis_maxmemory: 512mb }}
+    - { role: alpacaglue.redis, redis_instance: { name: fpc, port: 6381, redis_maxmemory: 512mb }}
+    - { role: alpacaglue.redis, redis_instance: { name: ses, port: 6380, redis_maxmemory: 512mb }}
+    - alpacaglue.php-fpm
+    - alpacaglue.nginx
 
   tasks:
     - include: tasks/configure-php.yml
