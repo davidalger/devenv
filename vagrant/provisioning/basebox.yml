@@ -1,6 +1,7 @@
 ---
 - name: Base Box
   hosts: all
+  connection: local
   become: true
   roles:
     - devenv-yum

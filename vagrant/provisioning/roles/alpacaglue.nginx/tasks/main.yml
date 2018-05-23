@@ -1,0 +1,36 @@
+---
+- name: install yum-plugin-post-transaction-actions
+  package:
+    name: yum-plugin-post-transaction-actions
+    state: present
+
+- name: install post-transaction-action
+  template:
+    src: nginx.action.j2
+    dest: /etc/yum/post-actions/nginx.action
+    owner: root
+    group: root
+    mode: 0600
+
+- name: install nginx
+  yum: name=nginx
+
+- name: install httpd-tools
+  package: name=httpd-tools
+
+- import_tasks: configure-nginx.yml
+- import_tasks: configure-ssl.yml
+- import_tasks: configure-logrotate.yml
+
+- name: start nginx service
+  service:
+    name: nginx
+    state: started
+    enabled: yes
+
+# Reload nginx now if nginx.conf was touched; this allows nginx to disassociate with previous user if needed
+- name: restart nginx service
+  service:
+    name: nginx
+    state: restarted
+  when: nginx_conf_result|default(false) and nginx_conf_result|changed

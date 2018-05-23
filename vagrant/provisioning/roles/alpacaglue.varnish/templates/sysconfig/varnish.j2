@@ -1,0 +1,83 @@
+##
+# {{ ansible_managed }}
+
+# Configuration file for Varnish Cache
+#
+# /etc/init.d/varnish expects the variable $DAEMON_OPTS to be set from this
+# shell script fragment.
+#
+
+# Maximum number of open files (for ulimit -n)
+NFILES=131072
+
+# Locked shared memory (for ulimit -l)
+# Default log size is 82MB + header
+MEMLOCK=82000
+
+# Maximum number of threads (for ulimit -u)
+NPROCS="unlimited"
+
+# Maximum size of corefile (for ulimit -c). Default in Fedora is 0
+# DAEMON_COREFILE_LIMIT="unlimited"
+
+# Init script support to reload/switch vcl without restart.
+# To make this work, you need to set the following variables
+# explicit: VARNISH_VCL_CONF, VARNISH_ADMIN_LISTEN_ADDRESS,
+# VARNISH_ADMIN_LISTEN_PORT, VARNISH_SECRET_FILE.
+RELOAD_VCL=1
+
+# Main configuration file.
+VARNISH_VCL_CONF=/etc/varnish/varnish-{{ varnish_instance.name }}.vcl
+
+# Varnish instance name; used in multi-instance setups. See man page for details.
+{% if varnish_instance.name is not none %}
+VARNISH_INSTANCE_NAME={{ varnish_instance.name }}
+{% endif %}
+
+# Default address and port to bind to
+# Blank address means all IPv4 and IPv6 interfaces, otherwise specify
+# a host name, an IPv4 dotted quad, or an IPv6 address in brackets.
+VARNISH_LISTEN_ADDRESS={{ varnish_listen_address }}
+VARNISH_LISTEN_PORT={{ varnish_instance.port }}
+
+# Telnet admin interface listen address and port
+VARNISH_ADMIN_LISTEN_ADDRESS={{ varnish_admin_listen_address }}
+VARNISH_ADMIN_LISTEN_PORT={{ varnish_instance.admin_port }}
+
+# Shared secret file for admin interface
+VARNISH_SECRET_FILE=/etc/varnish/secret
+
+# The minimum number of worker threads to start
+VARNISH_MIN_THREADS={{ varnish_min_threads }}
+
+# The Maximum number of worker threads to start
+VARNISH_MAX_THREADS={{ varnish_max_threads }}
+
+# Cache file size: in bytes, optionally using k / M / G / T suffix.
+VARNISH_STORAGE_SIZE={{ varnish_storage_size}}
+
+# Backend storage specification
+VARNISH_STORAGE="malloc,${VARNISH_STORAGE_SIZE}"
+
+# Default TTL used when the backend does not specify one
+VARNISH_TTL={{ varnish_ttl }}
+
+# DAEMON_OPTS is used by the init script.
+DAEMON_OPTS="-a ${VARNISH_LISTEN_ADDRESS}:${VARNISH_LISTEN_PORT} \
+             -f ${VARNISH_VCL_CONF} \
+             -T ${VARNISH_ADMIN_LISTEN_ADDRESS}:${VARNISH_ADMIN_LISTEN_PORT} \
+             -t ${VARNISH_TTL} \
+{% if varnish_instance.name is not none %}
+             -n ${VARNISH_INSTANCE_NAME} \
+{% endif %}
+             -p thread_pool_min=${VARNISH_MIN_THREADS} \
+             -p thread_pool_max=${VARNISH_MAX_THREADS} \
+             -S ${VARNISH_SECRET_FILE} \
+             -s ${VARNISH_STORAGE} \
+{% if varnish_esi_ignore_https %}
+             -p feature=+esi_ignore_https \
+{% endif %}
+             -p workspace_backend={{ varnish_workspace_backend }} \
+             -p http_resp_size={{ varnish_http_resp_size }} \
+             -p http_resp_hdr_len={{ varnish_http_resp_hdr_len }} \
+             -p cli_buffer=16384"

@@ -1,6 +1,7 @@
 ---
 - name: Solr
   hosts: all
+  connection: local
   become: true
   vars:
     solr_version: "3.6.2"

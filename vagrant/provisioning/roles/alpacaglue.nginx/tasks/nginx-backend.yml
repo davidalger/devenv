@@ -1,0 +1,9 @@
+---
+- name: configure backend {{ backend_name }}
+  template:
+    src: "{{ backend_template }}"
+    dest: /etc/nginx/conf.d/{{ backend_name }}_backend.conf
+    owner: root
+    group: root
+    mode: 0644
+  notify: reload nginx

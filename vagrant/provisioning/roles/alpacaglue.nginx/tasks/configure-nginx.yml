@@ -1,0 +1,51 @@
+---
+- name: add nginx to groups
+  user:
+    name: nginx
+    append: yes
+    groups: "{{ item }}"
+  with_items: "{{ nginx_groups }}"
+  notify: restart nginx
+
+- name: configure nginx.conf
+  template:
+    src: nginx/nginx.conf
+    dest: /etc/nginx/nginx.conf
+    owner: root
+    group: root
+    mode: 0644
+  notify: reload nginx
+  register: nginx_conf_result
+
+- import_tasks: nginx-config.yml
+
+- name: configure vhosts
+  include_tasks: nginx-vhost.yml
+  args:
+    vhost_name: "{{ item.name }}"
+    vhost_pool: "{{ item.pool }}"
+    vhost_params: "{{ item.params|default({}) }}"
+    vhost_template: "{{ item.template|default('vhost.conf') }}"
+    vhost_includes: "{{ item.includes|default([]) }} + {{ nginx_vhost_includes }}"
+  with_items: "{{ nginx_vhosts }}"
+
+- name: configure backends
+  include_tasks: nginx-backend.yml
+  args:
+    backend_name: "{{ item.name }}"
+    backend_pool: "{{ item.pool }}"
+    backend_listen: "{{ item.listen }}"
+    backend_webroot: "{{ item.webroot }}"
+    backend_template: "{{ item.template|default('backend.conf') }}"
+    backend_includes: "{{ item.includes|default([]) }} + {{ nginx_backend_includes }}"
+  with_items: "{{ nginx_backends }}"
+
+- name: configure domain redirects
+  include_tasks: domain-redirect.yml
+  args:
+    redirect_domain: "{{ item.domain }}"
+    redirect_target: "{{ item.target }}"
+    redirect_include_uri: "{{ item.include_uri|default(false) }}"
+    additional_configs: "{{ item.additional_configs|default(false) }}"
+    protocol: "{{ item.protocol|default(false) }}"
+  with_items: "{{ nginx_domain_redirects }}"

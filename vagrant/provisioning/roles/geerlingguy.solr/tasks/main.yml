@@ -45,15 +45,6 @@
     name: "{{ solr_service_name }}"
     state: started
     enabled: yes
-    use: service      # forces use of old SysV service manager
-  when: "solr_version.split('.')[0] < '5'"
-
-- name: Ensure solr is started and enabled on boot.
-  service:
-    name: "{{ solr_service_name }}"
-    state: started
-    enabled: yes
-  when: "solr_version.split('.')[0] >= '5'"
 
 # Configure solr.
 - include: configure.yml

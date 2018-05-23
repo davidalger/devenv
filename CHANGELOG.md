@@ -1,3 +1,16 @@
+2.0.4
+===============
+
+* Added an `ansible_roles.yml` file declaring what roles are pulled in from an external source (some of them come from a private upstream, but this lines out which may be modified directly in this repository).
+* Added explicit declaration of connection type (using `local`) on ansible provisiner making running the following inside the VM later on possible (handy for developing changes to provisioners):
+
+        ansible-playbook -ilocalhost, /vagrant/provisioning/<playbook_name>.yml
+
+* Added `compatibility_mode` value to ansible provisioner declaration to quite some warnings on VM build
+* Fixed issue in elasticsearch role causing VM build to fail due to role's incompatiblity with ansible 2.5 or newer
+* Updated all roles to use correct namespace prefixes to identify where they came from
+* Updated all roles pulling in all external role improvements to-date
+
 2.0.3
 ===============
 
