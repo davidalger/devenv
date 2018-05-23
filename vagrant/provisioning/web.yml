@@ -3,11 +3,6 @@
   hosts: all
   connection: local
   become: true
-  vars:
-    # compatibility with the headers in some of the imported provisioner roles
-    ansible_managed_header:
-    ansible_managed_header_alt:
-
   vars_files:
     - vars/nginx.yml
     - vars/php-fpm.yml
