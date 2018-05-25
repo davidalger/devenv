@@ -52,6 +52,11 @@
     - include: tasks/configure-httpd.yml
     - include: tasks/configure-nginx.yml
 
+    - name: Install cachetool.yml
+      copy:
+        src: files/web/etc/cachetool.yml
+        dest: /etc/cachetool.yml
+
     - name: Install packages
       yum: name={{ item }}
       with_items:
