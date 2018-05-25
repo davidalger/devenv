@@ -1,3 +1,10 @@
+UNRELEASED
+===============
+
+* Added CLI based "cachetool" for inspecting the php-fpm opcache statistics
+* Added web based dev-web70/opcache.php file for inspecting the mod_php opcache statistics
+* Updated alpacaglue.php-fpm role to pull in php-opcache optimization settings
+
 2.0.4
 ===============
 
