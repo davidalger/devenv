@@ -1,0 +1,6 @@
+---
+- name: install cachetool
+  get_url:
+    url: "{{ cachetool_download_url }}"
+    dest: "{{ cachetool_install_path }}"
+    mode: 0755

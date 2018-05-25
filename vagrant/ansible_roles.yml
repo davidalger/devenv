@@ -15,6 +15,10 @@
   name: alpacaglue.php-fpm
   scm: git
 
+- src: git@github.com:alpacaglue/ansible-role-php-cachetool.git
+  name: alpacaglue.php-cachetool
+  scm: git
+
 - src: git@github.com:alpacaglue/ansible-role-redis.git
   name: alpacaglue.redis
   scm: git

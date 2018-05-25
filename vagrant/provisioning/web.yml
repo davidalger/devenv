@@ -17,9 +17,11 @@
         php_additional_modules: "{{ php_additional_modules + ['pecl-memcache']}}"
       when: php_version <= 56
 
-    # IonCube Loader is only available for PHP 7.0 and earlier
+    # IonCube Loader is only available for PHP 7.0 and earlier and a different version of cachetool is needed
     - set_fact:
         php_additional_modules: "{{ php_additional_modules + ['ioncube-loader']}}"
+        cachetool_download_url: >
+          https://github.com/gordalina/cachetool/blob/gh-pages/downloads/cachetool-3.2.1.phar?raw=true
       when: php_version <=70
 
     # php71u-pear is not a valid package, so remove it from module list on PHP 7.1
@@ -41,6 +43,7 @@
     - { role: alpacaglue.redis, redis_instance: { name: fpc, port: 6381, redis_maxmemory: 512mb }}
     - { role: alpacaglue.redis, redis_instance: { name: ses, port: 6380, redis_maxmemory: 512mb }}
     - alpacaglue.php-fpm
+    - alpacaglue.php-cachetool
     - alpacaglue.nginx
 
   tasks:
