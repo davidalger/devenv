@@ -1,0 +1,12 @@
+---
+# See http://us3.php.net/manual/en/opcache.configuration.php for a list of settings and what they do
+php_ext_opcache_defaults:
+  enable: true
+  enable_cli: false
+  memory_consumption: 512
+  interned_strings_buffer: 64
+  max_accelerated_files: 65407
+  validate_timestamps: true
+  revalidate_freq: 2
+  save_comments: 1
+  blacklist_filename: /etc/php.d/opcache*.blacklist
