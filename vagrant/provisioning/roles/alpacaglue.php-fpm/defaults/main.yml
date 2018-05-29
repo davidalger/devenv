@@ -72,3 +72,6 @@ php_fpm_global_default_ini:
   max_input_vars: 10000
 php_fpm_global_additional_ini: {}
 php_fpm_global_ini: "{{ php_fpm_global_default_ini|combine(php_fpm_global_additional_ini) }}"
+
+# Use this dictionary to override / append values to php_ext_opcache_default from vars/opcache.yml
+php_ext_opcache: {}

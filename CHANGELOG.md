@@ -1,3 +1,11 @@
+2.0.5
+===============
+
+* Added CLI based "cachetool" for inspecting the php-fpm opcache statistics
+* Added web based dev-web70/opcache.php file for inspecting the mod_php opcache statistics
+* Updated alpacaglue.php-fpm role to pull in php-opcache optimization settings
+* Updated version check in m2setup.sh to play nicely with the Magento 2.3.0 alpha release
+
 2.0.4
 ===============
 

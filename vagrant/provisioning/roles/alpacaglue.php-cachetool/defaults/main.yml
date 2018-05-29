@@ -1,0 +1,5 @@
+---
+# This needs to download from the following URL on PHP versions older than 7.1:
+# https://github.com/gordalina/cachetool/blob/gh-pages/downloads/cachetool-3.2.1.phar?raw=true
+cachetool_download_url: http://gordalina.github.io/cachetool/downloads/cachetool.phar
+cachetool_install_path: /usr/local/bin/cachetool

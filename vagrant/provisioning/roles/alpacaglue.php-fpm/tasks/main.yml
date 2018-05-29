@@ -1,10 +1,15 @@
 ---
+- include_vars: opcache.yml
+
 - name: install php-fpm
   yum: name=php{{ php_version }}u-fpm enablerepo={{ php_enablerepo }}
 
 - name: install php modules
   yum: name=php{{ php_version }}u-{{ item }} enablerepo={{ php_enablerepo }}
   with_items: "{{ php_modules }}"
+
+- set_fact:
+    php_ext_opcache: "{{ php_ext_opcache_defaults | combine(php_ext_opcache) }}"
 
 - name: configure php.ini
   ini_file:
@@ -13,6 +18,15 @@
     option: "{{ item.key }}"
     value: "{{ item.value }}"
   with_dict: "{{ php_fpm_global_ini }}"
+  notify: restart php-fpm
+
+- name: configure php.d/10-opcache.ini
+  template:
+    src: php.d/10-opcache.ini.j2
+    dest: /etc/php.d/10-opcache.ini
+    owner: root
+    group: root
+    mode: 0644
   notify: restart php-fpm
 
 - name: clear default pool

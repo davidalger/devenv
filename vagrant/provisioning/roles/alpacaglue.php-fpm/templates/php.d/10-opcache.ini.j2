@@ -1,0 +1,13 @@
+; {{ ansible_managed | regex_replace('(?m)^\#', ';') }}
+
+zend_extension=opcache.so
+
+{% for key, value in php_ext_opcache.iteritems()|sort %}
+{%   if value is sameas true %}
+opcache.{{ key }}=1
+{%   elif value is sameas false %}
+opcache.{{ key }}=0
+{%   elif value is string or value is number %}
+opcache.{{ key }}={{ value }}
+{%   endif %}
+{% endfor %}
