@@ -356,7 +356,7 @@ else
 fi
 
 # Find Magento version; the echo here trims the resulting string
-installed_version=$(echo -n $(bin/magento --version --no-ansi | cut -d' ' -f4))
+installed_version=$(echo -n $(bin/magento --version --no-ansi | rev | cut -d' ' -f1 | rev))
 
 # link session dir so install won't choke trying to lock a session file on an nfs mount
 if [[ ! -d var/session ]]; then
