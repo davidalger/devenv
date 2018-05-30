@@ -1,3 +1,8 @@
+2.0.6
+===============
+
+* Added web based dev-web70/opcache.php file for inspecting the mod_php opcache statistics (for real this time!)
+
 2.0.5
 ===============
 
