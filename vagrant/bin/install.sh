@@ -210,12 +210,8 @@ function install_environment {
     assert_pack watch
     assert_pack imagemagick
     assert_pack wget
+    assert_pack php
 
-    assert_tap homebrew/php
-    assert_pack homebrew/php/php70
-    assert_pack homebrew/php/php70-mcrypt
-    assert_pack homebrew/php/php70-redis
-    assert_pack homebrew/php/php70-intl
     configure_php
 
     assert_cask vagrant
