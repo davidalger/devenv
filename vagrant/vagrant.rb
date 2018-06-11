@@ -42,6 +42,14 @@ Vagrant.configure(2) do |conf|
     configure_elasticsearch node
   end
 
+  conf.vm.define :web72, autostart: false do |node|
+    configure_basebox node, host: 'dev-web72', ip: '10.19.89.16'
+    configure_web node, php_version: 72
+    configure_percona node
+    configure_solr node
+    configure_elasticsearch node
+  end
+
   conf.vm.define :web56, autostart: false do |node|
     configure_basebox node, host: 'dev-web56', ip: '10.19.89.10'
     configure_web node, php_version: 56

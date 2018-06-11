@@ -53,6 +53,7 @@
       with_items:
         - localhost
         - dev-host
+        - dev-web72
         - dev-web71
         - dev-web70
         - dev-web56
