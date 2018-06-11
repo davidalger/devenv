@@ -24,11 +24,6 @@
           https://github.com/gordalina/cachetool/blob/gh-pages/downloads/cachetool-3.2.1.phar?raw=true
       when: php_version <=70
 
-    # php71u-pear is not a valid package, so remove it from module list on PHP 7.1
-    - set_fact:
-        php_default_modules: "{{ php_default_modules | difference(['pear']) }}"
-      when: php_version >= 71
-
     - name: create /etc/php-fpm.d/sites.d
       file: path=/etc/php-fpm.d/sites.d state=directory
 
