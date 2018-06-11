@@ -22,6 +22,9 @@
   notify:
     - restart php-fpm
 
+- name: ensure setfacl support is present
+  package: name=acl state=present
+
 - name: "{{ php_fpm_pool }} : configure ACL for log access"
   acl:
     path: "{{ php_fpm_log_dir }}"
@@ -29,6 +32,8 @@
     etype: user
     permissions: rx
     state: present
+  register: acl_result
+  failed_when: ('rc' in acl_result and acl_result.rc != 0) and (not ('Operation not supported' in acl_result.stderr))
 
 - name: configure logrotate.d/php-fpm
   template:

@@ -1,5 +1,5 @@
 ---
-# Valid values are 55, 56, 70 and 71
+# Valid values are 55, 56, 70, 71 and 72
 php_version: 70
 php_enablerepo: null
 
