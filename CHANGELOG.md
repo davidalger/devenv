@@ -1,4 +1,4 @@
-UNRELEASED
+2.0.7
 ===============
 
 * Added web72 box with PHP 7.2
