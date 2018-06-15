@@ -1,3 +1,9 @@
+2.0.7
+===============
+
+* Added web72 box with PHP 7.2
+* Updated install.sh to install PHP on macOS host via new brew packages vs relying on the defunct php taps
+
 2.0.6
 ===============
 

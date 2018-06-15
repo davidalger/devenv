@@ -1,6 +1,11 @@
 ---
 - include_vars: opcache.yml
 
+# php72u-mcrypt is not a valid package, so remove it from module list on PHP 7.2
+- set_fact:
+    php_default_modules: "{{ php_default_modules | difference(['mcrypt']) }}"
+  when: php_version >= 72
+
 - name: install php-fpm
   yum: name=php{{ php_version }}u-fpm enablerepo={{ php_enablerepo }}
 
