@@ -63,14 +63,18 @@ varnish_min_threads: 50
 # The Maximum number of worker threads to start
 varnish_max_threads: 1000
 
-# Must be larger than both http_resp_hdr_len and http_resp_size; defaulting to 256k
-varnish_workspace_backend: 260096
-
-# Defaulting to 192k vs varnish default of 32k to support large magento response headers
+# Value for workspace_backend must be larger than both http_resp_hdr_len and http_resp_size. These settings must be
+# higher than typical varnish defaults to accommodate lengthy magento X-Magento-* headers used for tagging cached pages.
+varnish_workspace_backend: 262144
 varnish_http_resp_size: 196608
-
-# Defaulting to 128k vs varnish default of 8k to support the lengthy X-Magento-* headers
 varnish_http_resp_hdr_len: 131072
+
+# Value for workspace_client must be larger than both varnish_http_req_size and varnish_http_req_size. These settings
+# may need to be raised on large-catalog sites where PURGE requests to varnish may easily near and/or breach the limits
+# with a 1024k+ X-Magento-Tags-Pattern header used for selectively banning items found in the cache.
+varnish_workspace_client: 131072
+varnish_http_req_size: 65536
+varnish_http_req_hdr_len: 32768
 
 # When using secure URLs on the frontend, this is neccessary to prevent backend connect failures
 varnish_esi_ignore_https: yes

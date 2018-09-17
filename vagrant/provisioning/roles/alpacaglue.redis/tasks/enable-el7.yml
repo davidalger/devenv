@@ -1,0 +1,6 @@
+---
+# Use .service suffix on name when enabling a systemd unit 
+- name: enabling redis-{{ redis_instance.name }} service on EL7
+  service:
+    name: redis-{{ redis_instance.name }}.service
+    enabled: yes

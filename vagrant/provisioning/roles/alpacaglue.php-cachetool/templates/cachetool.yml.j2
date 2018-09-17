@@ -1,0 +1,10 @@
+# {{ ansible_managed }}
+
+{% for key, value in cachetool_config_item.iteritems()|sort %}
+{%   if key == "extensions" %}
+{{ key }}:
+{{ value|to_nice_yaml }}
+{%-   elif key != "path" %}
+{{ key }}: {{ value }}
+{%   endif %}
+{% endfor %}

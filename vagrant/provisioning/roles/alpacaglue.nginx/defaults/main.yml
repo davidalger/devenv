@@ -28,6 +28,11 @@ nginx_http_config:
   send_timeout: "1460s"
 nginx_http_additional_config: {}
 
+# Default settings in context of server scope via default.d/settings.conf
+nginx_server_config:
+  client_max_body_size: 25M
+nginx_server_additional_config: {}
+
 # Additional IPs (may use CIDR notation) to whitelist for nginx_status, php-status, and ping type endpoints
 nginx_status_allow:
   - "{{ ansible_default_ipv4.address }}"

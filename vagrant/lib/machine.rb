@@ -8,7 +8,7 @@
  ##
 
 def configure_basebox (node, host: nil, ip: nil, memory: 4096, cpu: 2)
-  node.vm.box = 'bento/centos-7.3'
+  node.vm.box = 'bento/centos-7.5'
 
   node.vm.hostname = host
   node.vm.network :private_network, ip: ip
@@ -67,14 +67,16 @@ def configure_web (node, php_version: 70)
   end
 end
 
-def configure_percona (node)
+def configure_percona (node, mysql_version: 56)
   # verify exports and mount nfs mysql data directory
   Mount.assert_export(MOUNT_PATH + '/mysql')
   Mount.nfs('host-mysql-data', MOUNT_PATH + '/mysql/' + node.vm.hostname.sub('dev-', ''), '/var/lib/mysql')
 
   # setup guest provisioners
   Mount.provision(node)
-  ansible_play(node, 'percona')
+  ansible_play(node, 'percona', {
+    mysql_version: mysql_version
+  })
 
   # start mysqld on every reload (must happen here so mysqld starts after file-system is mounted)
   node.vm.provision :shell, run: 'always' do |conf|

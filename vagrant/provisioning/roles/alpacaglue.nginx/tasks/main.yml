@@ -12,6 +12,17 @@
     group: root
     mode: 0600
 
+- name: check if nginx repo is already configured
+  stat:
+    path: /etc/yum.repos.d/nginx.repo
+  register: nginx_repofile_result
+
+- name: install nginx repo
+  template:
+    src: nginx.repo.j2
+    dest: /etc/yum.repos.d/nginx.repo
+  when: not nginx_repofile_result.stat.exists
+
 - name: install nginx
   yum: name=nginx
 

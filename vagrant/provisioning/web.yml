@@ -29,7 +29,6 @@
 
   roles:
     - devenv-npm
-    - alpacaglue.repo-percona
     - alpacaglue.composer
     - alpacaglue.n98-magerun
     - { role: alpacaglue.n98-magerun, n98_magerun_version: 1, n98_magerun_shortcut_name: mr1 }
@@ -56,7 +55,6 @@
       yum: name={{ item }}
       with_items:
         - sendmail
-        - Percona-Server-client-56
 
     - name: Install grunt-cli
       npm:

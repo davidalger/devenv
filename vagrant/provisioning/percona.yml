@@ -4,7 +4,8 @@
   connection: local
   become: true
   vars:
-    mysql_package_name: Percona-Server-server-56
+    mysql_server_package_name: Percona-Server-server-{{ mysql_version }}
+    mysql_client_package_name: Percona-Server-client-{{ mysql_version }}
 
   roles:
     - alpacaglue.repo-percona
@@ -29,10 +30,13 @@
         creates: /var/lib/mysql/ibdata1
 
     # Ensures Percona is installed when init procedure isn't needed
-    - name: Install Percona server
+    - name: Install Percona Client/Server
       package:
-        name: "{{ mysql_package_name }}"
+        name: "{{ item }}"
         state: present
+      with_items:
+         - "{{ mysql_client_package_name }}"
+         - "{{ mysql_server_package_name }}"
 
     - name: Start mysql service
       service:

@@ -10,7 +10,7 @@
 
 set -e
 
-MYSQL_PKG_NAME={{ mysql_package_name }}
+MYSQL_PKG_NAME={{ mysql_server_package_name }}
 
 # Double check this file does not exist prior to running init routine!
 if [[ ! -f /var/lib/mysql/ibdata1 ]]; then
