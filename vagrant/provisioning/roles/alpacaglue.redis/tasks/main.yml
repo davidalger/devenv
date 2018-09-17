@@ -48,8 +48,9 @@
   set_fact: redis_service_restart="{{ redis_service_restart|default([]) }} + [ 'redis-{{ redis_instance.name }}' ]"
   when: redis_config_changed.changed or redis_base_config_changed
 
+- include_tasks: enable-el{{ ansible_distribution_major_version }}.yml
+
 - name: starting redis-{{ redis_instance.name }} service
   service:
     name: redis-{{ redis_instance.name }}
     state: started
-    enabled: yes

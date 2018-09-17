@@ -4,3 +4,15 @@
     url: "{{ cachetool_download_url }}"
     dest: "{{ cachetool_install_path }}"
     mode: 0755
+
+- name: configure cachetool
+  template:
+    src: cachetool.yml.j2
+    dest: "{{ cachetool_config_item.path }}/.cachetool.yml"
+    owner: root
+    group: root
+    mode: 0644
+  with_items: "{{ cachetool_config }}"
+  loop_control:
+    loop_var: cachetool_config_item
+    label: "{{ cachetool_config_item.path }}"
