@@ -1,3 +1,10 @@
+2.0.8
+===============
+
+* Changed default box to web71 and disabled auto-start on web70
+* Updated base image to bento/centos-7.5 (previously bento/centos-7.3)
+* Updated the following roles to pull in various improvements from upstream for nginx, varnish, and redis
+
 2.0.7
 ===============
 
