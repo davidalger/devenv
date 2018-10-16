@@ -29,17 +29,17 @@
 
 - name: selfsign default certificate
   include_tasks: ssl-selfsign.yml
-  args:
+  vars:
     common_name: default
 
 - name: selfsign ssl certificates
   include_tasks: ssl-selfsign.yml
-  args:
+  vars:
     common_name: "{{ item.name }}"
   with_items: "{{ nginx_vhosts }}"
 
 - name: selfsign ssl certificates (domain redirects)
   include_tasks: ssl-selfsign.yml
-  args:
+  vars:
     common_name: "{{ item.domain }}"
   with_items: "{{ nginx_domain_redirects }}"

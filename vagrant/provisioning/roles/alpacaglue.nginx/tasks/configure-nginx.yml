@@ -21,7 +21,7 @@
 
 - name: configure vhosts
   include_tasks: nginx-vhost.yml
-  args:
+  vars:
     vhost_name: "{{ item.name }}"
     vhost_pool: "{{ item.pool }}"
     vhost_params: "{{ item.params|default({}) }}"
@@ -31,7 +31,7 @@
 
 - name: configure backends
   include_tasks: nginx-backend.yml
-  args:
+  vars:
     backend_name: "{{ item.name }}"
     backend_pool: "{{ item.pool }}"
     backend_listen: "{{ item.listen }}"
@@ -42,7 +42,7 @@
 
 - name: configure domain redirects
   include_tasks: domain-redirect.yml
-  args:
+  vars:
     redirect_domain: "{{ item.domain }}"
     redirect_target: "{{ item.target }}"
     redirect_include_uri: "{{ item.include_uri|default(false) }}"
