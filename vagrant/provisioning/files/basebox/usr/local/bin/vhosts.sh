@@ -245,7 +245,7 @@ function main {
     if [[ ! $no_reload ]]; then
         service_reload httpd
         service_reload nginx
-        service_reload varnish-dev
+        service_reload varnish
         service_reload php-fpm
     fi
 

@@ -1,9 +1,0 @@
----
-- name: reload systemd configuration
-  command: systemctl daemon-reload
-
-- name: restart varnish
-  service:
-    name: "{{ item }}"
-    state: restarted
-  with_items: "{{ varnish_service_restart }}"

@@ -1,0 +1,75 @@
+---
+- name: include php-opcache default settings
+  include_vars: opcache.yml
+
+# php72u-mcrypt is not a valid package, so remove it from module list on PHP 7.2
+- name: drop mcrypt ext when depoying 7.2 or later
+  set_fact:
+    php_default_modules: "{{ php_default_modules | difference(['mcrypt']) }}"
+  when: php_version >= 72
+
+- name: create {{ php_fpm_owner }} user
+  user:
+    name: "{{ php_fpm_owner }}"
+    state: present
+
+# There is no guarantee this group belongs to the above user, so make sure it exists as well
+- name: create {{ php_fpm_group }} group
+  group:
+    name: "{{ php_fpm_group }}"
+    state: present
+
+- name: install php-fpm
+  yum: name=php{{ php_version }}u-fpm enablerepo={{ php_enablerepo }}
+
+- name: install php modules
+  yum: name=php{{ php_version }}u-{{ item }} enablerepo={{ php_enablerepo }}
+  with_items: "{{ php_modules }}"
+
+- name: combine php-opcache defaults user provided settings
+  set_fact:
+    php_ext_opcache: "{{ php_ext_opcache_defaults | combine(php_ext_opcache) }}"
+
+- name: configure php.ini
+  ini_file:
+    dest: /etc/php.ini
+    section: PHP
+    option: "{{ item.key }}"
+    value: "{{ item.value }}"
+  with_dict: "{{ php_fpm_global_ini }}"
+  notify: restart php-fpm
+
+- name: configure php.d/10-opcache.ini
+  template:
+    src: php.d/10-opcache.ini.j2
+    dest: /etc/php.d/10-opcache.ini
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart php-fpm
+
+- name: clear default pool
+  template:
+    src: www.conf
+    dest: /etc/php-fpm.d/www.conf
+    owner: root
+    group: root
+    mode: 0600
+  notify: reload php-fpm
+
+- name: "{{ php_fpm_pool }} : configure php-fpm pool"
+  template:
+    src: pool.conf
+    dest: /etc/php-fpm.d/{{ php_fpm_pool }}.conf
+    owner: root
+    group: root
+    mode: 0600
+  notify: reload php-fpm
+
+- import_tasks: configure-logs.yml
+
+- name: start php-fpm
+  service:
+    name: php-fpm
+    state: started
+    enabled: true

@@ -28,17 +28,17 @@
       file: path=/etc/php-fpm.d/sites.d state=directory
 
   roles:
-    - devenv-npm
-    - alpacaglue.composer
-    - alpacaglue.n98-magerun
+    - { role: devenv-npm }
+    - { role: alpacaglue.composer }
+    - { role: alpacaglue.n98-magerun }
     - { role: alpacaglue.n98-magerun, n98_magerun_version: 1, n98_magerun_shortcut_name: mr1 }
-    - { role: alpacaglue.varnish, varnish_instance: { name: dev, port: 6081, admin_port: 6082, backend_port: 8080 }}
-    - { role: alpacaglue.redis, redis_instance: { name: obj, port: 6379, redis_maxmemory: 512mb }}
-    - { role: alpacaglue.redis, redis_instance: { name: fpc, port: 6381, redis_maxmemory: 512mb }}
-    - { role: alpacaglue.redis, redis_instance: { name: ses, port: 6380, redis_maxmemory: 512mb }}
-    - alpacaglue.php-fpm
-    - alpacaglue.php-cachetool
-    - alpacaglue.nginx
+    - { role: davidalger.varnish }
+    - { role: davidalger.multi_redis, redis_instance: { name: obj, port: 6379, redis_maxmemory: 512mb }}
+    - { role: davidalger.multi_redis, redis_instance: { name: fpc, port: 6381, redis_maxmemory: 512mb }}
+    - { role: davidalger.multi_redis, redis_instance: { name: ses, port: 6380, redis_maxmemory: 512mb }}
+    - { role: davidalger.php_fpm }
+    - { role: alpacaglue.php-cachetool }
+    - { role: alpacaglue.nginx }
 
   tasks:
     - include: tasks/configure-php.yml

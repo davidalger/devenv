@@ -1,0 +1,21 @@
+---
+dependencies:
+  - davidalger.repo_ius
+
+galaxy_info:
+  role_name: php_fpm
+  author: David Alger
+  description: PHP-FPM from IUS RPMs on RHEL / CentOS Linux
+  license: MIT
+  min_ansible_version: 2.4
+
+  platforms:
+    - name: EL
+      versions:
+        - 7
+        - 6
+
+  galaxy_tags:
+    - system
+    - php-fpm
+    - php

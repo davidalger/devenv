@@ -1,9 +1,0 @@
----
-- name: reload systemd configuration
-  command: systemctl daemon-reload
-
-- name: restart redis
-  service:
-    name: "{{ item }}"
-    state: restarted
-  with_items: "{{ redis_service_restart }}"
