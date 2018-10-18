@@ -1,3 +1,10 @@
+2.0.9
+===============
+
+* Fixed issues in dependencies which resulted in Ansible 2.7 stable breaking box builds (PR #108)
+* Changed `varnish-dev` service to `varnish` services (no longer install varnish as a "named" instance)
+* Changed dependencies for multi-redis and php-fpm services to use public ansible galaxy roles
+
 2.0.8
 ===============
 
