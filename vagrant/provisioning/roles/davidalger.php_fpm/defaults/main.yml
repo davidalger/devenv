@@ -1,7 +1,7 @@
 ---
 # Valid values are 55, 56, 70, 71 and 72
 php_version: 72
-php_enablerepo: null
+php_enablerepo: ius
 
 # List of php modules to install
 php_default_modules:

@@ -3,7 +3,7 @@ redis_version: 32
 redis_package_name: "redis{{ redis_version }}u"
 
 # This can be set to "ius-archive" to allow installation of older redis30u package
-redis_enablerepo:
+redis_enablerepo: ius
 
 redis_instance:
   name: obj

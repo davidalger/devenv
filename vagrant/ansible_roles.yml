@@ -12,14 +12,14 @@
   scm: git
 
 - src: davidalger.php_fpm
-  version: 1.0.0
+  version: 1.0.1
 
 - src: git@github.com:alpacaglue/ansible-role-php-cachetool.git
   name: alpacaglue.php-cachetool
   scm: git
 
 - src: davidalger.multi_redis
-  version: 1.0.0
+  version: 1.0.1
 
 - src: davidalger.repo_ius
   version: 1.0.0

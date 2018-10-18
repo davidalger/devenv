@@ -12,7 +12,6 @@ env:
       MOLECULE_DOCKER_COMMAND: /usr/lib/systemd/systemd
 
 install:
-  - pip install 'ansible==2.6.*'
   - pip install molecule docker
 
 before_script:
