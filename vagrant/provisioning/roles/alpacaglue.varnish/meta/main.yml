@@ -1,3 +1,0 @@
----
-dependencies:
-  - { role: geerlingguy.repo-epel, when: not alpacaglue_relyon_rsepel|default(false) }

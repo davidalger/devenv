@@ -11,29 +11,25 @@
   name: alpacaglue.nginx
   scm: git
 
-- src: git@github.com:alpacaglue/ansible-role-php-fpm.git
-  name: alpacaglue.php-fpm
-  scm: git
+- src: davidalger.php_fpm
+  version: 1.0.0
 
 - src: git@github.com:alpacaglue/ansible-role-php-cachetool.git
   name: alpacaglue.php-cachetool
   scm: git
 
-- src: git@github.com:alpacaglue/ansible-role-redis.git
-  name: alpacaglue.redis
-  scm: git
+- src: davidalger.multi_redis
+  version: 1.0.0
 
-- src: git@github.com:alpacaglue/ansible-role-repo-ius.git
-  name: alpacaglue.repo-ius
-  scm: git
+- src: davidalger.repo_ius
+  version: 1.0.0
 
 - src: git@github.com:alpacaglue/ansible-role-repo-percona.git
   name: alpacaglue.repo-percona
   scm: git
 
-- src: git@github.com:alpacaglue/ansible-role-varnish.git
-  name: alpacaglue.varnish
-  scm: git
+- src: davidalger.varnish
+  version: 1.0.0
 
 - src: git@github.com:elastic/ansible-elasticsearch.git
   version: 2.x

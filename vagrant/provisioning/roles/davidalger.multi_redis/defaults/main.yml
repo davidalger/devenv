@@ -1,0 +1,47 @@
+---
+redis_version: 32
+redis_package_name: "redis{{ redis_version }}u"
+
+# This can be set to "ius-archive" to allow installation of older redis30u package
+redis_enablerepo:
+
+redis_instance:
+  name: obj
+  port: 6379
+  save: false
+
+redis_maxmemory: 1gb
+
+redis_bind_address: 127.0.0.1
+
+# Key/value hash of settings for /etc/redis-{{ redis_instance.name }}.conf
+# This can be overridden or passed in when specifying the role to apply
+redis_instance_config: []
+
+# Key/value hash of settings for /etc/redis-base.conf
+redis_config:
+  - bind: "{{ redis_bind_address }}"
+  - daemonize: "yes"
+  - timeout: "0"
+  - loglevel: "notice"
+  - databases: "2"
+  - rdbcompression: "no"
+  - dbfilename: "dump.rdb"
+  - maxmemory-policy: "volatile-lru"
+  - appendonly: "no"
+  - appendfsync: "everysec"
+  - no-appendfsync-on-rewrite: "no"
+  - slowlog-log-slower-than: "10000"
+  - slowlog-max-len: "1024"
+  - list-max-ziplist-entries: "512"
+  - list-max-ziplist-value: "64"
+  - set-max-intset-entries: "512"
+  - zset-max-ziplist-entries: "128"
+  - zset-max-ziplist-value: "64"
+  - activerehashing: "yes"
+  - slave-serve-stale-data: "yes"
+  - auto-aof-rewrite-percentage: "100"
+  - auto-aof-rewrite-min-size: "64mb"
+  - tcp-backlog: "511"
+  - tcp-keepalive: "0"
+  - repl-disable-tcp-nodelay: "no"

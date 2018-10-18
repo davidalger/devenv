@@ -1,0 +1,57 @@
+---
+- name: install redis
+  yum:
+    name: "{{ redis_package_name }}"
+    enablerepo: "{{ redis_enablerepo }}"
+
+- name: disable default redis service
+  service:
+    name: redis
+    state: stopped
+    enabled: false
+
+- name: create /etc/redis dir
+  file:
+    path: /etc/redis
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+  notify: restart redis
+
+- name: create /var/lib/redis/{{ redis_instance.name }} dir
+  file:
+    path: /var/lib/redis/{{ redis_instance.name }}
+    state: directory
+    owner: redis
+    group: redis
+    mode: 0700
+
+- name: configure redis-base.conf
+  template:
+    src: redis/redis-base.conf
+    dest: /etc/redis/redis-base.conf
+    owner: root
+    group: root
+    mode: "0644"
+  register: redis_config_changed_base
+  notify: restart redis
+
+# Set a fact, so if this changes in one instance of this role, all instances of redis will be registered for restart
+- name: identify changed base configuration
+  set_fact: redis_base_config_changed=yes
+  when: redis_config_changed_base is changed
+
+- include_tasks: configure-el{{ ansible_distribution_major_version }}.yml
+
+# append the actual service name to list which the "restart redis" handler iterates
+# this is neccessary because handlers cannot use variables in the same way tasks can
+- name: register redis-{{ redis_instance.name }} restart
+  set_fact: redis_service_restart="{{ redis_service_restart|default([]) }} + [ 'redis-{{ redis_instance.name }}' ]"
+  when: (redis_config_changed is changed) or (redis_base_config_changed)
+
+- name: starting redis-{{ redis_instance.name }} service
+  service:
+    name: redis-{{ redis_instance.name }}
+    state: started
+    enabled: true

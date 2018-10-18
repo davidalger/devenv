@@ -1,5 +1,0 @@
----
-- name: enabling redis-{{ redis_instance.name }} service on EL6
-  service:
-    name: redis-{{ redis_instance.name }}
-    enabled: yes

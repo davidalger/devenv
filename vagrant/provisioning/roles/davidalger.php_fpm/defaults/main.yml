@@ -1,0 +1,77 @@
+---
+# Valid values are 55, 56, 70, 71 and 72
+php_version: 72
+php_enablerepo: null
+
+# List of php modules to install
+php_default_modules:
+  - bcmath
+  - cli
+  - common
+  - devel
+  - fpm
+  - gd
+  - imap
+  - intl
+  - json
+  - mbstring
+  - mcrypt
+  - mysqlnd
+  - opcache
+  - pdo
+  - pecl-redis
+  - process
+  - soap
+  - xml
+  - xmlrpc
+php_additional_modules: []
+php_modules: "{{ php_default_modules }} + {{ php_additional_modules }}"
+
+php_fpm_sys_owner: "{{ (php_version >= 56) | ternary('php-fpm', 'apache') }}"
+php_fpm_sys_group: "{{ (php_version >= 56) | ternary('php-fpm', 'apache') }}"
+
+php_fpm_pool: www-data
+
+php_fpm_owner: "{{ php_fpm_pool }}"
+php_fpm_group: "{{ php_fpm_pool }}"
+
+php_fpm_listen_user: "{{ php_fpm_owner }}"
+php_fpm_listen_group: "{{ php_fpm_group }}"
+php_fpm_listen_host: 127.0.0.1
+php_fpm_listen_mode: "0660"
+
+php_fpm_mb_per_thread: 196
+php_fpm_memory_percentage: 100
+
+php_fpm_pm: static
+php_fpm_pm_max_children: "{{ (php_fpm_memory_percentage / 100 * ansible_memtotal_mb / php_fpm_mb_per_thread)|int }}"
+php_fpm_pm_max_requests: 5000
+php_fpm_pm_idle_timeout: 20s
+php_fpm_status_path: /php-status
+php_fpm_ping_path: /ping
+php_fpm_catch_workers_output: "yes"
+
+php_fpm_log_dir: /var/log/php-fpm
+php_fpm_slowlog: "{{ php_fpm_log_dir }}/{{ php_fpm_pool }}-slow.log"
+php_fpm_errorlog: "{{ php_fpm_log_dir }}/{{ php_fpm_pool }}-error.log"
+
+php_fpm_default_ini:
+  php_flag[display_errors]: "off"
+  php_admin_flag[log_errors]: "on"
+  php_admin_value[error_log]: "{{ php_fpm_errorlog }}"
+  php_admin_value[memory_limit]: 768M
+  php_admin_value[max_execution_time]: "3600"
+php_fpm_additional_ini: {}
+php_fpm_ini: "{{ php_fpm_default_ini|combine(php_fpm_additional_ini) }}"
+
+php_fpm_global_default_ini:
+  memory_limit: 2048M
+  post_max_size: 25M
+  upload_max_filesize: 25M
+  session.auto_start: "off"
+  max_input_vars: 10000
+php_fpm_global_additional_ini: {}
+php_fpm_global_ini: "{{ php_fpm_global_default_ini|combine(php_fpm_global_additional_ini) }}"
+
+# Use this dictionary to override / append values to php_ext_opcache_default from vars/opcache.yml
+php_ext_opcache: {}
