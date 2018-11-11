@@ -23,7 +23,6 @@ function setup_devbox {
     assert_pack figlet
     assert_pack git-flow
     assert_pack glib
-    assert_pack homebrew/completions/grunt-completion
     assert_pack homebrew/dupes/less
     assert_pack homebrew/dupes/zlib
     
