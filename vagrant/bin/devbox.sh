@@ -23,15 +23,10 @@ function setup_devbox {
     assert_pack figlet
     assert_pack git-flow
     assert_pack glib
-    assert_pack homebrew/dupes/less
-    assert_pack homebrew/dupes/zlib
-    
-    # assert_pack homebrew/php/composer
-    # assert_pack homebrew/php/php-code-sniffer
-    # assert_pack homebrew/php/phpcpd
-    # assert_pack homebrew/php/phpmd
-    # assert_pack homebrew/php/phpunit
-    
+    assert_pack grunt-completion
+    assert_pack less
+    assert_pack zlib
+        
     assert_pack hub
     assert_pack md5sha1sum
     assert_pack nmap
@@ -50,8 +45,6 @@ function setup_devbox {
     assert_cask 1password
     assert_cask alfred
     assert_cask java
-    # no longer available
-    # assert_cask clipmenu
     assert_cask dropbox
     assert_cask firefox
     assert_cask google-chrome
