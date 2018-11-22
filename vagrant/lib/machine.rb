@@ -88,12 +88,3 @@ end
 def configure_elasticsearch (node)
   ansible_play(node, 'elasticsearch')
 end
-
-def configure_solr (node)
-  # bind the solr workspace to the install/download cache location
-  Mount.bind(SHARED_DIR + '/solr', '/var/cache/solr')
-  Mount.provision(node)
-
-  # provision the box with solr
-  ansible_play(node, 'solr')
-end

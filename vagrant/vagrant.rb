@@ -30,7 +30,6 @@ Vagrant.configure(2) do |conf|
     configure_basebox node, host: 'dev-web70', ip: '10.19.89.14'
     configure_web node
     configure_percona node
-    configure_solr node
     configure_elasticsearch node
   end
 
@@ -38,7 +37,6 @@ Vagrant.configure(2) do |conf|
     configure_basebox node, host: 'dev-web71', ip: '10.19.89.15'
     configure_web node, php_version: 71
     configure_percona node
-    configure_solr node
     configure_elasticsearch node
   end
 
@@ -46,7 +44,6 @@ Vagrant.configure(2) do |conf|
     configure_basebox node, host: 'dev-web72', ip: '10.19.89.16'
     configure_web node, php_version: 72
     configure_percona node
-    configure_solr node
     configure_elasticsearch node
   end
 
@@ -54,7 +51,6 @@ Vagrant.configure(2) do |conf|
     configure_basebox node, host: 'dev-web56', ip: '10.19.89.10'
     configure_web node, php_version: 56
     configure_percona node
-    configure_solr node
     configure_elasticsearch node
   end
 
@@ -62,7 +58,6 @@ Vagrant.configure(2) do |conf|
     configure_basebox node, host: 'dev-web55', ip: '10.19.89.11'
     configure_web node, php_version: 55
     configure_percona node
-    configure_solr node
     configure_elasticsearch node
   end
 end
