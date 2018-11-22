@@ -191,19 +191,33 @@ Alternately, you may use an alternative session storage mechanism such as redis 
 
 ## VMWare Provider
 
-Using VMWare Fusion is a supported (but non-default) setup. There are additional steps involved to use it due to differences in how Virtual Box and VMX configure network interfaces and handle NFS mounts.
+Using VMWare Fusion is a supported (but non-default) setup. There are additional steps involved to use it due to differences in how Virtual Box and VMX configure network interfaces and handle NFS mounts and you'll need to install a few additional dependencies manually.
 
-For NFS mounts to function, run the following to add the necessary exports to your `/etc/exports` file on the host machine and restart nfsd:
+Also note that the VMWare provider for vagrant requires an paid license in addition to the VMWare Fusion license you may already have.
+
+To install additional dependencies, run the following commands:
+
+    brew cask install vmware-fusion vagrant-vmware-utility
+    sudo chown $(whoami) /opt/vagrant-vmware-desktop/
+
+    vagrant plugin install vagrant-vmware-desktop
+    vagrant plugin license vagrant-vmware-desktop <path_to>/license.lic
+
+Finally, for NFS mounts to function, run the following to add the necessary exports to your `/etc/exports` file on the host machine and restart nfsd. Please note that the IP network range may be different on your machine. Use ifconfig to check on the vmnetX interfaces for the right IP range (If you haven't already, you'll need to attempt to start a VM for these interfaces to be created)
 
 ```bash
 MAPALL="-mapall=$(id -u):$(grep ^admin: /etc/group | cut -d : -f 3)"
 MOUNT_DIR="$(readlink /server || echo /server)"
 printf "%s\n%s\n" \
-    "$MOUNT_DIR/sites/ -alldirs -network 192.168.235.0 -mask 255.255.255.0 $MAPALL" \
-    "$MOUNT_DIR/mysql/ -alldirs -network 192.168.235.0 -mask 255.255.255.0 $MAPALL" \
+    "$MOUNT_DIR/sites/ -alldirs -network 192.168.122.0 -mask 255.255.255.0 $MAPALL" \
+    "$MOUNT_DIR/mysql/ -alldirs -network 192.168.122.0 -mask 255.255.255.0 $MAPALL" \
     | sudo tee -a /etc/exports > /dev/null
 sudo nfsd restart
 ```
+
+Start VMs enforcing use of the `vmware_desktop` provider by using something like the following:
+
+    vagrant up web71 --provider vmware_desktop
 
 # License
 This project is licensed under the Open Software License 3.0 (OSL-3.0). See included LICENSE file for full text of OSL-3.0
