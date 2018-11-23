@@ -8,12 +8,11 @@
     - vars/php-fpm.yml
 
   pre_tasks:
-    # IonCube Loader is only available for PHP 7.0 and earlier and a different version of cachetool is needed
+    # PHP 7.0 requires an earlier version of the cachetool to work correctly
     - set_fact:
-        php_additional_modules: "{{ php_additional_modules + ['ioncube-loader']}}"
         cachetool_download_url: >
           https://github.com/gordalina/cachetool/blob/gh-pages/downloads/cachetool-3.2.1.phar?raw=true
-      when: php_version <=70
+      when: php_version ==70
 
     - name: create /etc/php-fpm.d/sites.d
       file: path=/etc/php-fpm.d/sites.d state=directory
