@@ -209,12 +209,6 @@ if [[ -f /etc/.vagranthost ]]; then
     exit 1
 fi
 
-php_vercheck=$(php -r 'echo version_compare(PHP_VERSION, "5.6.0", ">=") ? 1 : "";')
-if [[ -z $php_vercheck ]]; then
-    >&2 echo "Error: Magento 2 requires PHP 5.6 or newer"
-    exit
-fi
-
 # use a bare clone to keep up-to-date local mirror of master
 function mirror_repo {
     wd="$(pwd)"

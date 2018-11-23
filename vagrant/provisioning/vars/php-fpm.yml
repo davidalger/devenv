@@ -30,7 +30,6 @@ php_extension_xdebug_ini:
   xdebug.profiler_enable: 0
   xdebug.profiler_output_dir: "/tmp"
   xdebug.profiler_output_name: cachegrind.out.%s.%t
-php_xdebug_ini_path: "{{ (php_version == 55) | ternary('/etc/php.d/xdebug.ini','/etc/php.d/15-xdebug.ini') }}"
 
 php_fpm_owner: vagrant
 php_fpm_group: vagrant

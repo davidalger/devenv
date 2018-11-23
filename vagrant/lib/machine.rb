@@ -45,7 +45,7 @@ def configure_basebox (node, host: nil, ip: nil, memory: 4096, cpu: 2)
   node.ssh.forward_agent = true
 end
 
-def configure_web (node, php_version: 70)
+def configure_web (node, php_version:)
   # verify exports and mount nfs sites location
   Mount.assert_export(MOUNT_PATH + SITES_DIR)
   Mount.nfs('host-www-sites', MOUNT_PATH + SITES_DIR, SITES_MOUNT)
