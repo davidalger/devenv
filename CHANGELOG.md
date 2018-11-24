@@ -1,3 +1,15 @@
+UNRELEASED
+===============
+
+* Added brewed ruby to the local path so it correctly overrides macOS default ruby
+* Fixed a few assertions in devbox.sh to use current package names
+* Fixed a few installation issues in the install.sh script
+* Updated README with some added info on using VMWare Fusion as a provider
+* Updated inclusion of bash completion script in profile.d for optimization
+* Updated ioncube-loader to install across all machines since it is available across each supported PHP version
+* Removed support for PHP 5.5 and 5.6
+* Removed support for solr in built-in provisioning (no longer prominently used and is slow to install)
+
 2.0.9
 ===============
 
