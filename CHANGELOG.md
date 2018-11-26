@@ -1,3 +1,8 @@
+2.0.10
+===============
+
+* Fixed issue where vagrant 2.2.1 spins up VMs with the NIC type "virtio" which breaks the NFS mounts
+
 2.0.9
 ===============
 
