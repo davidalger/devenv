@@ -1,3 +1,9 @@
+2.0.10
+===============
+
+* Fixed issue where vagrant 2.2.1 spins up VMs with the NIC type "virtio" which breaks the NFS mounts
+* Fixed a few asserts in install.sh and devbox.sh which broke the install process on a new host machine
+
 2.0.9
 ===============
 
