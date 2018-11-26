@@ -1,7 +1,9 @@
 .DS_Store
 .apdisk
 .Spotlight-V100
+.Trashes
 .TemporaryItems
+.DocumentRevisions-V100
 .fseventsd
 .idea
 .ansible-retry
