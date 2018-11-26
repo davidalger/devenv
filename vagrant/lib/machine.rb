@@ -11,7 +11,10 @@ def configure_basebox (node, host: nil, ip: nil, memory: 4096, cpu: 2)
   node.vm.box = 'bento/centos-7.5'
 
   node.vm.hostname = host
-  node.vm.network :private_network, ip: ip
+  node.vm.network :private_network, ip: ip, nic_type: "82540EM"
+  node.vm.provider "virtualbox" do |vb|
+    vb.customize ["modifyvm", :id, "--nictype1", "82540EM"]
+  end
   assert_hosts_entry host, ip
 
   node.vm.graceful_halt_timeout = 120
