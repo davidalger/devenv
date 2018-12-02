@@ -48,7 +48,7 @@ def configure_basebox (node, host: nil, ip: nil, memory: 4096, cpu: 2)
   node.ssh.forward_agent = true
 end
 
-def configure_web (node, php_version: 70)
+def configure_web (node, php_version:)
   # verify exports and mount nfs sites location
   Mount.assert_export(MOUNT_PATH + SITES_DIR)
   Mount.nfs('host-www-sites', MOUNT_PATH + SITES_DIR, SITES_MOUNT)
@@ -90,13 +90,4 @@ end
 
 def configure_elasticsearch (node)
   ansible_play(node, 'elasticsearch')
-end
-
-def configure_solr (node)
-  # bind the solr workspace to the install/download cache location
-  Mount.bind(SHARED_DIR + '/solr', '/var/cache/solr')
-  Mount.provision(node)
-
-  # provision the box with solr
-  ansible_play(node, 'solr')
 end

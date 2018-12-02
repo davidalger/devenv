@@ -2,7 +2,7 @@
 
 This setup relies on Vagrant and VirtualBox (or [VMWare Fusion](#vmware-provider) if that's what you prefer) running on Mac OS X to power the virtualized developer environment. These dependencies are installed as part of the setup process using [Homebrew](http://brew.sh) and [Homebrew Cask](https://caskroom.github.io/).
 
-It is setup with different machines running different versions of PHP (PHP 7.0 is the default machine). The machines provide all the necessary components to build on Magento 1 and Magento 2, including support for running multiple PHP / MySql versions side-by-side if necessary ([see below for details](#virtual-machines)). The nodes run a traditional LAMP stack, with Nginx sitting in front of Apache as a proxy for static assets and for SSL termination. It also includes [Xdebug](http://xdebug.org) pre-configured to connect to your IDE on the host machine.
+It is setup with different machines running different versions of PHP. The machines provide all the necessary components to build on Magento, including support for running multiple PHP versions side-by-side if necessary ([see below for details](#virtual-machines)). The nodes run a traditional LAMP stack, with Nginx sitting in front of Apache as a proxy for static assets and for SSL termination. It also includes [Xdebug](http://xdebug.org) pre-configured to connect to your IDE on the host machine.
 
 ## System Requirements
 
@@ -27,11 +27,11 @@ It is setup with different machines running different versions of PHP (PHP 7.0 i
     source /etc/profile
     ```
 
-3. Run the following to start up the virtual machines. This may take a while on first run
+3. Run the following to start up the virtual machine. This may take a while on first run
 
     ```bash
     cd /server
-    vagrant up
+    vagrant up web72
     ```
 
 4. To SSH into the vm, you can use `vcd` or `vcd web` to connect and automatically mirror your working directory
@@ -68,13 +68,12 @@ It is setup with different machines running different versions of PHP (PHP 7.0 i
 
 ### Quick Reference
 
-| hostname      | ip           | role     | autostart | description                                        |
-| ------------- | ------------ | -------- | --------- | -------------------------------------------------- |
-| dev-host      | 10.19.89.1   | host     | n/a       | this is the host machine for the environment       |
-| [dev-web71]   | 10.19.89.15  | app      | no        | App node running PHP 7.1 / Percona Server 5.6      |
-| [dev-web70]   | 10.19.89.14  | app      | **yes**   | App node running PHP 7.0 / Percona Server 5.6      |
-| [dev-web56]   | 10.19.89.10  | app      | no        | App node running PHP 5.6 / Percona Server 5.6      |
-| [dev-web55]   | 10.19.89.11  | app      | no        | App node running PHP 5.5 / Percona Server 5.6      |
+| hostname      | ip           | role     | description                                        |
+| ------------- | ------------ | -------- | -------------------------------------------------- |
+| dev-host      | 10.19.89.1   | host     | this is the host machine for the environment       |
+| [dev-web72]   | 10.19.89.16  | app      | App node running PHP 7.2 / Percona Server 5.6      |
+| [dev-web71]   | 10.19.89.15  | app      | App node running PHP 7.1 / Percona Server 5.6      |
+| [dev-web70]   | 10.19.89.14  | app      | App node running PHP 7.0 / Percona Server 5.6      |
 
 ## Virtual Machines
 
@@ -100,7 +99,9 @@ If any of these three paths exist, a virtual host will be created based on the t
 
 #### PHP Versions
 
-The default web70 node has PHP 7.0.x from the IUS repository. PHP 5.6 is also available via the web56 node, but it will not start automatically. To use it, start via `vagrant up web56`, then configure your local hosts file to point the site needing this specific version of PHP to the correct machine instance.
+* PHP 7.2
+* PHP 7.1
+* PHP 7.0
 
 #### SSL
 When the `web` VM is provisioned, a root CA is automatically generated and stored at `/server/.shared/ssl/rootca/certs/ca.cert.pem` if it does not already exist.
@@ -170,7 +171,7 @@ This happens (per above warning) when the mysql service fails to shutdown cleanl
 
     ```bash
     vagrant destroy -f
-    vagrant up
+    vagrant up web72
     ```
 
 If the above does not succeed in bringing it back online, try rebooting the host machine. If that still does not solve the issue, it is likely you will have to help mysqld out a bit with recovery. Check `/var/log/mysqld.log` for more info.
@@ -191,19 +192,33 @@ Alternately, you may use an alternative session storage mechanism such as redis 
 
 ## VMWare Provider
 
-Using VMWare Fusion is a supported (but non-default) setup. There are additional steps involved to use it due to differences in how Virtual Box and VMX configure network interfaces and handle NFS mounts.
+Using VMWare Fusion is a supported (but non-default) setup. There are additional steps involved to use it due to differences in how Virtual Box and VMX configure network interfaces and handle NFS mounts and you'll need to install a few additional dependencies manually.
 
-For NFS mounts to function, run the following to add the necessary exports to your `/etc/exports` file on the host machine and restart nfsd:
+Also note that the VMWare provider for vagrant requires an paid license in addition to the VMWare Fusion license you may already have.
+
+To install additional dependencies, run the following commands:
+
+    brew cask install vmware-fusion vagrant-vmware-utility
+    sudo chown $(whoami) /opt/vagrant-vmware-desktop/
+
+    vagrant plugin install vagrant-vmware-desktop
+    vagrant plugin license vagrant-vmware-desktop <path_to>/license.lic
+
+Finally, for NFS mounts to function, run the following to add the necessary exports to your `/etc/exports` file on the host machine and restart nfsd. Please note that the IP network range may be different on your machine. Use ifconfig to check on the vmnetX interfaces for the right IP range (If you haven't already, you'll need to attempt to start a VM for these interfaces to be created)
 
 ```bash
 MAPALL="-mapall=$(id -u):$(grep ^admin: /etc/group | cut -d : -f 3)"
 MOUNT_DIR="$(readlink /server || echo /server)"
 printf "%s\n%s\n" \
-    "$MOUNT_DIR/sites/ -alldirs -network 192.168.235.0 -mask 255.255.255.0 $MAPALL" \
-    "$MOUNT_DIR/mysql/ -alldirs -network 192.168.235.0 -mask 255.255.255.0 $MAPALL" \
+    "$MOUNT_DIR/sites/ -alldirs -network 192.168.122.0 -mask 255.255.255.0 $MAPALL" \
+    "$MOUNT_DIR/mysql/ -alldirs -network 192.168.122.0 -mask 255.255.255.0 $MAPALL" \
     | sudo tee -a /etc/exports > /dev/null
 sudo nfsd restart
 ```
+
+Start VMs enforcing use of the `vmware_desktop` provider by using something like the following:
+
+    vagrant up web71 --provider vmware_desktop
 
 # License
 This project is licensed under the Open Software License 3.0 (OSL-3.0). See included LICENSE file for full text of OSL-3.0

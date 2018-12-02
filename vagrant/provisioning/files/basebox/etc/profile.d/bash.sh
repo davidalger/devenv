@@ -17,9 +17,7 @@ if [[ -z $BASH_VERSION ]]; then
 fi
 
 # brew completion if present
-if [ -x "$(which brew 2> /dev/null)" ] && [ -f $(brew --prefix)/etc/bash_completion ]; then
-  . $(brew --prefix)/etc/bash_completion
-fi
+[ -f /usr/local/etc/bash_completion ] && . /usr/local/etc/bash_completion
 
 # git completion
 [ -f ~/.git-completion.bash ] && . ~/.git-completion.bash

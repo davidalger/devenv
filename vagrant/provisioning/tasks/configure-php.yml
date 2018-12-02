@@ -11,7 +11,7 @@
 
 - name: configure xdebug.ini
   ini_file:
-    dest: "{{ php_xdebug_ini_path }}"
+    dest: /etc/php.d/15-xdebug.ini
     section: xdebug
     option: "{{ item.key }}"
     value: "{{ item.value }}"

@@ -25,7 +25,7 @@ end
 # +ram+:: amount of memory specified in megabytes
 def vm_set_ram (conf, ram)
   conf.vm.provider('virtualbox') { |vm| vm.memory = ram; }
-  conf.vm.provider('vmware_fusion') { |vm| vm.vmx['memsize'] = ram; }
+  conf.vm.provider('vmware_desktop') { |vm| vm.vmx['memsize'] = ram; }
 end
 
 # Configure the guest CPU allocation
@@ -34,5 +34,5 @@ end
 # +cpu+:: number of CPUs to allocate
 def vm_set_cpu(conf, cpu)
   conf.vm.provider('virtualbox') { |vm| vm.cpus = cpu; }
-  conf.vm.provider('vmware_fusion') { |vm| vm.vmx['numvcpus'] = cpu; }
+  conf.vm.provider('vmware_desktop') { |vm| vm.vmx['numvcpus'] = cpu; }
 end

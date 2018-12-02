@@ -39,3 +39,6 @@ TM_SUPPORT_PATH='/Applications/TextMate.app/Contents/SharedSupport/Support'
 
 # setup rvm if present
 [ -s "$HOME/.rvm/scripts/rvm" ] && source "$HOME/.rvm/scripts/rvm" # Load RVM into a shell session *as a function*
+
+# add brewed ruby version to PATH
+export PATH="/usr/local/opt/ruby/bin:$PATH"

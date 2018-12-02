@@ -80,12 +80,20 @@ for arg in "$@"; do
                 exit -1
             fi
             ;;
-        --proj-version=*)
-            PROJ_VERSION="${arg#*=}"
-            if [[ ! "$PROJ_VERSION" =~ ^.+$ ]]; then
-                >&2 echo "Error: Invalid value given --proj-version=$PROJ_VERSION"
+        --version=*)
+            VERSION="${arg#*=}"
+            if [[ ! "$VERSION" =~ ^.+$ ]]; then
+                >&2 echo "Error: Invalid value given --version=$VERSION"
                 exit -1
             fi
+            ;;
+        --stability=*)
+            STABILITY="${arg#*=}"
+            if [[ ! "$STABILITY" =~ ^([a-zA-Z]+)$ ]]; then
+                >&2 echo "Error: Invalid value given --stability=$STABILITY"
+                exit -1
+            fi
+			STABILITY="-s $STABILITY"
             ;;
         --backend-frontname=*)
             BACKEND_FRONTNAME="${arg#*=}"
@@ -134,7 +142,8 @@ for arg in "$@"; do
             echo "  -g : --github                           will install via github clone instead of from meta-packages"
             echo "  -C : --no-compile                       skips DI compilation process and static asset generation"
             echo
-            echo "       --proj-version=<proj-version>      composer package version to use during installation"
+            echo "       --version=<version>                composer package version to use during installation"
+            echo "       --stability=<stability>            Minimum-stability allowed (unless a version is specified)"
             echo "       --hostname=<hostname>              domain of the site (required input)"
             echo "       --urlpath=<urlpath>                path component of base url and install sub-directory"
             echo
@@ -207,12 +216,6 @@ fi
 if [[ -f /etc/.vagranthost ]]; then
     >&2 echo "Error: This script should be run from within the vagrant machine. Please vagrant ssh, then retry"
     exit 1
-fi
-
-php_vercheck=$(php -r 'echo version_compare(PHP_VERSION, "5.6.0", ">=") ? 1 : "";')
-if [[ -z $php_vercheck ]]; then
-    >&2 echo "Error: Magento 2 requires PHP 5.6 or newer"
-    exit
 fi
 
 # use a bare clone to keep up-to-date local mirror of master
@@ -303,8 +306,8 @@ function install_from_packages {
             package_name="magento/project-enterprise-edition"
         fi
         
-        composer create-project $NOISE_LEVEL --no-interaction --prefer-dist \
-            --repository-url=https://repo.magento.com/ $package_name $INSTALL_DIR "$PROJ_VERSION"
+        composer create-project $NOISE_LEVEL $STABILITY --no-interaction --prefer-dist \
+            --repository-url=https://repo.magento.com/ $package_name $INSTALL_DIR "$VERSION"
     else
         echo "==> Updating magento meta-packages"
         composer update $NOISE_LEVEL --no-interaction --prefer-dist
