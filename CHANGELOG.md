@@ -1,9 +1,10 @@
-UNRELEASED
+2.1.0
 ===============
 
 * Added brewed ruby to the local path so it correctly overrides macOS default ruby
 * Fixed a few assertions in devbox.sh to use current package names
 * Fixed a few installation issues in the install.sh script
+* Updated `wait_timeout` and `max_allowed_packet` in mysql conig to resolve Magento 2.3 installation issues
 * Updated README with some added info on using VMWare Fusion as a provider
 * Updated inclusion of bash completion script in profile.d for optimization
 * Updated ioncube-loader to install across all machines since it is available across each supported PHP version
