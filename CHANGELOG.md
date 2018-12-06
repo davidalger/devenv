@@ -1,3 +1,10 @@
+2.1.1
+===============
+
+* Added use of query cache in mysql config for improved local dev experience
+* Added explicit timezone config in my.cnf to set mysql to UTC avoiding date/time issues
+* Fixed basebox playbook setting /etc/localtime symlink to broken path
+
 2.1.0
 ===============
 
