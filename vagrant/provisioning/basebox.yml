@@ -23,7 +23,7 @@
 
     - name: Set local timezone to {{ host_zoneinfo | dirname | basename }}/{{ host_zoneinfo | basename }}
       file:
-        src: "{{ host_zoneinfo }}"
+        src: "/usr/share/zoneinfo/{{ host_zoneinfo | dirname | basename }}/{{ host_zoneinfo | basename }}"
         dest: /etc/localtime
         state: link
         force: yes
